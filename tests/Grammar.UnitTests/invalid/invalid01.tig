@@ -1,0 +1,6 @@
+/* Test case: invalid binary operator sequence */
+let
+    var x := 5 + * 3
+in
+    x
+end

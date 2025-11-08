@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Antlr4 Include="Grammars\TigerParser.g4">
+      <Listener>true</Listener>
+      <Visitor>false</Visitor>
+      <GAtn>false</GAtn>
+      <Error>false</Error>
+      <Package>Grammar</Package>
+    </Antlr4>
+    <Antlr4 Include="Grammars/TigerLexer.g4">
+      <Listener>true</Listener>
+      <Visitor>false</Visitor>
+      <GAtn>false</GAtn>
+      <Error>false</Error>
+      <Package>Grammar</Package>
+    </Antlr4>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1"/>
+    <PackageReference Include="Antlr4BuildTasks" Version="12.10.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

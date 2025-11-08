@@ -1,0 +1,25 @@
+# Продукты сборки
+/src/*/bin
+/src/*/obj
+/tests/*/bin
+/tests/*/obj
+*/bin
+*/obj
+
+# Продукты генератора парсеров ANTLR4
+gen/
+*.tokens
+
+# Файлы настроек различных IDE
+/.vscode/
+/.vs/
+/.idea/
+*.sln.DotSettings.user
+
+# Песочница для заметок
+sandbox/
+
+# Конфигурация Roo Code
+/.roo/
+/.roomodes
+/.rooignore

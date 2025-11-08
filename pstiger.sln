@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7AB19CBC-43AD-42DD-9917-A29842502089}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grammar", "src\Grammar\Grammar.csproj", "{35AC45F3-543B-4FC9-87C2-12B247013389}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{175793D4-0319-4462-895F-3AF05CB47049}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grammar.UnitTests", "tests\Grammar.UnitTests\Grammar.UnitTests.csproj", "{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35AC45F3-543B-4FC9-87C2-12B247013389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35AC45F3-543B-4FC9-87C2-12B247013389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35AC45F3-543B-4FC9-87C2-12B247013389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35AC45F3-543B-4FC9-87C2-12B247013389}.Release|Any CPU.Build.0 = Release|Any CPU
+		{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{35AC45F3-543B-4FC9-87C2-12B247013389} = {7AB19CBC-43AD-42DD-9917-A29842502089}
+		{685C8EF4-183D-4720-8CD7-8E0C8BCD3C9F} = {175793D4-0319-4462-895F-3AF05CB47049}
+	EndGlobalSection
+EndGlobal
