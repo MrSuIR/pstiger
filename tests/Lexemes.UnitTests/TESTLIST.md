@@ -7,9 +7,9 @@
 - [x] `let var x := 0 in x end` — let, var, in, end
 - [x] `while isdigit(buffer) do break` — while, do, break
 - [x] `if n = 0 then 1 else n * factorial(n-1)` — if, then, else
-- [ ] `for i:=10 to 20 do printi(i)` — for, to
-- [ ] `function foo() = ()` — function
-- [ ] `if a=nil then b` — nil
+- [x] `for i:=10 to 20 do printi(i)` — for, to
+- [x] `function foo() = ()` — function
+- [x] `if a=nil then b` — nil
 
 ## Литералы
 

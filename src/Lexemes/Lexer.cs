@@ -23,6 +23,12 @@ public class Lexer
             "end", TokenType.End
         },
         {
+            "for", TokenType.For
+        },
+        {
+            "function", TokenType.Function
+        },
+        {
             "if", TokenType.If
         },
         {
@@ -32,10 +38,16 @@ public class Lexer
             "let", TokenType.Let
         },
         {
+            "nil", TokenType.Nil
+        },
+        {
             "of", TokenType.Of
         },
         {
             "then", TokenType.Then
+        },
+        {
+            "to", TokenType.To
         },
         {
             "type", TokenType.Type

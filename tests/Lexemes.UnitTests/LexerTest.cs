@@ -75,6 +75,42 @@ public class LexerTest
                     new Token(TokenType.CloseParenthesis),
                 ]
             },
+            {
+                "for i:=10 to 20 do printi(i)", [
+                    new Token(TokenType.For),
+                    new Token(TokenType.Identifier, "i"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Literal, 10),
+                    new Token(TokenType.To),
+                    new Token(TokenType.Literal, 20),
+                    new Token(TokenType.Do),
+                    new Token(TokenType.Identifier, "printi"),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Identifier, "i"),
+                    new Token(TokenType.CloseParenthesis),
+                ]
+            },
+            {
+                "function foo() = ()", [
+                    new Token(TokenType.Function),
+                    new Token(TokenType.Identifier, "foo"),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.CloseParenthesis),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.CloseParenthesis),
+                ]
+            },
+            {
+                "if a=nil then b", [
+                    new Token(TokenType.If),
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.Nil),
+                    new Token(TokenType.Then),
+                    new Token(TokenType.Identifier, "b"),
+                ]
+            },
         };
     }
 

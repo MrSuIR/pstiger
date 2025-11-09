@@ -28,6 +28,16 @@ public enum TokenType
     End,
 
     /// <summary>
+    /// Ключевое слово for.
+    /// </summary>
+    For,
+
+    /// <summary>
+    /// Ключевое слово function.
+    /// </summary>
+    Function,
+
+    /// <summary>
     /// Ключевое слово if.
     /// </summary>
     If,
@@ -43,6 +53,11 @@ public enum TokenType
     Let,
 
     /// <summary>
+    /// Ключевое слово nil.
+    /// </summary>
+    Nil,
+
+    /// <summary>
     /// Ключевое слово of.
     /// </summary>
     Of,
@@ -51,6 +66,11 @@ public enum TokenType
     /// Ключевое слово then.
     /// </summary>
     Then,
+
+    /// <summary>
+    /// Ключевое слово to.
+    /// </summary>
+    To,
 
     /// <summary>
     /// Ключевое слово type.
