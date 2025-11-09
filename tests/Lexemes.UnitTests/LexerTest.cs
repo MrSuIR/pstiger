@@ -3,14 +3,16 @@ namespace PsTiger.Lexemes.UnitTests;
 public class LexerTest
 {
     [Theory]
-    [MemberData(nameof(GetTokenizerIdentifiersAndKeywordsData))]
+    [MemberData(nameof(GetTokenizeIdentifiersAndKeywordsData))]
+    [MemberData(nameof(GetTokenizeLiteralsData))]
+    [MemberData(nameof(GetTokenizePunctuationData))]
     public void Can_tokenize_lexemes(string code, List<Token> expected)
     {
         List<Token> actual = Tokenize(code);
         Assert.Equal(expected, actual);
     }
 
-    public static TheoryData<string, List<Token>> GetTokenizerIdentifiersAndKeywordsData()
+    public static TheoryData<string, List<Token>> GetTokenizeIdentifiersAndKeywordsData()
     {
         return new TheoryData<string, List<Token>>
         {
@@ -114,7 +116,114 @@ public class LexerTest
         };
     }
 
-    private List<Token> Tokenize(string code)
+    public static TheoryData<string, List<Token>> GetTokenizeLiteralsData()
+    {
+        return new TheoryData<string, List<Token>>
+        {
+            {
+                "0 1234 56789 0017", [
+                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.Literal, 1234),
+                    new Token(TokenType.Literal, 56789),
+                    new Token(TokenType.Literal, 17),
+                ]
+            },
+        };
+    }
+
+    public static TheoryData<string, List<Token>> GetTokenizePunctuationData()
+    {
+        return new TheoryData<string, List<Token>>
+        {
+            {
+                "x + y / (10 - z * 2)", [
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Plus),
+                    new Token(TokenType.Identifier, "y"),
+                    new Token(TokenType.Divide),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Literal, 10),
+                    new Token(TokenType.Minus),
+                    new Token(TokenType.Identifier, "z"),
+                    new Token(TokenType.Multiply),
+                    new Token(TokenType.Literal, 2),
+                    new Token(TokenType.CloseParenthesis),
+                ]
+            },
+            {
+                "a < b | a > c | b = c", [
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.LessThan),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.Or),
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.GreaterThan),
+                    new Token(TokenType.Identifier, "c"),
+                    new Token(TokenType.Or),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.Identifier, "c"),
+                ]
+            },
+            {
+                "a <= b & b >= c & a <> c", [
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.LessThanOrEqual),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.And),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.GreaterThanOrEqual),
+                    new Token(TokenType.Identifier, "c"),
+                    new Token(TokenType.And),
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.NotEqual),
+                    new Token(TokenType.Identifier, "c"),
+                ]
+            },
+            {
+                "speed.x := v[0]", [
+                    new Token(TokenType.Identifier, "speed"),
+                    new Token(TokenType.Dot),
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Identifier, "v"),
+                    new Token(TokenType.OpenBracket),
+                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.CloseBracket),
+                ]
+            },
+            {
+                "type list = {first: int, rest: list}", [
+                    new Token(TokenType.Type),
+                    new Token(TokenType.Identifier, "list"),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.OpenBrace),
+                    new Token(TokenType.Identifier, "first"),
+                    new Token(TokenType.Colon),
+                    new Token(TokenType.Identifier, "int"),
+                    new Token(TokenType.Comma),
+                    new Token(TokenType.Identifier, "rest"),
+                    new Token(TokenType.Colon),
+                    new Token(TokenType.Identifier, "list"),
+                    new Token(TokenType.CloseBrace),
+                ]
+            },
+            {
+                "(foo(x);0)", [
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Identifier, "foo"),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.CloseParenthesis),
+                    new Token(TokenType.Semicolon),
+                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.CloseParenthesis),
+                ]
+            },
+        };
+    }
+
+    private static List<Token> Tokenize(string code)
     {
         List<Token> results = [];
         Lexer lexer = new(code);

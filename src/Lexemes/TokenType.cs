@@ -98,6 +98,11 @@ public enum TokenType
     Literal,
 
     /// <summary>
+    /// Оператор сложения "+".
+    /// </summary>
+    Plus,
+
+    /// <summary>
     /// Оператор вычитания "-".
     /// </summary>
     Minus,
@@ -108,14 +113,74 @@ public enum TokenType
     Multiply,
 
     /// <summary>
-    /// Оператор сравнения "=".
+    /// Оператор деления "/".
+    /// </summary>
+    Divide,
+
+    /// <summary>
+    /// Оператор сравнения "равно".
     /// </summary>
     Equal,
+
+    /// <summary>
+    /// Оператор сравнения "не равно".
+    /// </summary>
+    NotEqual,
+
+    /// <summary>
+    /// Оператор сравнения "меньше".
+    /// </summary>
+    LessThan,
+
+    /// <summary>
+    /// Оператор сравнения "больше".
+    /// </summary>
+    GreaterThan,
+
+    /// <summary>
+    /// Оператор сравнения "меньше или равно".
+    /// </summary>
+    LessThanOrEqual,
+
+    /// <summary>
+    /// Оператор сравнения "больше или равно".
+    /// </summary>
+    GreaterThanOrEqual,
+
+    /// <summary>
+    /// Оператор "и".
+    /// </summary>
+    And,
+
+    /// <summary>
+    /// Оператор "или".
+    /// </summary>
+    Or,
 
     /// <summary>
     /// Оператор присваивания ":=".
     /// </summary>
     Assign,
+
+    /// <summary>
+    /// Точка.
+    /// </summary>
+    Dot,
+
+    /// <summary>
+    /// Запятая.
+    /// </summary>
+    Comma,
+
+    /// <summary>
+    /// Двоеточие.
+    /// </summary>
+    Colon,
+
+    /// <summary>
+    /// Точка с запятой.
+    /// </summary>
+    Semicolon,
 
     /// <summary>
     /// Открывающая круглая скобка.
@@ -126,6 +191,26 @@ public enum TokenType
     /// Закрывающая круглая скобка.
     /// </summary>
     CloseParenthesis,
+
+    /// <summary>
+    /// Открывающая квадратная скобка.
+    /// </summary>
+    OpenBracket,
+
+    /// <summary>
+    /// Закрывающая квадратная скобка.
+    /// </summary>
+    CloseBracket,
+
+    /// <summary>
+    /// Открывающая фигурная скобка.
+    /// </summary>
+    OpenBrace,
+
+    /// <summary>
+    /// Закрывающая фигурная скобка.
+    /// </summary>
+    CloseBrace,
 
     /// <summary>
     /// Недопустимая лексема.

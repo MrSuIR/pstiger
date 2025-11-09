@@ -90,6 +90,10 @@ public class Lexer
         // Разбор операторов, разделителей и скобок.
         switch (c)
         {
+            case '+':
+                _scanner.Advance();
+                return new Token(TokenType.Plus);
+
             case '-':
                 _scanner.Advance();
                 return new Token(TokenType.Minus);
@@ -98,19 +102,69 @@ public class Lexer
                 _scanner.Advance();
                 return new Token(TokenType.Multiply);
 
+            case '/':
+                _scanner.Advance();
+                return new Token(TokenType.Divide);
+
             case '=':
                 _scanner.Advance();
                 return new Token(TokenType.Equal);
 
-            case ':':
-                if (_scanner.Peek(1) == '=')
+            case '<':
+                _scanner.Advance();
+                if (_scanner.Peek() == '>')
                 {
                     _scanner.Advance();
+                    return new Token(TokenType.NotEqual);
+                }
+
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.LessThanOrEqual);
+                }
+
+                return new Token(TokenType.LessThan);
+
+            case '>':
+                _scanner.Advance();
+                if (_scanner.Peek() == '=')
+                {
+                    _scanner.Advance();
+                    return new Token(TokenType.GreaterThanOrEqual);
+                }
+
+                return new Token(TokenType.GreaterThan);
+
+            case '&':
+                _scanner.Advance();
+                return new Token(TokenType.And);
+
+            case '|':
+                _scanner.Advance();
+                return new Token(TokenType.Or);
+
+            case '.':
+                _scanner.Advance();
+                return new Token(TokenType.Dot);
+
+            case ',':
+                _scanner.Advance();
+                return new Token(TokenType.Comma);
+
+            case ':':
+                _scanner.Advance();
+                if (_scanner.Peek() == '=')
+                {
                     _scanner.Advance();
                     return new Token(TokenType.Assign);
                 }
 
-                break;
+                return new Token(TokenType.Colon);
+
+            case ';':
+                _scanner.Advance();
+                return new Token(TokenType.Semicolon);
 
             case '(':
                 _scanner.Advance();
@@ -119,6 +173,22 @@ public class Lexer
             case ')':
                 _scanner.Advance();
                 return new Token(TokenType.CloseParenthesis);
+
+            case '[':
+                _scanner.Advance();
+                return new Token(TokenType.OpenBracket);
+
+            case ']':
+                _scanner.Advance();
+                return new Token(TokenType.CloseBracket);
+
+            case '{':
+                _scanner.Advance();
+                return new Token(TokenType.OpenBrace);
+
+            case '}':
+                _scanner.Advance();
+                return new Token(TokenType.CloseBrace);
         }
 
         _scanner.Advance();
