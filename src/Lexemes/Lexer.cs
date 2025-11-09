@@ -17,7 +17,13 @@ public class Lexer
             "do", TokenType.Do
         },
         {
+            "else", TokenType.Else
+        },
+        {
             "end", TokenType.End
+        },
+        {
+            "if", TokenType.If
         },
         {
             "in", TokenType.In
@@ -27,6 +33,9 @@ public class Lexer
         },
         {
             "of", TokenType.Of
+        },
+        {
+            "then", TokenType.Then
         },
         {
             "type", TokenType.Type
@@ -69,6 +78,14 @@ public class Lexer
         // Разбор операторов, разделителей и скобок.
         switch (c)
         {
+            case '-':
+                _scanner.Advance();
+                return new Token(TokenType.Minus);
+
+            case '*':
+                _scanner.Advance();
+                return new Token(TokenType.Multiply);
+
             case '=':
                 _scanner.Advance();
                 return new Token(TokenType.Equal);

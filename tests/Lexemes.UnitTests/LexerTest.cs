@@ -56,6 +56,25 @@ public class LexerTest
                     new Token(TokenType.Break),
                 ]
             },
+            {
+                "if n = 0 then 1 else n * factorial(n-1)", [
+                    new Token(TokenType.If),
+                    new Token(TokenType.Identifier, "n"),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.Then),
+                    new Token(TokenType.Literal, 1),
+                    new Token(TokenType.Else),
+                    new Token(TokenType.Identifier, "n"),
+                    new Token(TokenType.Multiply),
+                    new Token(TokenType.Identifier, "factorial"),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Identifier, "n"),
+                    new Token(TokenType.Minus),
+                    new Token(TokenType.Literal, 1),
+                    new Token(TokenType.CloseParenthesis),
+                ]
+            },
         };
     }
 

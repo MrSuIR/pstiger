@@ -18,9 +18,19 @@ public enum TokenType
     Do,
 
     /// <summary>
+    /// Ключевое слово else.
+    /// </summary>
+    Else,
+
+    /// <summary>
     /// Ключевое слово end.
     /// </summary>
     End,
+
+    /// <summary>
+    /// Ключевое слово if.
+    /// </summary>
+    If,
 
     /// <summary>
     /// Ключевое слово in.
@@ -36,6 +46,11 @@ public enum TokenType
     /// Ключевое слово of.
     /// </summary>
     Of,
+
+    /// <summary>
+    /// Ключевое слово then.
+    /// </summary>
+    Then,
 
     /// <summary>
     /// Ключевое слово type.
@@ -61,6 +76,16 @@ public enum TokenType
     /// Литерал (целое число или строка).
     /// </summary>
     Literal,
+
+    /// <summary>
+    /// Оператор вычитания "-".
+    /// </summary>
+    Minus,
+
+    /// <summary>
+    /// Оператор умножения "*".
+    /// </summary>
+    Multiply,
 
     /// <summary>
     /// Оператор сравнения "=".
