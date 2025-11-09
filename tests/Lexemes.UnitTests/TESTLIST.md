@@ -2,7 +2,7 @@
 
 ## Идентификаторы и ключевые слова
 
-- [ ] Разбор идентификаторов: `alice Bob C00L D_2`
+- [x] Разбор идентификаторов: `alice Bob C00L D_2 x`
 - [ ] `type  arrtype = array of int` — type, array, of
 - [ ] `let var x := 0 in x end` — let, var, in, end
 - [ ] `while isdigit(buffer) do break` — while, do, break

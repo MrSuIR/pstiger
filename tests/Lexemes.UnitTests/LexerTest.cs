@@ -1,4 +1,4 @@
-namespace Lexemes.UnitTests;
+namespace PsTiger.Lexemes.UnitTests;
 
 public class LexerTest
 {
@@ -15,11 +15,12 @@ public class LexerTest
         return new TheoryData<string, List<Token>>
         {
             {
-                "alice Bob C00L D_2", [
+                "alice Bob C00L D_2 x", [
                     new Token(TokenType.Identifier, "alice"),
                     new Token(TokenType.Identifier, "Bob"),
-                    new Token(TokenType.Literal, "C00L"),
-                    new Token(TokenType.Identifier, "D_2")
+                    new Token(TokenType.Identifier, "C00L"),
+                    new Token(TokenType.Identifier, "D_2"),
+                    new Token(TokenType.Identifier, "x")
                 ]
             },
         };
