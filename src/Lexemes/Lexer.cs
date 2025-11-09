@@ -2,6 +2,19 @@ namespace PsTiger.Lexemes;
 
 public class Lexer
 {
+    private static readonly Dictionary<string, TokenType> Keywords = new()
+    {
+        {
+            "array", TokenType.Array
+        },
+        {
+            "of", TokenType.Of
+        },
+        {
+            "type", TokenType.Type
+        },
+    };
+
     private readonly TextScanner _scanner;
 
     public Lexer(string code)
@@ -21,7 +34,14 @@ public class Lexer
         char c = _scanner.Peek();
         if (char.IsAsciiLetter(c))
         {
-            return ParseIdentifier();
+            return ParseIdentifierOrKeyword();
+        }
+
+        switch (c)
+        {
+            case '=':
+                _scanner.Advance();
+                return new Token(TokenType.Equal);
         }
 
         _scanner.Advance();
@@ -35,7 +55,7 @@ public class Lexer
     ///     letter = a..z | A..Z ;
     ///     digit = 0..9 ;
     /// </summary>
-    private Token ParseIdentifier()
+    private Token ParseIdentifierOrKeyword()
     {
         string value = _scanner.Peek().ToString();
         _scanner.Advance();
@@ -44,6 +64,12 @@ public class Lexer
         {
             value += c;
             _scanner.Advance();
+        }
+
+        // Проверяем на совпадение с ключевым словом (с учётом регистра).
+        if (Keywords.TryGetValue(value, out TokenType type))
+        {
+            return new Token(type);
         }
 
         // Возвращаем токен идентификатора.

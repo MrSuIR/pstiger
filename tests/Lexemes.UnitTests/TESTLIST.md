@@ -3,7 +3,7 @@
 ## Идентификаторы и ключевые слова
 
 - [x] Разбор идентификаторов: `alice Bob C00L D_2 x`
-- [ ] `type  arrtype = array of int` — type, array, of
+- [x] `type  arrtype = array of int` — type, array, of
 - [ ] `let var x := 0 in x end` — let, var, in, end
 - [ ] `while isdigit(buffer) do break` — while, do, break
 - [ ] `if n = 0 then 1 else n * factorial(n-1)` — if, then, else

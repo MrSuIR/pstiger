@@ -23,6 +23,16 @@ public class LexerTest
                     new Token(TokenType.Identifier, "x")
                 ]
             },
+            {
+                "type  arrtype = array of int", [
+                    new Token(TokenType.Type),
+                    new Token(TokenType.Identifier, "arrtype"),
+                    new Token(TokenType.Equal),
+                    new Token(TokenType.Array),
+                    new Token(TokenType.Of),
+                    new Token(TokenType.Identifier, "int")
+                ]
+            },
         };
     }
 
