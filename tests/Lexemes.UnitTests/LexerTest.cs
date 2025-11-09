@@ -33,6 +33,18 @@ public class LexerTest
                     new Token(TokenType.Identifier, "int")
                 ]
             },
+            {
+                "let var x := 0 in x end", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Var),
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.In),
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.End)
+                ]
+            },
         };
     }
 

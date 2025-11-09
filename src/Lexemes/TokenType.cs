@@ -8,6 +8,21 @@ public enum TokenType
     Array,
 
     /// <summary>
+    /// Ключевое слово end.
+    /// </summary>
+    End,
+
+    /// <summary>
+    /// Ключевое слово in.
+    /// </summary>
+    In,
+
+    /// <summary>
+    /// Ключевое слово let.
+    /// </summary>
+    Let,
+
+    /// <summary>
     /// Ключевое слово of.
     /// </summary>
     Of,
@@ -18,14 +33,29 @@ public enum TokenType
     Type,
 
     /// <summary>
+    /// Ключевое слово var.
+    /// </summary>
+    Var,
+
+    /// <summary>
     /// Идентификатор.
     /// </summary>
     Identifier,
 
     /// <summary>
+    /// Литерал (целое число или строка).
+    /// </summary>
+    Literal,
+
+    /// <summary>
     /// Оператор сравнения "=".
     /// </summary>
     Equal,
+
+    /// <summary>
+    /// Оператор присваивания ":=".
+    /// </summary>
+    Assign,
 
     /// <summary>
     /// Недопустимая лексема.

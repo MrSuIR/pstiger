@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace PsTiger.Lexemes;
 
 public class Lexer
@@ -8,10 +11,22 @@ public class Lexer
             "array", TokenType.Array
         },
         {
+            "end", TokenType.End
+        },
+        {
+            "in", TokenType.In
+        },
+        {
+            "let", TokenType.Let
+        },
+        {
             "of", TokenType.Of
         },
         {
             "type", TokenType.Type
+        },
+        {
+            "var", TokenType.Var
         },
     };
 
@@ -37,15 +52,53 @@ public class Lexer
             return ParseIdentifierOrKeyword();
         }
 
+        if (char.IsAsciiDigit(c))
+        {
+            return ParseIntLiteral();
+        }
+
+        // Разбор операторов, разделителей и скобок.
         switch (c)
         {
             case '=':
                 _scanner.Advance();
                 return new Token(TokenType.Equal);
+
+            case ':':
+                if (_scanner.Peek(1) == '=')
+                {
+                    _scanner.Advance();
+                    _scanner.Advance();
+                    return new Token(TokenType.Assign);
+                }
+
+                break;
         }
 
         _scanner.Advance();
         return new Token(TokenType.Error, c.ToString());
+    }
+
+    /// <summary>
+    /// Разбирает литерал целого числа. Возвращает лексему Error, если число выходит за пределы типа данных int.
+    /// </summary>
+    private Token ParseIntLiteral()
+    {
+        // NOTE: Сохраняем цифры в буфер, чтобы не терять данные при возврате лексемы Error.
+        StringBuilder sb = new();
+        for (char ch = _scanner.Peek(); char.IsAsciiDigit(ch); ch = _scanner.Peek())
+        {
+            sb.Append(ch);
+            _scanner.Advance();
+        }
+
+        string digits = sb.ToString();
+        if (int.TryParse(digits, CultureInfo.InvariantCulture, out int value))
+        {
+            return new Token(TokenType.Literal, value);
+        }
+
+        return new Token(TokenType.Error, digits);
     }
 
     /// <summary>
