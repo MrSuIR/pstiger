@@ -8,6 +8,16 @@ public enum TokenType
     Array,
 
     /// <summary>
+    /// Ключевое слово break.
+    /// </summary>
+    Break,
+
+    /// <summary>
+    /// Ключевое слово do.
+    /// </summary>
+    Do,
+
+    /// <summary>
     /// Ключевое слово end.
     /// </summary>
     End,
@@ -38,6 +48,11 @@ public enum TokenType
     Var,
 
     /// <summary>
+    /// Ключевое слово while.
+    /// </summary>
+    While,
+
+    /// <summary>
     /// Идентификатор.
     /// </summary>
     Identifier,
@@ -56,6 +71,16 @@ public enum TokenType
     /// Оператор присваивания ":=".
     /// </summary>
     Assign,
+
+    /// <summary>
+    /// Открывающая круглая скобка.
+    /// </summary>
+    OpenParenthesis,
+
+    /// <summary>
+    /// Закрывающая круглая скобка.
+    /// </summary>
+    CloseParenthesis,
 
     /// <summary>
     /// Недопустимая лексема.

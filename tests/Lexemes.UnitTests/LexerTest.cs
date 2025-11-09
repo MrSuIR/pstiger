@@ -42,7 +42,18 @@ public class LexerTest
                     new Token(TokenType.Literal, 0),
                     new Token(TokenType.In),
                     new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.End)
+                    new Token(TokenType.End),
+                ]
+            },
+            {
+                "while isdigit(buffer) do break", [
+                    new Token(TokenType.While),
+                    new Token(TokenType.Identifier, "isdigit"),
+                    new Token(TokenType.OpenParenthesis),
+                    new Token(TokenType.Identifier, "buffer"),
+                    new Token(TokenType.CloseParenthesis),
+                    new Token(TokenType.Do),
+                    new Token(TokenType.Break),
                 ]
             },
         };

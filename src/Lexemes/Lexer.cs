@@ -11,6 +11,12 @@ public class Lexer
             "array", TokenType.Array
         },
         {
+            "break", TokenType.Break
+        },
+        {
+            "do", TokenType.Do
+        },
+        {
             "end", TokenType.End
         },
         {
@@ -27,6 +33,9 @@ public class Lexer
         },
         {
             "var", TokenType.Var
+        },
+        {
+            "while", TokenType.While
         },
     };
 
@@ -73,6 +82,14 @@ public class Lexer
                 }
 
                 break;
+
+            case '(':
+                _scanner.Advance();
+                return new Token(TokenType.OpenParenthesis);
+
+            case ')':
+                _scanner.Advance();
+                return new Token(TokenType.CloseParenthesis);
         }
 
         _scanner.Advance();

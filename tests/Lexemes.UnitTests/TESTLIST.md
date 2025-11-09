@@ -5,7 +5,7 @@
 - [x] Разбор идентификаторов: `alice Bob C00L D_2 x`
 - [x] `type  arrtype = array of int` — type, array, of
 - [x] `let var x := 0 in x end` — let, var, in, end
-- [ ] `while isdigit(buffer) do break` — while, do, break
+- [x] `while isdigit(buffer) do break` — while, do, break
 - [ ] `if n = 0 then 1 else n * factorial(n-1)` — if, then, else
 - [ ] `for i:=10 to 20 do printi(i)` — for, to
 - [ ] `function foo() = ()` — function
