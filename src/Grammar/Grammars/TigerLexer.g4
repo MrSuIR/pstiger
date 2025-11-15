@@ -45,7 +45,7 @@ ASSIGN: ':=';
 NOTEQUAL: '<>';
 
 // Идентификаторы.
-ID: [a-zA-Z][a-zA-Z0-9_]*;
+IDENTIFIER: [a-zA-Z][a-zA-Z0-9_]*;
 
 // Пробельные символы и комментарии.
 WS: [ \t\r\n\f]+ -> skip;
