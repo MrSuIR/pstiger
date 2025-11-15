@@ -24,7 +24,7 @@ public class TigerGrammarTest
     public void Rejects_invalid_programs(string path)
     {
         string code = File.ReadAllText(Path.Combine(InvalidProgramsDir, path));
-        Assert.Throws<Exception>(() => TigerGrammar.CheckProgramSyntax(code));
+        Assert.Throws<InvalidOperationException>(() => TigerGrammar.CheckProgramSyntax(code));
     }
 
     public static TheoryData<string> GetValidPrograms()

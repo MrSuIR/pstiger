@@ -62,20 +62,21 @@ primaryExpr
     | INTEGER
     | NIL
     | lvalue
-    | ID LPAREN exprListOpt RPAREN              // Вызов функции
-    | LPAREN exprSeqOpt RPAREN                  // Выражение в скобках (явное указание приоритета)
-    | ID LBRACE fieldListOpt RBRACE             // Создание структуры
-    | ID LBRACK expr RBRACK OF expr             // Создание массива
-    | IF expr THEN expr (ELSE expr)?            // Условный оператор
-    | WHILE expr DO expr                        // Оператор цикла по условию
-    | FOR ID ASSIGN expr TO expr DO expr        // Оператор цикла по диапазону
-    | BREAK                                     // Оператор прерывания цикла
-    | LET declarationList IN exprSeqOpt END ;   // Оператор области видимости
+    | IDENTIFIER LPAREN exprListOpt RPAREN              // Вызов функции
+    | LPAREN exprSeqOpt RPAREN                          // Выражение в скобках (явное указание приоритета)
+    | IDENTIFIER LBRACE fieldListOpt RBRACE             // Создание структуры
+    | IDENTIFIER NIL                                    // Создание неинициализированной структуры
+    | IDENTIFIER LBRACK expr RBRACK OF expr             // Создание массива
+    | IF expr THEN expr (ELSE expr)?                    // Условный оператор
+    | WHILE expr DO expr                                // Оператор цикла по условию
+    | FOR IDENTIFIER ASSIGN expr TO expr DO expr        // Оператор цикла по диапазону
+    | BREAK                                             // Оператор прерывания цикла
+    | LET declarationList IN exprSeqOpt END ;           // Оператор области видимости
 
 // Left-values — значения, которые могут стоять слева в присваивании.
 lvalue
-    : ID                                     // Доступ к переменной
-    | lvalue DOT ID                          // Доступ к полю структуры (record)
+    : IDENTIFIER                             // Доступ к переменной
+    | lvalue DOT IDENTIFIER                  // Доступ к полю структуры (record)
     | lvalue LBRACK expr RBRACK              // Доступ к элементу массива (array)
     ;
 
@@ -108,8 +109,8 @@ fieldListOpt
     ;
 
 fieldList
-    : ID EQUAL expr
-    | ID EQUAL expr COMMA fieldList
+    : IDENTIFIER EQUAL expr
+    | IDENTIFIER EQUAL expr COMMA fieldList
     ;
 
 // Список объявлений
@@ -126,13 +127,13 @@ declaration
 
 // Объявление типа
 typeDeclaration
-    : TYPE ID EQUAL type
+    : TYPE IDENTIFIER EQUAL type
     ;
 
 type
-    : ID
+    : IDENTIFIER
     | LBRACE typeFieldsOpt RBRACE
-    | ARRAY OF ID
+    | ARRAY OF IDENTIFIER
     ;
 
 typeFieldsOpt
@@ -146,19 +147,19 @@ typeFields
     ;
 
 typeField
-    : ID COLON ID
+    : IDENTIFIER COLON IDENTIFIER
     ;
 
 // Объявление переменной
 variableDeclaration
-    : VAR ID ASSIGN expr
-    | VAR ID COLON ID ASSIGN expr
+    : VAR IDENTIFIER ASSIGN expr
+    | VAR IDENTIFIER COLON IDENTIFIER ASSIGN expr
     ;
 
 // Объявление функции
 functionDeclaration
-    : FUNCTION ID LPAREN typeFieldsOpt RPAREN EQUAL expr
-    | FUNCTION ID LPAREN typeFieldsOpt RPAREN COLON ID EQUAL expr
+    : FUNCTION IDENTIFIER LPAREN typeFieldsOpt RPAREN EQUAL expr
+    | FUNCTION IDENTIFIER LPAREN typeFieldsOpt RPAREN COLON IDENTIFIER EQUAL expr
     ;
 
 // Бинарные операторы

@@ -20,51 +20,61 @@ public static class TigerGrammar
         TigerParser parser = new(tokenStream);
 
         // Создаем специальный обработчик ошибок, который будет сохранять информацию об ошибках
-        ThrowingErrorListener errorListener = new ThrowingErrorListener();
+        ThrowingErrorListener errorListener = new();
 
         // Устанавливаем обработчик ошибок для парсера
         parser.RemoveErrorListeners();
         parser.AddErrorListener(errorListener);
 
-        // Используем DefaultErrorStrategy, но с настройкой, которая предотвращает восстановление после ошибок
-        parser.ErrorHandler = new DefaultErrorStrategy();
+        parser.ErrorHandler = new BailErrorStrategy();
 
         // Запускаем разбор по правилу `program` и проверяем, что весь входной текст был разобран
         try
         {
-            TigerParser.ProgramContext programContext = parser.program();
+            try
+            {
+                TigerParser.ProgramContext programContext = parser.program();
 
-            // Проверяем, что весь входной текст был разобран (достигнут конец файла)
-            if (programContext.exception != null)
-            {
-                throw new Exception($"Syntax error: {programContext.exception.Message}");
-            }
+                // Проверяем, что весь входной текст был разобран (достигнут конец файла)
+                if (programContext.exception != null)
+                {
+                    throw new InvalidOperationException($"Syntax error: {programContext.exception.Message}");
+                }
 
-            // Дополнительная проверка: убедимся, что все токены были обработаны
-            tokenStream.Fill();
-            if (tokenStream.Size > 0 && tokenStream.Get(tokenStream.Size - 1).Type != TokenConstants.EOF)
-            {
-                IToken nextToken = tokenStream.Get(0);
-                throw new Exception($"Unexpected token '{nextToken.Text}' at line {nextToken.Line}, column {nextToken.Column}. Expected end of input.");
+                // Дополнительная проверка: убедимся, что все токены были обработаны
+                tokenStream.Fill();
+                if (tokenStream.Size > 0 && tokenStream.Get(tokenStream.Size - 1).Type != TokenConstants.EOF)
+                {
+                    IToken nextToken = tokenStream.Get(0);
+                    throw new InvalidOperationException(
+                        $"Unexpected token '{nextToken.Text}' at line {nextToken.Line}, column {nextToken.Column}. Expected end of input.");
+                }
             }
-        }
-        catch (ParseCanceledException ex)
-        {
-            // BailErrorStrategy бросает ParseCanceledException при ошибках
-            // Используем сохраненное сообщение об ошибке из нашего обработчика
-            if (errorListener.HasError)
+            catch (ParseCanceledException ex)
             {
-                throw new Exception(errorListener.ErrorMessage);
-            }
-            else
-            {
-                throw new Exception($"Syntax error: {ex.Message}", ex);
+                // BailErrorStrategy бросает ParseCanceledException при ошибках.
+                // Используем сохраненное сообщение об ошибке из нашего обработчика.
+                if (errorListener.HasError)
+                {
+                    throw new InvalidOperationException(errorListener.ErrorMessage);
+                }
+
+                // Если не было сохранённого сообщения об ошибке, то используем изначальное исключение,
+                //  возникшее ранее ParseCanceledException.
+                if (ex.InnerException != null)
+                {
+                    throw ex.InnerException;
+                }
+
+                // В остальных случаях повторно выбрасываем то же самое исключение.
+                throw;
             }
         }
         catch (RecognitionException ex)
         {
             // Перехватываем исключения от нашего ThrowingErrorListener
-            throw new Exception(ex.Message, ex);
+            IToken t = ex.OffendingToken;
+            throw new Exception($"Syntax error: {ex.Message} at line {t.Line}, column {t.Column} (token '{t.Text}')", ex);
         }
     }
 }
