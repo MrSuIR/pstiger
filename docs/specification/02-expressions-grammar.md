@@ -84,11 +84,7 @@
 
 ```ebnf
 (* Выражения *)
-expression = logical_or_expression
-   | "(", exression_sequence, ")" ;
-   
-exression_sequence = expression,
-   { ";", expression } ;
+expression = logical_or_expression ;
 
 (* Логическое ИЛИ *)
 logical_or_expression = logical_and_expression,
@@ -115,11 +111,15 @@ unary_expression = { "-" }, primary_expression ;
 
 (* Элементарное выражение *)
 primary_expression = literal
-    | identifier, argument_list ;
+    | identifier, argument_list
+    | exression_sequence ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
 
+(* Последовательность выражений *)
+expression_sequence = "(", [ exression_sequence_inner ], ")" ;
+expression_sequence_inner = expression,  { ";", expression } ;
 ```
 
 

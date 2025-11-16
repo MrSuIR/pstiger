@@ -20,40 +20,11 @@ public class Parser
     /// <summary>
     /// Разбирает выражение.
     /// Правило:
-    ///     expression = logical_or_expression
-    ///         | "(", exression_sequence, ")" ;
+    ///     expression = logical_or_expression ;
     /// </summary>
-    // TODO: Реализовать разбор последовательности выражений.
     public Expression ParseExpression()
     {
-        if (_tokens.Peek().Type == TokenType.OpenParenthesis)
-        {
-            return ParseExpressionSequence();
-        }
-
         return ParseLogicalOrExpression();
-    }
-
-    private Expression ParseExpressionSequence()
-    {
-        List<Expression> expressions = [];
-
-        Match(TokenType.OpenParenthesis);
-        if (_tokens.Peek().Type != TokenType.CloseParenthesis)
-        {
-            expressions.Add(ParseExpression());
-
-            // Читаем последующие выражения, разделённые лексемой ";".
-            while (_tokens.Peek().Type == TokenType.Semicolon)
-            {
-                _tokens.Advance();
-                expressions.Add(ParseExpression());
-            }
-        }
-
-        Match(TokenType.CloseParenthesis);
-
-        return new SequenceExpression(expressions);
     }
 
     /// <summary>
@@ -162,7 +133,8 @@ public class Parser
     /// Разбирает элементарные выражения.
     /// Правило:
     ///     primary_expression = literal
-    ///         | identifier, argument_list ;
+    ///         | identifier, argument_list
+    ///         | exression_sequence ;
     /// </summary>
     // TODO: Реализовать разбор вызова функций.
     private Expression ParsePrimaryExpression()
@@ -176,9 +148,39 @@ public class Parser
             case TokenType.StringLiteral:
                 _tokens.Advance();
                 return new LiteralExpression(new Value(t.Value!.ToString()));
+            case TokenType.OpenParenthesis:
+                return ParseExpressionSequence();
             default:
                 throw new UnexpectedLexemeException(t, [TokenType.IntLiteral, TokenType.StringLiteral]);
         }
+    }
+
+    /// <summary>
+    /// Разбор последовательности выражений.
+    /// Правила:
+    ///     expression_sequence = "(", [ exression_sequence_inner ], ")" ;
+    ///     expression_sequence_inner = expression,  { ";", expression } ;
+    /// </summary>
+    private Expression ParseExpressionSequence()
+    {
+        List<Expression> expressions = [];
+
+        Match(TokenType.OpenParenthesis);
+        if (_tokens.Peek().Type != TokenType.CloseParenthesis)
+        {
+            expressions.Add(ParseExpression());
+
+            // Читаем последующие выражения, разделённые лексемой ";".
+            while (_tokens.Peek().Type == TokenType.Semicolon)
+            {
+                _tokens.Advance();
+                expressions.Add(ParseExpression());
+            }
+        }
+
+        Match(TokenType.CloseParenthesis);
+
+        return new SequenceExpression(expressions);
     }
 
     /// <summary>

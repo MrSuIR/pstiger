@@ -86,12 +86,18 @@ public class Value : IEquatable<Value>
             return false;
         }
 
-        if (ReferenceEquals(this, other))
+        if (GetValueType() != other.GetValueType())
         {
-            return true;
+            return false;
         }
 
-        return _value.GetType() == other.GetType() && _value.Equals(other._value);
+        return _value switch
+        {
+            string s => other.AsString() == s,
+            int i => other.AsInt() == i,
+            Void => true,
+            _ => throw new NotImplementedException(),
+        };
     }
 
     public override bool Equals(object? obj)

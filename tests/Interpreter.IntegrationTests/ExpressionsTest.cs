@@ -11,7 +11,7 @@ public class ExpressionsTest
     {
         TigerInterpreter interpreter = new();
         Value result = interpreter.Execute(code);
-        Assert.Equivalent(result, expected);
+        Assert.Equal(result, expected, EqualityComparer<Value>.Default);
     }
 
     public static TheoryData<string, Value> GetEvaluateExpressionsData()
@@ -25,6 +25,20 @@ public class ExpressionsTest
             {
                 // Разбор арифметических выражений с учётом скобок
                 "(1 + 2) * (8 / (3 - 1))", new Value(12)
+            },
+
+            // Проверка левоассоциативности арифметических операций
+            {
+                "10 - 3 - 2", new Value(5)
+            },
+            {
+                "10 / 3 / 2", new Value(1)
+            },
+            {
+                "10 - 3 + 2", new Value(9)
+            },
+            {
+                "10 / 3 * 2", new Value(6)
             },
         };
     }
