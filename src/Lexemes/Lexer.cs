@@ -416,6 +416,29 @@ public class Lexer
             }
         }
 
+        // Разбор escape-последовательности в нотации "\DDD", где D — десятичная цифра,
+        //  а DDD — код символа ASCII (число от 0 до 127 включительно).
+        if (char.IsAsciiDigit(ch1))
+        {
+            char ch2 = _scanner.Peek(1);
+            if (char.IsAsciiDigit(ch2))
+            {
+                char ch3 = _scanner.Peek(2);
+                if (char.IsAsciiDigit(ch3))
+                {
+                    int code = (ch1 - '0') * 100 + (ch2 - '0') * 10 + (ch3 - '0');
+                    if (code <= 127)
+                    {
+                        _scanner.Advance();
+                        _scanner.Advance();
+                        _scanner.Advance();
+                        valueBuilder.Append((char)code);
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
 

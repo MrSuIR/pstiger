@@ -161,6 +161,16 @@ public class LexerTest
                     new Token(TokenType.Literal, "\x7F"),
                 ]
             },
+            {
+                """
+                digits := "\048\049\050"
+                """,
+                [
+                    new Token(TokenType.Identifier, "digits"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Literal, "012"),
+                ]
+            },
         };
     }
 
