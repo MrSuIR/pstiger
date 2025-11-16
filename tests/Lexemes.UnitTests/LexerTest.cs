@@ -146,6 +146,21 @@ public class LexerTest
                     new Token(TokenType.Literal, "\n\t\"\\"),
                 ]
             },
+            {
+                """
+                "\^@" "\^A\^C\^Z" "\^[" "\^\" "\^]" "\^^" "\^_" "\^?"
+                """,
+                [
+                    new Token(TokenType.Literal, "\0"),
+                    new Token(TokenType.Literal, "\x01\x03\x1A"),
+                    new Token(TokenType.Literal, "\x1B"),
+                    new Token(TokenType.Literal, "\x1C"),
+                    new Token(TokenType.Literal, "\x1D"),
+                    new Token(TokenType.Literal, "\x1E"),
+                    new Token(TokenType.Literal, "\x1F"),
+                    new Token(TokenType.Literal, "\x7F"),
+                ]
+            },
         };
     }
 

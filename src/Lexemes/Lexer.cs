@@ -76,6 +76,109 @@ public class Lexer
         },
     };
 
+    private static readonly Dictionary<char, char> CaretEscapes = new()
+    {
+        {
+            '@', '\0'
+        },
+        {
+            'A', '\x01'
+        },
+        {
+            'B', '\x02'
+        },
+        {
+            'C', '\x03'
+        },
+        {
+            'D', '\x04'
+        },
+        {
+            'E', '\x05'
+        },
+        {
+            'F', '\x06'
+        },
+        {
+            'G', '\x07'
+        },
+        {
+            'H', '\x08'
+        },
+        {
+            'I', '\x09'
+        },
+        {
+            'J', '\x0A'
+        },
+        {
+            'K', '\x0B'
+        },
+        {
+            'L', '\x0C'
+        },
+        {
+            'M', '\x0D'
+        },
+        {
+            'N', '\x0E'
+        },
+        {
+            'O', '\x0F'
+        },
+        {
+            'P', '\x10'
+        },
+        {
+            'Q', '\x11'
+        },
+        {
+            'R', '\x12'
+        },
+        {
+            'S', '\x13'
+        },
+        {
+            'T', '\x14'
+        },
+        {
+            'U', '\x15'
+        },
+        {
+            'V', '\x16'
+        },
+        {
+            'W', '\x17'
+        },
+        {
+            'X', '\x18'
+        },
+        {
+            'Y', '\x19'
+        },
+        {
+            'Z', '\x1A'
+        },
+        {
+            '[', '\x1B'
+        },
+        {
+            '\\', '\x1C'
+        },
+        {
+            ']', '\x1D'
+        },
+        {
+            '^', '\x1E'
+        },
+        {
+            '_', '\x1F'
+        },
+        {
+            '?', '\x7F'
+        },
+    };
+
     private readonly TextScanner _scanner;
 
     public Lexer(string code)
@@ -291,11 +394,26 @@ public class Lexer
         _scanner.Advance();
 
         char ch1 = _scanner.Peek();
-        if (SimpleEscapes.TryGetValue(ch1, out char unescaped))
+
+        // Разбор простой escape-последовательности: "\n", "\"" и так далее.
+        if (SimpleEscapes.TryGetValue(ch1, out char unescaped1))
         {
             _scanner.Advance();
-            valueBuilder.Append(unescaped);
+            valueBuilder.Append(unescaped1);
             return true;
+        }
+
+        // Разбор escape-последовательности в каретной нотации: "\^@", "\^C" и так далее.
+        if (ch1 == '^')
+        {
+            char ch2 = _scanner.Peek(1);
+            if (CaretEscapes.TryGetValue(ch2, out char unescaped2))
+            {
+                _scanner.Advance();
+                _scanner.Advance();
+                valueBuilder.Append(unescaped2);
+                return true;
+            }
         }
 
         return false;
