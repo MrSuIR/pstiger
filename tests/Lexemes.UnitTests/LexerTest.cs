@@ -138,6 +138,14 @@ public class LexerTest
                     new Token(TokenType.Literal, "Hello, world!"),
                 ]
             },
+            {
+                """
+                "\n\t\"\\"
+                """,
+                [
+                    new Token(TokenType.Literal, "\n\t\"\\"),
+                ]
+            },
         };
     }
 

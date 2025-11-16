@@ -60,6 +60,22 @@ public class Lexer
         },
     };
 
+    private static readonly Dictionary<char, char> SimpleEscapes = new()
+    {
+        {
+            'n', '\n'
+        },
+        {
+            't', '\t'
+        },
+        {
+            '"', '\"'
+        },
+        {
+            '\\', '\\'
+        },
+    };
+
     private readonly TextScanner _scanner;
 
     public Lexer(string code)
@@ -230,7 +246,8 @@ public class Lexer
     /// </summary>
     private Token ParseStringLiteral()
     {
-        string value = "";
+        StringBuilder valueBuilder = new();
+        bool hasError = false;
 
         // Пропускаем открывающую кавычку.
         _scanner.Advance();
@@ -239,17 +256,49 @@ public class Lexer
         {
             if (_scanner.IsEnd())
             {
-                return new Token(TokenType.Error, value);
+                return new Token(TokenType.Error, valueBuilder.ToString());
             }
 
-            value += c;
-            _scanner.Advance();
+            if (c == '\\')
+            {
+                if (!DecodeEscapeSequence(valueBuilder))
+                {
+                    hasError = true;
+                    valueBuilder.Append('\\');
+                }
+            }
+            else
+            {
+                valueBuilder.Append(c);
+                _scanner.Advance();
+            }
         }
 
         // Пропускаем закрывающую кавычку.
         _scanner.Advance();
 
-        return new Token(TokenType.Literal, value);
+        if (hasError)
+        {
+            return new Token(TokenType.Error, valueBuilder.ToString());
+        }
+
+        return new Token(TokenType.Literal, valueBuilder.ToString());
+    }
+
+    private bool DecodeEscapeSequence(StringBuilder valueBuilder)
+    {
+        // Предполагаем, что первый символ — обратный слеш "\".
+        _scanner.Advance();
+
+        char ch1 = _scanner.Peek();
+        if (SimpleEscapes.TryGetValue(ch1, out char unescaped))
+        {
+            _scanner.Advance();
+            valueBuilder.Append(unescaped);
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
