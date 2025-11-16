@@ -439,6 +439,26 @@ public class Lexer
             }
         }
 
+        // Пропуск любой последовательности пробельных символов между двумя обратными слэшами '\', например: "\   \"
+        if (char.IsWhiteSpace(ch1))
+        {
+            int skipCount = 1;
+            while (char.IsWhiteSpace(_scanner.Peek(skipCount)))
+            {
+                ++skipCount;
+            }
+
+            if (_scanner.Peek(skipCount) == '\\')
+            {
+                for (int i = 0; i <= skipCount; ++i)
+                {
+                    _scanner.Advance();
+                }
+
+                return true;
+            }
+        }
+
         return false;
     }
 

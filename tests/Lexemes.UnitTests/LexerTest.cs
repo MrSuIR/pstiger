@@ -139,6 +139,7 @@ public class LexerTest
                 ]
             },
             {
+                // Разбор простых escape-последовательностей
                 """
                 "\n\t\"\\"
                 """,
@@ -147,6 +148,7 @@ public class LexerTest
                 ]
             },
             {
+                // Разбор escape-последовательностей в каретной нотации
                 """
                 "\^@" "\^A\^C\^Z" "\^[" "\^\" "\^]" "\^^" "\^_" "\^?"
                 """,
@@ -162,6 +164,7 @@ public class LexerTest
                 ]
             },
             {
+                // Разбор escape-последовательностей с номером ASCII-символа
                 """
                 digits := "\048\049\050"
                 """,
@@ -169,6 +172,35 @@ public class LexerTest
                     new Token(TokenType.Identifier, "digits"),
                     new Token(TokenType.Assign),
                     new Token(TokenType.Literal, "012"),
+                ]
+            },
+            {
+                // Разбор многострочных литералов с пропуском пробельных символов между двумя `\`
+                "x := \"a\\   \\b\"", [
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Literal, "ab"),
+                ]
+            },
+            {
+                // Разбор многострочных литералов с пропуском пробельных символов между двумя `\`
+                "poem := \"Tyger Tyger, burning bright\n\\\n"
+                + "    \\In the forests of the night,\n\\\n"
+                + "    \\What immortal hand or eye,\n\\\n"
+                + "    \\Could frame thy fearful symmetry?\";",
+                [
+                    new Token(TokenType.Identifier, "poem"),
+                    new Token(TokenType.Assign),
+                    new Token(
+                        TokenType.Literal,
+                        """
+                        Tyger Tyger, burning bright
+                        In the forests of the night,
+                        What immortal hand or eye,
+                        Could frame thy fearful symmetry?
+                        """
+                    ),
+                    new Token(TokenType.Semicolon),
                 ]
             },
         };
