@@ -5,6 +5,7 @@ public class LexerTest
     [Theory]
     [MemberData(nameof(GetTokenizeIdentifiersAndKeywordsData))]
     [MemberData(nameof(GetTokenizeLiteralsData))]
+    [MemberData(nameof(GetSkipWhitespacesAndCommentsData))]
     [MemberData(nameof(GetTokenizePunctuationData))]
     public void Can_tokenize_lexemes(string code, List<Token> expected)
     {
@@ -201,6 +202,40 @@ public class LexerTest
                         """
                     ),
                     new Token(TokenType.Semicolon),
+                ]
+            },
+        };
+    }
+
+    public static TheoryData<string, List<Token>> GetSkipWhitespacesAndCommentsData()
+    {
+        return new TheoryData<string, List<Token>>
+        {
+            {
+                // Пропуск пробельных символов.
+                "x \t\r\n\fy", [
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Identifier, "y"),
+                ]
+            },
+            {
+                // Пропуск комментариев.
+                "/* comments */ a / /* should be */ b * c /* ignored */ ", [
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.Divide),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.Multiply),
+                    new Token(TokenType.Identifier, "c"),
+                ]
+            },
+            {
+                // Пропуск вложенных комментариев.
+                "a / b /* nested /* comments */ are allowed */ * c", [
+                    new Token(TokenType.Identifier, "a"),
+                    new Token(TokenType.Divide),
+                    new Token(TokenType.Identifier, "b"),
+                    new Token(TokenType.Multiply),
+                    new Token(TokenType.Identifier, "c"),
                 ]
             },
         };

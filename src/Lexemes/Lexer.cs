@@ -188,7 +188,7 @@ public class Lexer
 
     public Token ParseToken()
     {
-        SkipWhiteSpaces();
+        SkipWhiteSpacesAndComments();
 
         if (_scanner.IsEnd())
         {
@@ -491,6 +491,18 @@ public class Lexer
     }
 
     /// <summary>
+    /// Пропускает пробельные символы и комментарии, пока не встретит лексему.
+    /// </summary>
+    private void SkipWhiteSpacesAndComments()
+    {
+        do
+        {
+            SkipWhiteSpaces();
+        }
+        while (SkipMultiLineComment());
+    }
+
+    /// <summary>
     ///  Пропускает пробельные символы, пока не встретит иной символ.
     /// </summary>
     private void SkipWhiteSpaces()
@@ -499,5 +511,38 @@ public class Lexer
         {
             _scanner.Advance();
         }
+    }
+
+    /// <summary>
+    /// Пропускает комментарии, в том числе вложенные (за счёт рекурсии).
+    /// </summary>
+    private bool SkipMultiLineComment()
+    {
+        if (_scanner.Peek() == '/' && _scanner.Peek(1) == '*')
+        {
+            _scanner.Advance(); // Пропускаем '/'.
+            _scanner.Advance(); // Пропускаем '*'.
+
+            while (!_scanner.IsEnd())
+            {
+                if (_scanner.Peek() == '*' && _scanner.Peek(1) == '/')
+                {
+                    // Встретили конец комментария.
+                    break;
+                }
+
+                // Пропускаем вложенный комментарий либо один последующий символ.
+                if (!SkipMultiLineComment())
+                {
+                    _scanner.Advance();
+                }
+            }
+
+            _scanner.Advance(); // Пропускаем '*'.
+            _scanner.Advance(); // Пропускаем '/'.
+            return true;
+        }
+
+        return false;
     }
 }
