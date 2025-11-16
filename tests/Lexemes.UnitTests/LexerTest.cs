@@ -42,7 +42,7 @@ public class LexerTest
                     new Token(TokenType.Var),
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.Assign),
-                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.IntLiteral, 0),
                     new Token(TokenType.In),
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.End),
@@ -64,9 +64,9 @@ public class LexerTest
                     new Token(TokenType.If),
                     new Token(TokenType.Identifier, "n"),
                     new Token(TokenType.Equal),
-                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.IntLiteral, 0),
                     new Token(TokenType.Then),
-                    new Token(TokenType.Literal, 1),
+                    new Token(TokenType.IntLiteral, 1),
                     new Token(TokenType.Else),
                     new Token(TokenType.Identifier, "n"),
                     new Token(TokenType.Multiply),
@@ -74,7 +74,7 @@ public class LexerTest
                     new Token(TokenType.OpenParenthesis),
                     new Token(TokenType.Identifier, "n"),
                     new Token(TokenType.Minus),
-                    new Token(TokenType.Literal, 1),
+                    new Token(TokenType.IntLiteral, 1),
                     new Token(TokenType.CloseParenthesis),
                 ]
             },
@@ -83,9 +83,9 @@ public class LexerTest
                     new Token(TokenType.For),
                     new Token(TokenType.Identifier, "i"),
                     new Token(TokenType.Assign),
-                    new Token(TokenType.Literal, 10),
+                    new Token(TokenType.IntLiteral, 10),
                     new Token(TokenType.To),
-                    new Token(TokenType.Literal, 20),
+                    new Token(TokenType.IntLiteral, 20),
                     new Token(TokenType.Do),
                     new Token(TokenType.Identifier, "printi"),
                     new Token(TokenType.OpenParenthesis),
@@ -123,10 +123,10 @@ public class LexerTest
         {
             {
                 "0 1234 56789 0017", [
-                    new Token(TokenType.Literal, 0),
-                    new Token(TokenType.Literal, 1234),
-                    new Token(TokenType.Literal, 56789),
-                    new Token(TokenType.Literal, 17),
+                    new Token(TokenType.IntLiteral, 0),
+                    new Token(TokenType.IntLiteral, 1234),
+                    new Token(TokenType.IntLiteral, 56789),
+                    new Token(TokenType.IntLiteral, 17),
                 ]
             },
             {
@@ -134,9 +134,9 @@ public class LexerTest
                 "" "0" "Hello, world!"
                 """,
                 [
-                    new Token(TokenType.Literal, ""),
-                    new Token(TokenType.Literal, "0"),
-                    new Token(TokenType.Literal, "Hello, world!"),
+                    new Token(TokenType.StringLiteral, ""),
+                    new Token(TokenType.StringLiteral, "0"),
+                    new Token(TokenType.StringLiteral, "Hello, world!"),
                 ]
             },
             {
@@ -145,7 +145,7 @@ public class LexerTest
                 "\n\t\"\\"
                 """,
                 [
-                    new Token(TokenType.Literal, "\n\t\"\\"),
+                    new Token(TokenType.StringLiteral, "\n\t\"\\"),
                 ]
             },
             {
@@ -154,14 +154,14 @@ public class LexerTest
                 "\^@" "\^A\^C\^Z" "\^[" "\^\" "\^]" "\^^" "\^_" "\^?"
                 """,
                 [
-                    new Token(TokenType.Literal, "\0"),
-                    new Token(TokenType.Literal, "\x01\x03\x1A"),
-                    new Token(TokenType.Literal, "\x1B"),
-                    new Token(TokenType.Literal, "\x1C"),
-                    new Token(TokenType.Literal, "\x1D"),
-                    new Token(TokenType.Literal, "\x1E"),
-                    new Token(TokenType.Literal, "\x1F"),
-                    new Token(TokenType.Literal, "\x7F"),
+                    new Token(TokenType.StringLiteral, "\0"),
+                    new Token(TokenType.StringLiteral, "\x01\x03\x1A"),
+                    new Token(TokenType.StringLiteral, "\x1B"),
+                    new Token(TokenType.StringLiteral, "\x1C"),
+                    new Token(TokenType.StringLiteral, "\x1D"),
+                    new Token(TokenType.StringLiteral, "\x1E"),
+                    new Token(TokenType.StringLiteral, "\x1F"),
+                    new Token(TokenType.StringLiteral, "\x7F"),
                 ]
             },
             {
@@ -172,7 +172,7 @@ public class LexerTest
                 [
                     new Token(TokenType.Identifier, "digits"),
                     new Token(TokenType.Assign),
-                    new Token(TokenType.Literal, "012"),
+                    new Token(TokenType.StringLiteral, "012"),
                 ]
             },
             {
@@ -180,7 +180,7 @@ public class LexerTest
                 "x := \"a\\   \\b\"", [
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.Assign),
-                    new Token(TokenType.Literal, "ab"),
+                    new Token(TokenType.StringLiteral, "ab"),
                 ]
             },
             {
@@ -193,7 +193,7 @@ public class LexerTest
                     new Token(TokenType.Identifier, "poem"),
                     new Token(TokenType.Assign),
                     new Token(
-                        TokenType.Literal,
+                        TokenType.StringLiteral,
                         """
                         Tyger Tyger, burning bright
                         In the forests of the night,
@@ -252,11 +252,11 @@ public class LexerTest
                     new Token(TokenType.Identifier, "y"),
                     new Token(TokenType.Divide),
                     new Token(TokenType.OpenParenthesis),
-                    new Token(TokenType.Literal, 10),
+                    new Token(TokenType.IntLiteral, 10),
                     new Token(TokenType.Minus),
                     new Token(TokenType.Identifier, "z"),
                     new Token(TokenType.Multiply),
-                    new Token(TokenType.Literal, 2),
+                    new Token(TokenType.IntLiteral, 2),
                     new Token(TokenType.CloseParenthesis),
                 ]
             },
@@ -298,7 +298,7 @@ public class LexerTest
                     new Token(TokenType.Assign),
                     new Token(TokenType.Identifier, "v"),
                     new Token(TokenType.OpenBracket),
-                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.IntLiteral, 0),
                     new Token(TokenType.CloseBracket),
                 ]
             },
@@ -326,7 +326,7 @@ public class LexerTest
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.CloseParenthesis),
                     new Token(TokenType.Semicolon),
-                    new Token(TokenType.Literal, 0),
+                    new Token(TokenType.IntLiteral, 0),
                     new Token(TokenType.CloseParenthesis),
                 ]
             },

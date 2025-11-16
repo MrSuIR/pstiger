@@ -93,9 +93,14 @@ public enum TokenType
     Identifier,
 
     /// <summary>
-    /// Литерал (целое число или строка).
+    /// Литерал целого числа.
     /// </summary>
-    Literal,
+    IntLiteral,
+
+    /// <summary>
+    /// Литерал строки.
+    /// </summary>
+    StringLiteral,
 
     /// <summary>
     /// Оператор сложения "+".

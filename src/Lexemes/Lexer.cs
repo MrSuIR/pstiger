@@ -335,7 +335,7 @@ public class Lexer
         string digits = sb.ToString();
         if (int.TryParse(digits, CultureInfo.InvariantCulture, out int value))
         {
-            return new Token(TokenType.Literal, value);
+            return new Token(TokenType.IntLiteral, value);
         }
 
         return new Token(TokenType.Error, digits);
@@ -385,7 +385,7 @@ public class Lexer
             return new Token(TokenType.Error, valueBuilder.ToString());
         }
 
-        return new Token(TokenType.Literal, valueBuilder.ToString());
+        return new Token(TokenType.StringLiteral, valueBuilder.ToString());
     }
 
     private bool DecodeEscapeSequence(StringBuilder valueBuilder)
