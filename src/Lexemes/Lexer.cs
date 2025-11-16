@@ -87,6 +87,11 @@ public class Lexer
             return ParseIntLiteral();
         }
 
+        if (c == '"')
+        {
+            return ParseStringLiteral();
+        }
+
         // Разбор операторов, разделителей и скобок.
         switch (c)
         {
@@ -215,6 +220,36 @@ public class Lexer
         }
 
         return new Token(TokenType.Error, digits);
+    }
+
+    /// <summary>
+    /// Разбирает литерал строки.
+    /// Возвращает лексему Error, если:
+    ///   1) встречает неизвестную escape-последовательность
+    ///   2) у строки нет закрывающей кавычки
+    /// </summary>
+    private Token ParseStringLiteral()
+    {
+        string value = "";
+
+        // Пропускаем открывающую кавычку.
+        _scanner.Advance();
+
+        for (char c = _scanner.Peek(); c != '"'; c = _scanner.Peek())
+        {
+            if (_scanner.IsEnd())
+            {
+                return new Token(TokenType.Error, value);
+            }
+
+            value += c;
+            _scanner.Advance();
+        }
+
+        // Пропускаем закрывающую кавычку.
+        _scanner.Advance();
+
+        return new Token(TokenType.Literal, value);
     }
 
     /// <summary>
