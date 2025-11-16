@@ -1,3 +1,4 @@
+using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 
 using ValueType = PsTiger.Runtime.ValueType;
@@ -6,11 +7,49 @@ namespace PsTiger.Execution;
 
 public static class EvaluationUtil
 {
+    public static Value ApplyBinaryOperation(BinaryOperation operation, Value left, Value right)
+    {
+        return operation switch
+        {
+            BinaryOperation.Plus => new Value(left.AsInt() + right.AsInt()),
+            BinaryOperation.Minus => new Value(left.AsInt() - right.AsInt()),
+            BinaryOperation.Multiply => new Value(left.AsInt() * right.AsInt()),
+            BinaryOperation.Divide => new Value(left.AsInt() / right.AsInt()),
+            BinaryOperation.Equal => CompareValues(left, right, (i1, i2) => i1 == i2, (s1, s2) => s1 == s2),
+            BinaryOperation.NotEqual => CompareValues(left, right, (i1, i2) => i1 != i2, (s1, s2) => s1 != s2),
+            BinaryOperation.LessThan => CompareValues(
+                left,
+                right,
+                (i1, i2) => i1 < i2,
+                (s1, s2) => string.CompareOrdinal(s1, s2) < 0
+            ),
+            BinaryOperation.GreaterThan => CompareValues(
+                left,
+                right,
+                (i1, i2) => i1 > i2,
+                (s1, s2) => string.CompareOrdinal(s1, s2) > 0
+            ),
+            BinaryOperation.LessThanOrEqual => CompareValues(
+                left,
+                right,
+                (i1, i2) => i1 <= i2,
+                (s1, s2) => string.CompareOrdinal(s1, s2) <= 0
+            ),
+            BinaryOperation.GreaterThanOrEqual => CompareValues(
+                left,
+                right,
+                (i1, i2) => i1 >= i2,
+                (s1, s2) => string.CompareOrdinal(s1, s2) >= 0
+            ),
+            _ => throw new NotImplementedException($"Unknown binary operation {operation}"),
+        };
+    }
+
     /// <summary>
     /// Сравнивает два значения, если они оба являются числами или строками.
     /// Иначе бросает исключение.
     /// </summary>
-    public static Value CompareValues(
+    private static Value CompareValues(
         Value left,
         Value right,
         Func<int, int, bool> compareInts,

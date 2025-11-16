@@ -45,63 +45,8 @@ public class AstEvaluator : IAstVisitor
         Value right = _values.Pop();
         Value left = _values.Pop();
 
-        switch (e.Operation)
-        {
-            case BinaryOperation.Plus:
-                _values.Push(new Value(left.AsInt() + right.AsInt()));
-                break;
-            case BinaryOperation.Minus:
-                _values.Push(new Value(left.AsInt() - right.AsInt()));
-                break;
-            case BinaryOperation.Multiply:
-                _values.Push(new Value(left.AsInt() * right.AsInt()));
-                break;
-            case BinaryOperation.Divide:
-                _values.Push(new Value(left.AsInt() / right.AsInt()));
-                break;
-            case BinaryOperation.Equal:
-                _values.Push(EvaluationUtil.CompareValues(left, right, (i1, i2) => i1 == i2, (s1, s2) => s1 == s2));
-                break;
-            case BinaryOperation.NotEqual:
-                _values.Push(EvaluationUtil.CompareValues(left, right, (i1, i2) => i1 != i2, (s1, s2) => s1 != s2));
-                break;
-            case BinaryOperation.LessThan:
-                _values.Push(EvaluationUtil.CompareValues(
-                    left,
-                    right,
-                    (i1, i2) => i1 < i2,
-                    (s1, s2) => string.CompareOrdinal(s1, s2) < 0)
-                );
-                break;
-            case BinaryOperation.GreaterThan:
-                _values.Push(EvaluationUtil.CompareValues(
-                    left,
-                    right,
-                    (i1, i2) => i1 > i2,
-                    (s1, s2) => string.CompareOrdinal(s1, s2) > 0)
-                );
-                break;
-            case BinaryOperation.LessThanOrEqual:
-                _values.Push(EvaluationUtil.CompareValues(
-                    left,
-                    right,
-                    (i1, i2) => i1 <= i2,
-                    (s1, s2) => string.CompareOrdinal(s1, s2) <= 0)
-                );
-                break;
-            case BinaryOperation.GreaterThanOrEqual:
-                _values.Push(EvaluationUtil.CompareValues(
-                    left,
-                    right,
-                    (i1, i2) => i1 >= i2,
-                    (s1, s2) => string.CompareOrdinal(s1, s2) >= 0)
-                );
-                break;
-            default:
-                throw new NotImplementedException($"Unknown binary operation {e.Operation}");
-        }
+        _values.Push(EvaluationUtil.ApplyBinaryOperation(e.Operation, left, right));
     }
-
 
     public void Visit(SequenceExpression e)
     {
