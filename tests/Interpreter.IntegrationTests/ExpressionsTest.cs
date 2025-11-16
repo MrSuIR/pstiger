@@ -40,6 +40,14 @@ public class ExpressionsTest
             {
                 "10 / 3 * 2", new Value(6)
             },
+
+            // Разбор унарного минуса
+            {
+                "-4", new Value(-4)
+            },
+            {
+                "2 * 2 * --5", new Value(20)
+            },
         };
     }
 }

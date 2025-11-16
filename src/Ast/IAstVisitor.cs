@@ -9,4 +9,6 @@ public interface IAstVisitor
     void Visit(BinaryOperationExpression e);
 
     void Visit(SequenceExpression e);
+
+    void Visit(UnaryMinusExpression e);
 }

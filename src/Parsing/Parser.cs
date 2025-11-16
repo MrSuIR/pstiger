@@ -123,9 +123,19 @@ public class Parser
         }
     }
 
-    // TODO: Реализовать разбор.
+    /// <summary>
+    /// Выполняет разбор унарного минуса.
+    /// Правило:
+    ///     unary_expression = { "-" }, primary_expression ;
+    /// </summary>
     private Expression ParseUnaryExpression()
     {
+        if (_tokens.Peek().Type == TokenType.Minus)
+        {
+            _tokens.Advance();
+            return new UnaryMinusExpression(ParseUnaryExpression());
+        }
+
         return ParsePrimaryExpression();
     }
 

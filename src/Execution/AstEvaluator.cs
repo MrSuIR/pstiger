@@ -72,4 +72,12 @@ public class AstEvaluator : IAstVisitor
             nested.Accept(this);
         }
     }
+
+    public void Visit(UnaryMinusExpression e)
+    {
+        e.Operand.Accept(this);
+
+        int value = _values.Pop().AsInt();
+        _values.Push(new Value(-value));
+    }
 }
