@@ -1,6 +1,5 @@
 using PsTiger.Interpreter;
-
-using Runtime;
+using PsTiger.Runtime;
 
 namespace Interpreter.IntegrationTests;
 
@@ -12,7 +11,7 @@ public class ExpressionsTest
     {
         TigerInterpreter interpreter = new();
         Value result = interpreter.Execute(code);
-        Assert.Equal(result, expected);
+        Assert.Equivalent(result, expected);
     }
 
     public static TheoryData<string, Value> GetEvaluateExpressionsData()

@@ -4,6 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>PsTiger.Parsing</RootNamespace>
+    <AssemblyName>PsTiger.Parsing</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ast\Ast.csproj" />
+    <ProjectReference Include="..\Lexemes\Lexemes.csproj" />
+  </ItemGroup>
 
 </Project>

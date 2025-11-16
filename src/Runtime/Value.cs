@@ -1,6 +1,9 @@
 using System.Globalization;
 
-namespace Runtime;
+using ValueType = PsTiger.Runtime.ValueType;
+using Void = PsTiger.Runtime.Void;
+
+namespace PsTiger.Runtime;
 
 public class Value : IEquatable<Value>
 {

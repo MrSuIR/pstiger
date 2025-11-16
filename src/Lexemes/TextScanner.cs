@@ -3,10 +3,15 @@ namespace PsTiger.Lexemes;
 /// <summary>
 ///  Сканирует исходный код в виде строки, предоставляя три операции: Peek(N), Advance() и IsEnd().
 /// </summary>
-public class TextScanner(string input)
+public class TextScanner
 {
-    private readonly string _input = input;
+    private readonly string _input;
     private int _position;
+
+    public TextScanner(string input)
+    {
+        _input = input;
+    }
 
     /// <summary>
     ///  Читает на N символов вперёд текущей позиции (по умолчанию N=0).

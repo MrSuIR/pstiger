@@ -1,4 +1,4 @@
-namespace Runtime;
+namespace PsTiger.Runtime;
 
 /// <summary>
 /// Специальный тип, обозначающий отсутствие значения.

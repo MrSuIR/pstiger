@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace Runtime;
+namespace PsTiger.Runtime;
 
 public static class ValueUtil
 {
@@ -41,7 +41,6 @@ public static class ValueUtil
                 }
             }
         }
-
 
         sb.Append('"');
 

@@ -4,6 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RootNamespace>PsTiger.Execution</RootNamespace>
+    <AssemblyName>PsTiger.Execution</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Ast\Ast.csproj" />
+  </ItemGroup>
 
 </Project>
