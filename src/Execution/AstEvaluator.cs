@@ -61,4 +61,15 @@ public class AstEvaluator : IAstVisitor
                 throw new NotImplementedException($"Unknown binary operation {e.Operation}");
         }
     }
+
+    public void Visit(SequenceExpression e)
+    {
+        // Вычисляем все выражения последовательно, но сохраняем только последний результат.
+        _values.Push(new Value());
+        foreach (Expression nested in e.Sequence)
+        {
+            _values.Pop();
+            nested.Accept(this);
+        }
+    }
 }

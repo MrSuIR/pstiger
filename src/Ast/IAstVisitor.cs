@@ -7,4 +7,6 @@ public interface IAstVisitor
     void Visit(LiteralExpression e);
 
     void Visit(BinaryOperationExpression e);
+
+    void Visit(SequenceExpression e);
 }

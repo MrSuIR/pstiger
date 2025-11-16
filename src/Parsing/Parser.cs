@@ -26,7 +26,34 @@ public class Parser
     // TODO: Реализовать разбор последовательности выражений.
     public Expression ParseExpression()
     {
+        if (_tokens.Peek().Type == TokenType.OpenParenthesis)
+        {
+            return ParseExpressionSequence();
+        }
+
         return ParseLogicalOrExpression();
+    }
+
+    private Expression ParseExpressionSequence()
+    {
+        List<Expression> expressions = [];
+
+        Match(TokenType.OpenParenthesis);
+        if (_tokens.Peek().Type != TokenType.CloseParenthesis)
+        {
+            expressions.Add(ParseExpression());
+
+            // Читаем последующие выражения, разделённые лексемой ";".
+            while (_tokens.Peek().Type == TokenType.Semicolon)
+            {
+                _tokens.Advance();
+                expressions.Add(ParseExpression());
+            }
+        }
+
+        Match(TokenType.CloseParenthesis);
+
+        return new SequenceExpression(expressions);
     }
 
     /// <summary>
@@ -152,5 +179,20 @@ public class Parser
             default:
                 throw new UnexpectedLexemeException(t, [TokenType.IntLiteral, TokenType.StringLiteral]);
         }
+    }
+
+    /// <summary>
+    /// Читает ожидаемую лексему либо бросает исключение, если встретит иную лексему.
+    /// </summary>
+    private Token Match(TokenType expected)
+    {
+        Token t = _tokens.Peek();
+        if (t.Type != expected)
+        {
+            throw new UnexpectedLexemeException(t, expected);
+        }
+
+        _tokens.Advance();
+        return t;
     }
 }
