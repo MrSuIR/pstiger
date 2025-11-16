@@ -18,11 +18,22 @@ public class Parser
     }
 
     /// <summary>
+    /// Разбирает программу.
+    /// </summary>
+    public Expression ParseProgram()
+    {
+        Expression e = ParseExpression();
+        Match(TokenType.EndOfFile);
+
+        return e;
+    }
+
+    /// <summary>
     /// Разбирает выражение.
     /// Правило:
     ///     expression = logical_or_expression ;
     /// </summary>
-    public Expression ParseExpression()
+    private Expression ParseExpression()
     {
         return ParseLogicalOrExpression();
     }
@@ -63,10 +74,39 @@ public class Parser
         return expr;
     }
 
-    // TODO: Реализовать разбор.
+    /// <summary>
+    /// Разбирает операторы сравнения.
+    /// Особенность: отсутствие ассоциативности.
+    /// Правило:
+    ///     relational_expression = additive_expression, [ ("=" | "<>" | "<" | ">" | "<=" | ">=" ), additive_expression ] ;
+    /// </summary>
+    /// <returns></returns>
     private Expression ParseRelationalExpression()
     {
-        return ParseAdditiveExpression();
+        Expression e = ParseAdditiveExpression();
+        switch (_tokens.Peek().Type)
+        {
+            case TokenType.Equal:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.Equal, ParseAdditiveExpression());
+            case TokenType.NotEqual:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.NotEqual, ParseAdditiveExpression());
+            case TokenType.LessThan:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.LessThan, ParseAdditiveExpression());
+            case TokenType.GreaterThan:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.GreaterThan, ParseAdditiveExpression());
+            case TokenType.LessThanOrEqual:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.LessThanOrEqual, ParseAdditiveExpression());
+            case TokenType.GreaterThanOrEqual:
+                _tokens.Advance();
+                return new BinaryOperationExpression(e, BinaryOperation.GreaterThanOrEqual, ParseAdditiveExpression());
+            default:
+                return e;
+        }
     }
 
     /// <summary>

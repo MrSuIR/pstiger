@@ -1,4 +1,5 @@
 using PsTiger.Interpreter;
+using PsTiger.Parsing;
 using PsTiger.Runtime;
 
 namespace Interpreter.IntegrationTests;
@@ -11,7 +12,15 @@ public class ExpressionsTest
     {
         TigerInterpreter interpreter = new();
         Value result = interpreter.Execute(code);
-        Assert.Equal(result, expected, EqualityComparer<Value>.Default);
+        Assert.Equal(expected, result, EqualityComparer<Value>.Default);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetInvalidExpressionsData))]
+    public void Rejects_invalid_expressions(string code)
+    {
+        TigerInterpreter interpreter = new();
+        Assert.Throws<UnexpectedLexemeException>(() => interpreter.Execute(code));
     }
 
     public static TheoryData<string, Value> GetEvaluateExpressionsData()
@@ -48,6 +57,77 @@ public class ExpressionsTest
             {
                 "2 * 2 * --5", new Value(20)
             },
+
+            // Разбор операторов сравнения
+            {
+                "1 + 2 < 5", new Value(1)
+            },
+            {
+                "2 * 2 > 5", new Value(0)
+            },
+            {
+                "2 * 2 = 5", new Value(0)
+            },
+            {
+                "2 / 2 <> 4", new Value(1)
+            },
+            {
+                "2 * 2 >= 4", new Value(1)
+            },
+            {
+                "2 - 1 <= 1", new Value(1)
+            },
+            {
+                "1 = (2 = 3)", new Value(0)
+            },
+
+            // Разбор операций сравнения строк
+            {
+                """
+                "Hello" = "Hello!"
+                """,
+                new Value(0)
+            },
+            {
+                """
+                "Hello" <> "Hello!"
+                """,
+                new Value(1)
+            },
+            {
+                """
+                "Bob" > "Alice"
+                """,
+                new Value(1)
+            },
+            {
+                """
+                "Bob" < "Alice"
+                """,
+                new Value(0)
+            },
+            {
+                """
+                "Bob" >= "Alice"
+                """,
+                new Value(1)
+            },
+            {
+                """
+                "Bob" <= "Alice"
+                """,
+                new Value(0)
+            },
         };
+    }
+
+    public static TheoryData<string> GetInvalidExpressionsData()
+    {
+        // Проверка отсутствия ассоциативности сравнений
+        return
+        [
+            "1 < 2 < 3",
+            "1 = 2 = 3",
+        ];
     }
 }

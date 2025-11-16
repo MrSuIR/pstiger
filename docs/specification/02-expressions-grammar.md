@@ -83,6 +83,9 @@
 ## Грамматика в нотации EBNF
 
 ```ebnf
+(* Программа — это одно выражение *)
+program = expression ;
+
 (* Выражения *)
 expression = logical_or_expression ;
 

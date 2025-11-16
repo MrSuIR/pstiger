@@ -2,6 +2,8 @@ using PsTiger.Ast;
 using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 
+using ValueType = PsTiger.Runtime.ValueType;
+
 namespace PsTiger.Execution;
 
 public class AstEvaluator : IAstVisitor
@@ -57,10 +59,49 @@ public class AstEvaluator : IAstVisitor
             case BinaryOperation.Divide:
                 _values.Push(new Value(left.AsInt() / right.AsInt()));
                 break;
+            case BinaryOperation.Equal:
+                _values.Push(EvaluationUtil.CompareValues(left, right, (i1, i2) => i1 == i2, (s1, s2) => s1 == s2));
+                break;
+            case BinaryOperation.NotEqual:
+                _values.Push(EvaluationUtil.CompareValues(left, right, (i1, i2) => i1 != i2, (s1, s2) => s1 != s2));
+                break;
+            case BinaryOperation.LessThan:
+                _values.Push(EvaluationUtil.CompareValues(
+                    left,
+                    right,
+                    (i1, i2) => i1 < i2,
+                    (s1, s2) => string.CompareOrdinal(s1, s2) < 0)
+                );
+                break;
+            case BinaryOperation.GreaterThan:
+                _values.Push(EvaluationUtil.CompareValues(
+                    left,
+                    right,
+                    (i1, i2) => i1 > i2,
+                    (s1, s2) => string.CompareOrdinal(s1, s2) > 0)
+                );
+                break;
+            case BinaryOperation.LessThanOrEqual:
+                _values.Push(EvaluationUtil.CompareValues(
+                    left,
+                    right,
+                    (i1, i2) => i1 <= i2,
+                    (s1, s2) => string.CompareOrdinal(s1, s2) <= 0)
+                );
+                break;
+            case BinaryOperation.GreaterThanOrEqual:
+                _values.Push(EvaluationUtil.CompareValues(
+                    left,
+                    right,
+                    (i1, i2) => i1 >= i2,
+                    (s1, s2) => string.CompareOrdinal(s1, s2) >= 0)
+                );
+                break;
             default:
                 throw new NotImplementedException($"Unknown binary operation {e.Operation}");
         }
     }
+
 
     public void Visit(SequenceExpression e)
     {

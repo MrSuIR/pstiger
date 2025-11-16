@@ -12,7 +12,7 @@ public class TigerInterpreter
         Parser parser = new(code);
         AstEvaluator evaluator = new();
 
-        Expression expression = parser.ParseExpression();
+        Expression expression = parser.ParseProgram();
         Value result = evaluator.Evaluate(expression);
 
         return result;

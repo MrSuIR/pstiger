@@ -31,4 +31,34 @@ public enum BinaryOperation
     /// Логическое "И".
     /// </summary>
     And,
+
+    /// <summary>
+    /// Оператор сравнения "равно".
+    /// </summary>
+    Equal,
+
+    /// <summary>
+    /// Оператор сравнения "не равно".
+    /// </summary>
+    NotEqual,
+
+    /// <summary>
+    /// Оператор сравнения "меньше".
+    /// </summary>
+    LessThan,
+
+    /// <summary>
+    /// Оператор сравнения "больше".
+    /// </summary>
+    GreaterThan,
+
+    /// <summary>
+    /// Оператор сравнения "меньше или равно".
+    /// </summary>
+    LessThanOrEqual,
+
+    /// <summary>
+    /// Оператор сравнения "больше или равно".
+    /// </summary>
+    GreaterThanOrEqual,
 }
