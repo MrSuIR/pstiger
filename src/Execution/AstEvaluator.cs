@@ -40,12 +40,24 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(BinaryOperationExpression e)
     {
-        e.Left.Accept(this);
-        e.Right.Accept(this);
-        Value right = _values.Pop();
-        Value left = _values.Pop();
+        // NOTE: Логические операторы реализуют вычисления по короткой схеме,
+        //  поэтому мы используем локальные функции для «ленивого» вычисления операндов.
+        _values.Push(EvaluationUtil.ApplyBinaryOperation(e.Operation, EvaluateLeft, EvaluateRight));
+        return;
 
-        _values.Push(EvaluationUtil.ApplyBinaryOperation(e.Operation, left, right));
+        // Локальная функция, вычисляющая левый операнд.
+        Value EvaluateLeft()
+        {
+            e.Left.Accept(this);
+            return _values.Pop();
+        }
+
+        // Локальная функция, вычисляющая правый операнд.
+        Value EvaluateRight()
+        {
+            e.Right.Accept(this);
+            return _values.Pop();
+        }
     }
 
     public void Visit(SequenceExpression e)

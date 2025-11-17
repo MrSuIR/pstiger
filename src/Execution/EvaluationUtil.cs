@@ -7,55 +7,107 @@ namespace PsTiger.Execution;
 
 public static class EvaluationUtil
 {
-    public static Value ApplyBinaryOperation(BinaryOperation operation, Value left, Value right)
+    public static Value ApplyBinaryOperation(
+        BinaryOperation operation, Func<Value> evaluateLeft, Func<Value> evaluateRight
+    )
     {
         return operation switch
         {
-            BinaryOperation.Plus => new Value(left.AsInt() + right.AsInt()),
-            BinaryOperation.Minus => new Value(left.AsInt() - right.AsInt()),
-            BinaryOperation.Multiply => new Value(left.AsInt() * right.AsInt()),
-            BinaryOperation.Divide => new Value(left.AsInt() / right.AsInt()),
-            BinaryOperation.Equal => CompareValues(left, right, (i1, i2) => i1 == i2, (s1, s2) => s1 == s2),
-            BinaryOperation.NotEqual => CompareValues(left, right, (i1, i2) => i1 != i2, (s1, s2) => s1 != s2),
-            BinaryOperation.LessThan => CompareValues(
-                left,
-                right,
+            BinaryOperation.Add => ApplyArithmeticOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 + i2
+            ),
+            BinaryOperation.Substract => ApplyArithmeticOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 - i2
+            ),
+            BinaryOperation.Multiply => ApplyArithmeticOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 * i2
+            ),
+            BinaryOperation.Divide => ApplyArithmeticOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 / i2
+            ),
+            BinaryOperation.Equal => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 == i2,
+                (s1, s2) => s1 == s2
+            ),
+            BinaryOperation.NotEqual => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
+                (i1, i2) => i1 != i2,
+                (s1, s2) => s1 != s2
+            ),
+            BinaryOperation.LessThan => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
                 (i1, i2) => i1 < i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) < 0
             ),
-            BinaryOperation.GreaterThan => CompareValues(
-                left,
-                right,
+            BinaryOperation.GreaterThan => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
                 (i1, i2) => i1 > i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) > 0
             ),
-            BinaryOperation.LessThanOrEqual => CompareValues(
-                left,
-                right,
+            BinaryOperation.LessThanOrEqual => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
                 (i1, i2) => i1 <= i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) <= 0
             ),
-            BinaryOperation.GreaterThanOrEqual => CompareValues(
-                left,
-                right,
+            BinaryOperation.GreaterThanOrEqual => ApplyComparisonOperation(
+                evaluateLeft,
+                evaluateRight,
                 (i1, i2) => i1 >= i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) >= 0
+            ),
+            BinaryOperation.Or => ApplyLogicalOr(
+                evaluateLeft,
+                evaluateRight
+            ),
+            BinaryOperation.And => ApplyLogicalAnd(
+                evaluateLeft,
+                evaluateRight
             ),
             _ => throw new NotImplementedException($"Unknown binary operation {operation}"),
         };
     }
 
     /// <summary>
-    /// Сравнивает два значения, если они оба являются числами или строками.
+    /// Выполняет арифметическую операцию, если оба операнда являются числами.
     /// Иначе бросает исключение.
     /// </summary>
-    private static Value CompareValues(
-        Value left,
-        Value right,
+    private static Value ApplyArithmeticOperation(
+        Func<Value> evaluateLeft, Func<Value> evaluateRight, Func<int, int, int> operation
+    )
+    {
+        int left = evaluateLeft().AsInt();
+        int right = evaluateRight().AsInt();
+        return new Value(operation(left, right));
+    }
+
+    /// <summary>
+    /// Сравнивает два операнда, если они оба являются числами или строками.
+    /// Иначе бросает исключение.
+    /// </summary>
+    private static Value ApplyComparisonOperation(
+        Func<Value> evaluateLeft,
+        Func<Value> evaluateRight,
         Func<int, int, bool> compareInts,
         Func<string, string, bool> compareStrings
     )
     {
+        Value left = evaluateLeft();
+        Value right = evaluateRight();
+
         if (left.GetValueType() != right.GetValueType())
         {
             throw new InvalidOperationException($"Cannot compare values of different types: {left} and {right}");
@@ -74,5 +126,37 @@ public static class EvaluationUtil
         }
 
         throw new InvalidOperationException($"Values are not comparable: {left} and {right}");
+    }
+
+    /// <summary>
+    /// Вычисляет логическое "ИЛИ".
+    /// Реализует вычисление по короткой схеме (short-circuit evaluation).
+    /// </summary>
+    private static Value ApplyLogicalOr(Func<Value> evaluateLeft, Func<Value> evaluateRight)
+    {
+        int left = evaluateLeft().AsInt();
+        if (left != 0)
+        {
+            return new Value(1);
+        }
+
+        int result = (evaluateRight().AsInt() != 0) ? 1 : 0;
+        return new Value(result);
+    }
+
+    /// <summary>
+    /// Вычисляет логическое "И".
+    /// Реализует вычисление по короткой схеме (short-circuit evaluation).
+    /// </summary>
+    private static Value ApplyLogicalAnd(Func<Value> evaluateLeft, Func<Value> evaluateRight)
+    {
+        int left = evaluateLeft().AsInt();
+        if (left == 0)
+        {
+            return new Value(0);
+        }
+
+        int result = (evaluateRight().AsInt() != 0) ? 1 : 0;
+        return new Value(result);
     }
 }

@@ -118,6 +118,14 @@ public class ExpressionsTest
                 """,
                 new Value(0)
             },
+
+            // Разбор логических операторов
+            {
+                "1 & 0", new Value(0)
+            },
+            {
+                "3 | 2", new Value(1)
+            },
         };
     }
 

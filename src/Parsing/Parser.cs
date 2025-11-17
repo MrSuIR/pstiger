@@ -124,11 +124,11 @@ public class Parser
             {
                 case TokenType.Plus:
                     _tokens.Advance();
-                    expr = new BinaryOperationExpression(expr, BinaryOperation.Plus, ParseMultiplicativeExpression());
+                    expr = new BinaryOperationExpression(expr, BinaryOperation.Add, ParseMultiplicativeExpression());
                     break;
                 case TokenType.Minus:
                     _tokens.Advance();
-                    expr = new BinaryOperationExpression(expr, BinaryOperation.Minus, ParseMultiplicativeExpression());
+                    expr = new BinaryOperationExpression(expr, BinaryOperation.Substract, ParseMultiplicativeExpression());
                     break;
                 default:
                     return expr;

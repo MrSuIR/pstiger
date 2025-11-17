@@ -5,12 +5,12 @@ public enum BinaryOperation
     /// <summary>
     /// Сложение чисел.
     /// </summary>
-    Plus,
+    Add,
 
     /// <summary>
     /// Вычитание чисел.
     /// </summary>
-    Minus,
+    Substract,
 
     /// <summary>
     /// Умножение чисел.
