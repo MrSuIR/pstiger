@@ -6,8 +6,15 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Execution;
 
+/// <summary>
+/// Интерпретирует ранее разобранную программу, используя её AST.
+/// </summary>
+/// <exception cref="InvalidOperationException">Бросается при ошибке в процессе вычислений.</exception>
 public class AstEvaluator : IAstVisitor
 {
+    /// <summary>
+    /// В стек временно складываются результаты вычисления операндов текущей операции.
+    /// </summary>
     private readonly Stack<Value> _values = [];
 
     public Value Evaluate(AstNode node)

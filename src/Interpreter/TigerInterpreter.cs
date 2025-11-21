@@ -3,17 +3,25 @@ using PsTiger.Execution;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
 
+using Semantics;
+
 namespace PsTiger.Interpreter;
 
 public class TigerInterpreter
 {
     public Value Execute(string code)
     {
+        // 1. Разбор программы.
         Parser parser = new(code);
-        AstEvaluator evaluator = new();
+        Expression program = parser.ParseProgram();
 
-        Expression expression = parser.ParseProgram();
-        Value result = evaluator.Evaluate(expression);
+        // 2. Проверка соответствия типов в программе.
+        TypeChecker typeChecker = new();
+        program.Accept(typeChecker);
+
+        // 3. Исполнение программы.
+        AstEvaluator evaluator = new();
+        Value result = evaluator.Evaluate(program);
 
         return result;
     }
