@@ -1,0 +1,23 @@
+using System.Globalization;
+
+using PsTiger.Execution;
+
+namespace PsTiger.Interpreter;
+
+public class ConsoleEnvironment : IEnvironment
+{
+    public void Print(string text)
+    {
+        Console.Write(text);
+    }
+
+    public void PrintInt(int value)
+    {
+        Console.Write(value.ToString(CultureInfo.InvariantCulture));
+    }
+
+    public void Flush()
+    {
+        Console.Out.Flush();
+    }
+}

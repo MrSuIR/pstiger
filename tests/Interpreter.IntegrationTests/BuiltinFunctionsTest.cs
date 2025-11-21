@@ -1,3 +1,5 @@
+using Interpreter.IntegrationTests.TestDoubles;
+
 using PsTiger.Interpreter;
 using PsTiger.Runtime;
 
@@ -9,21 +11,55 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetEvaluateBuiltinFuntionsData))]
     public void Can_evaluate_builtin_functions(string code, Value expected)
     {
-        TigerInterpreter interpreter = new();
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
         Assert.Equal(expected, result, EqualityComparer<Value>.Default);
     }
 
+    [Theory]
+    [MemberData(nameof(GetEvaluateOutputFunctionsData))]
+    public void Can_evaluate_print_function(string code, string bufferedOutput, string flushedOutput)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        Value result = interpreter.Execute(code);
+
+        Assert.Equal(result, new Value());
+        Assert.Equal(bufferedOutput, environment.BufferedOutput);
+        Assert.Equal(flushedOutput, environment.FlushedOutput);
+    }
+
     public static TheoryData<string, Value> GetEvaluateBuiltinFuntionsData()
     {
+        // Логические функции
         return new TheoryData<string, Value>
         {
             {
-                // Логические функции
                 "1 & not(0)", new Value(1)
             },
             {
                 "0 | not(2)", new Value(0)
+            },
+        };
+    }
+
+    public static TheoryData<string, string, string> GetEvaluateOutputFunctionsData()
+    {
+        // Функции вывода
+        return new TheoryData<string, string, string>
+        {
+            {
+                "print(\"Hello!\")", "Hello!", ""
+            },
+            {
+                "printi(2 + 7)", "9", ""
+            },
+            {
+                "(printi(2 + 7); print(\"\\n\"); flush(); printi(2 - 7); print(\"\\n\"))", "-5\n", "9\n"
+            },
+            {
+                "(printi(7); flush(); printi(4))", "4", "7"
             },
         };
     }

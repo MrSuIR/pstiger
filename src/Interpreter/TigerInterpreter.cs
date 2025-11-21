@@ -9,6 +9,13 @@ namespace PsTiger.Interpreter;
 
 public class TigerInterpreter
 {
+    private readonly Builtins _builtins;
+
+    public TigerInterpreter(IEnvironment environment)
+    {
+        _builtins = new Builtins(environment);
+    }
+
     public Value Execute(string code)
     {
         // 1. Разбор программы.
@@ -16,11 +23,11 @@ public class TigerInterpreter
         Expression program = parser.ParseProgram();
 
         // 2. Проверка соответствия типов в программе.
-        TypeChecker typeChecker = new(Builtins.Functions);
+        TypeChecker typeChecker = new(_builtins.Functions);
         program.Accept(typeChecker);
 
         // 3. Исполнение программы.
-        AstEvaluator evaluator = new(Builtins.Functions);
+        AstEvaluator evaluator = new(_builtins.Functions);
         Value result = evaluator.Evaluate(program);
 
         return result;

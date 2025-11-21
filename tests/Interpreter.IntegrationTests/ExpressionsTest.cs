@@ -1,3 +1,5 @@
+using Interpreter.IntegrationTests.TestDoubles;
+
 using PsTiger.Interpreter;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
@@ -10,7 +12,8 @@ public class ExpressionsTest
     [MemberData(nameof(GetEvaluateExpressionsData))]
     public void Can_evaluate_expressions(string code, Value expected)
     {
-        TigerInterpreter interpreter = new();
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
         Assert.Equal(expected, result, EqualityComparer<Value>.Default);
     }
@@ -19,7 +22,8 @@ public class ExpressionsTest
     [MemberData(nameof(GetInvalidExpressionsData))]
     public void Rejects_invalid_expressions(string code)
     {
-        TigerInterpreter interpreter = new();
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
         Assert.Throws<UnexpectedLexemeException>(() => interpreter.Execute(code));
     }
 

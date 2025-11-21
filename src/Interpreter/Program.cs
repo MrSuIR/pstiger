@@ -23,7 +23,8 @@ public static class Program
             string sourceCode = File.ReadAllText(sourcePath);
 
             // Выполняем программу
-            TigerInterpreter interpreter = new();
+            ConsoleEnvironment environment = new();
+            TigerInterpreter interpreter = new(environment);
             interpreter.Execute(sourceCode);
 
             return 0;

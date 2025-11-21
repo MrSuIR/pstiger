@@ -6,19 +6,53 @@ using ValueType = PsTiger.Runtime.ValueType;
 namespace PsTiger.Execution;
 
 /// <summary>
-/// Статический клас, предоставляющий список встроенных символов языка.
+/// Объект, предоставляющий доступ к встроенным символам языка.
 /// </summary>
-public static class Builtins
+public class Builtins
 {
-    /// <summary>
-    /// Статический конструктор, инициализирующий статические поля класса.
-    /// </summary>
-    static Builtins()
+    public Builtins(IEnvironment environment)
     {
         List<BuiltinFunction> functions =
         [
             new(
-                "not",
+                "print", // print(s: string)` — выводит строку в стандартный поток вывода
+                [
+                    new ParameterDeclaration("s", ValueType.String),
+                ],
+                ValueType.Void,
+                arguments =>
+                {
+                    environment.Print(arguments[0].AsString());
+                    return new Value();
+                }
+            ),
+
+            new(
+                "printi", // `printi(i: int)` — выводит целое число в стандартный поток вывода
+                [
+                    new ParameterDeclaration("i", ValueType.Int),
+                ],
+                ValueType.Void,
+                arguments =>
+                {
+                    environment.PrintInt(arguments[0].AsInt());
+                    return new Value();
+                }
+            ),
+
+            new(
+                "flush", // `flush()` — записывает данные в буфере стандартного потока вывода
+                [],
+                ValueType.Void,
+                _ =>
+                {
+                    environment.Flush();
+                    return new Value();
+                }
+            ),
+
+            new(
+                "not", // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
                 [
                     new ParameterDeclaration("i", ValueType.Int),
                 ],
@@ -33,5 +67,5 @@ public static class Builtins
     /// <summary>
     /// Список встроенных функций языка.
     /// </summary>
-    public static IReadOnlyDictionary<string, BuiltinFunction> Functions { get; }
+    public IReadOnlyDictionary<string, BuiltinFunction> Functions { get; }
 }
