@@ -115,13 +115,13 @@ unary_expression = { "-" }, primary_expression ;
 (* Элементарное выражение *)
 primary_expression = literal
     | identifier, argument_list
-    | exression_sequence ;
+    | expression_sequence ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
 
 (* Последовательность выражений *)
-expression_sequence = "(", [ exression_sequence_inner ], ")" ;
+expression_sequence = "(", [ expression_sequence_inner ], ")" ;
 expression_sequence_inner = expression,  { ";", expression } ;
 ```
 

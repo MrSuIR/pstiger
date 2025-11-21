@@ -124,11 +124,15 @@ public class Parser
             {
                 case TokenType.Plus:
                     _tokens.Advance();
-                    expr = new BinaryOperationExpression(expr, BinaryOperation.Add, ParseMultiplicativeExpression());
+                    expr = new BinaryOperationExpression(
+                        expr, BinaryOperation.Add, ParseMultiplicativeExpression()
+                    );
                     break;
                 case TokenType.Minus:
                     _tokens.Advance();
-                    expr = new BinaryOperationExpression(expr, BinaryOperation.Substract, ParseMultiplicativeExpression());
+                    expr = new BinaryOperationExpression(
+                        expr, BinaryOperation.Substract, ParseMultiplicativeExpression()
+                    );
                     break;
                 default:
                     return expr;
@@ -184,9 +188,8 @@ public class Parser
     /// Правило:
     ///     primary_expression = literal
     ///         | identifier, argument_list
-    ///         | exression_sequence ;
+    ///         | expression_sequence ;
     /// </summary>
-    // TODO: Реализовать разбор вызова функций.
     private Expression ParsePrimaryExpression()
     {
         Token t = _tokens.Peek();
@@ -200,15 +203,50 @@ public class Parser
                 return new LiteralExpression(new Value(t.Value!.ToString()));
             case TokenType.OpenParenthesis:
                 return ParseExpressionSequence();
+            case TokenType.Identifier:
+                {
+                    _tokens.Advance();
+                    List<Expression> arguments = ParseArgumentsList();
+                    return new FunctionCallExpression(t.Value!.ToString(), arguments);
+                }
+
             default:
-                throw new UnexpectedLexemeException(t, [TokenType.IntLiteral, TokenType.StringLiteral]);
+                throw new UnexpectedLexemeException(
+                    t, [TokenType.Identifier, TokenType.IntLiteral, TokenType.StringLiteral]
+                );
         }
+    }
+
+    /// <summary>
+    /// Разбирает список аргументов функции.
+    /// Правило:
+    ///     arguments_list = "(", [ expression, { ",", expression } ], ")" ;
+    /// </summary>
+    private List<Expression> ParseArgumentsList()
+    {
+        List<Expression> arguments = [];
+
+        Match(TokenType.OpenParenthesis); // Читаем открывающую скобку.
+
+        // Читаем необязательный список аргументов, разделённых запятыми.
+        if (_tokens.Peek().Type != TokenType.CloseParenthesis)
+        {
+            do
+            {
+                arguments.Add(ParseExpression());
+            }
+            while (_tokens.Peek().Type == TokenType.Comma);
+        }
+
+        Match(TokenType.CloseParenthesis); // Читаем закрывающую скобку.
+
+        return arguments;
     }
 
     /// <summary>
     /// Разбор последовательности выражений.
     /// Правила:
-    ///     expression_sequence = "(", [ exression_sequence_inner ], ")" ;
+    ///     expression_sequence = "(", [ expression_sequence_inner ], ")" ;
     ///     expression_sequence_inner = expression,  { ";", expression } ;
     /// </summary>
     private Expression ParseExpressionSequence()

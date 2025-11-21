@@ -1,4 +1,5 @@
 using PsTiger.Ast;
+using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 
 using ValueType = PsTiger.Runtime.ValueType;
@@ -12,9 +13,19 @@ namespace Semantics;
 public class TypeChecker : IAstVisitor
 {
     /// <summary>
+    /// Словарь встроенных функций языка.
+    /// </summary>
+    private readonly IReadOnlyDictionary<string, BuiltinFunction> _builtins;
+
+    /// <summary>
     /// В стек временно складываются результаты вывода типа текущей операции.
     /// </summary>
     private readonly Stack<ValueType> _types = [];
+
+    public TypeChecker(IReadOnlyDictionary<string, BuiltinFunction> builtins)
+    {
+        _builtins = builtins;
+    }
 
     /// <summary>
     /// Литерал всегда имеет определённый тип.
@@ -78,7 +89,31 @@ public class TypeChecker : IAstVisitor
         _types.Push(operandType);
     }
 
-    private ValueType? GetBinaryOperationResultType(BinaryOperation operation, ValueType left, ValueType right)
+    /// <summary>
+    /// Проверяет соответствие типов параметров функции и аргументов при вызове этой функции.
+    /// </summary>
+    public void Visit(FunctionCallExpression e)
+    {
+        BuiltinFunction function = _builtins[e.Name];
+
+        // Для каждого i-го аргумента выводим тип и сверяем с типом i-го параметра функции.
+        for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
+        {
+            e.Arguments[i].Accept(this);
+            ValueType argumentType = _types.Pop();
+            ParameterDeclaration parameter = function.Parameters[i];
+            if (argumentType != parameter.ValueType)
+            {
+                throw new TypeErrorException(
+                    $"Cannot apply argument #{i} of type {argumentType} to function {e.Name} parameter {parameter.Name} with type {parameter.ValueType}"
+                );
+            }
+        }
+
+        _types.Push(function.ResultType);
+    }
+
+    private static ValueType? GetBinaryOperationResultType(BinaryOperation operation, ValueType left, ValueType right)
     {
         switch (operation)
         {

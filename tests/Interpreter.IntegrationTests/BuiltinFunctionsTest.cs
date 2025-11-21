@@ -14,7 +14,6 @@ public class BuiltinFunctionsTest
         Assert.Equal(expected, result, EqualityComparer<Value>.Default);
     }
 
-
     public static TheoryData<string, Value> GetEvaluateBuiltinFuntionsData()
     {
         return new TheoryData<string, Value>

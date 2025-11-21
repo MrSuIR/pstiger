@@ -1,6 +1,6 @@
 namespace PsTiger.Ast.Expressions;
 
-public class UnaryMinusExpression : Expression
+public sealed class UnaryMinusExpression : Expression
 {
     public UnaryMinusExpression(Expression operand)
     {

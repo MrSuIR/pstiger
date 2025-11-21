@@ -1,4 +1,5 @@
 using PsTiger.Ast;
+using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 
@@ -13,9 +14,19 @@ namespace PsTiger.Execution;
 public class AstEvaluator : IAstVisitor
 {
     /// <summary>
+    /// Словарь встроенных функций языка.
+    /// </summary>
+    private readonly IReadOnlyDictionary<string, BuiltinFunction> _builtins;
+
+    /// <summary>
     /// В стек временно складываются результаты вычисления операндов текущей операции.
     /// </summary>
     private readonly Stack<Value> _values = [];
+
+    public AstEvaluator(IReadOnlyDictionary<string, BuiltinFunction> builtins)
+    {
+        _builtins = builtins;
+    }
 
     public Value Evaluate(AstNode node)
     {
@@ -84,5 +95,22 @@ public class AstEvaluator : IAstVisitor
 
         int value = _values.Pop().AsInt();
         _values.Push(new Value(-value));
+    }
+
+    public void Visit(FunctionCallExpression e)
+    {
+        BuiltinFunction function = _builtins[e.Name];
+
+        // Вычисляем аргументы функции.
+        List<Value> arguments = [];
+        foreach (Expression argument in e.Arguments)
+        {
+            argument.Accept(this);
+            arguments.Add(_values.Pop());
+        }
+
+        // Вызываем функцию и сохраняем результат в стеке.
+        Value result = function.Invoke(arguments);
+        _values.Push(result);
     }
 }

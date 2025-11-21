@@ -16,11 +16,11 @@ public class TigerInterpreter
         Expression program = parser.ParseProgram();
 
         // 2. Проверка соответствия типов в программе.
-        TypeChecker typeChecker = new();
+        TypeChecker typeChecker = new(Builtins.Functions);
         program.Accept(typeChecker);
 
         // 3. Исполнение программы.
-        AstEvaluator evaluator = new();
+        AstEvaluator evaluator = new(Builtins.Functions);
         Value result = evaluator.Evaluate(program);
 
         return result;
