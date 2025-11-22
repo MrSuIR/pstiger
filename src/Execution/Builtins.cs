@@ -102,6 +102,55 @@ public class Builtins
             ),
 
             new(
+                "size", // `size(s: string): int` — возвращает количество символов в строке `s`
+                [
+                    new ParameterDeclaration("s", ValueType.String),
+                ],
+                ValueType.Int,
+                arguments =>
+                {
+                    string text = arguments[0].AsString();
+                    return new Value(text.Length);
+                }
+            ),
+
+            new(
+                "substring", // `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
+                [
+                    new ParameterDeclaration("s", ValueType.String),
+                    new ParameterDeclaration("f", ValueType.Int),
+                    new ParameterDeclaration("n", ValueType.Int),
+                ],
+                ValueType.String,
+                arguments =>
+                {
+                    string text = arguments[0].AsString();
+                    int fromIndex = arguments[1].AsInt();
+                    int length = arguments[2].AsInt();
+
+                    // Разрешаем выход за границы строки, в этом случае результат будет короче заданной длины.
+                    int safeLength = int.Min(length, text.Length - fromIndex);
+
+                    return new Value(text.Substring(fromIndex, safeLength));
+                }
+            ),
+
+            new(
+                "concat", // `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
+                [
+                    new ParameterDeclaration("s1", ValueType.String),
+                    new ParameterDeclaration("s2", ValueType.String),
+                ],
+                ValueType.String,
+                arguments =>
+                {
+                    string left = arguments[0].AsString();
+                    string right = arguments[1].AsString();
+                    return new Value(left + right);
+                }
+            ),
+
+            new(
                 "not", // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
                 [
                     new ParameterDeclaration("i", ValueType.Int),

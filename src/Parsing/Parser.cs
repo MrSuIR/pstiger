@@ -231,11 +231,12 @@ public class Parser
         // Читаем необязательный список аргументов, разделённых запятыми.
         if (_tokens.Peek().Type != TokenType.CloseParenthesis)
         {
-            do
+            arguments.Add(ParseExpression());
+            while (_tokens.Peek().Type == TokenType.Comma)
             {
+                _tokens.Advance();
                 arguments.Add(ParseExpression());
             }
-            while (_tokens.Peek().Type == TokenType.Comma);
         }
 
         Match(TokenType.CloseParenthesis); // Читаем закрывающую скобку.

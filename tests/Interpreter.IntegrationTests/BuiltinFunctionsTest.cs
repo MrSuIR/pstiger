@@ -51,6 +51,20 @@ public class BuiltinFunctionsTest
             {
                 "ord(\"\")", new Value(-1)
             },
+
+            // Функции работы со строками
+            {
+                "size(\"Hello!\")", new Value(6)
+            },
+            {
+                "substring(\"Hello!\", 2, 2)", new Value("ll")
+            },
+            {
+                "substring(\"Hello!\", 2, 10)", new Value("llo!")
+            },
+            {
+                "concat(\"Ali\", \"ce\")", new Value("Alice")
+            },
         };
     }
 
