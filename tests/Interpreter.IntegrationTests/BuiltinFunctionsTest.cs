@@ -70,33 +70,52 @@ public class BuiltinFunctionsTest
 
     [Theory]
     [MemberData(nameof(GetEvaluateOutputFunctionsData))]
-    public void Can_evaluate_output_functions(string code, string expectedBufferedOutput, string expectedFlushedOutput)
+    public void Can_evaluate_output_functions(
+        string code,
+        Value expectedResult,
+        string expectedBufferedOutput,
+        string expectedFlushedOutput
+    )
     {
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
 
-        Assert.Equal(result, new Value());
+        Assert.Equal(expectedResult, result);
         Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
         Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
     }
 
-    public static TheoryData<string, string, string> GetEvaluateOutputFunctionsData()
+    public static TheoryData<string, Value, string, string> GetEvaluateOutputFunctionsData()
     {
-        // Функции вывода
-        return new TheoryData<string, string, string>
+        return new TheoryData<string, Value,string, string>
         {
+            // Функции вывода
             {
-                "print(\"Hello!\")", "Hello!", ""
+                "print(\"Hello!\")", new Value(), "Hello!", ""
             },
             {
-                "printi(2 + 7)", "9", ""
+                "printi(2 + 7)", new Value(), "9", ""
             },
             {
-                "(printi(2 + 7); print(\"\\n\"); flush(); printi(2 - 7); print(\"\\n\"))", "-5\n", "9\n"
+                "(printi(2 + 7); print(\"\\n\"); flush(); printi(2 - 7); print(\"\\n\"))", new Value(), "-5\n", "9\n"
             },
             {
-                "(printi(7); flush(); printi(4))", "4", "7"
+                "(printi(7); flush(); printi(4))", new Value(), "4", "7"
+            },
+
+            // Вычисления логических операций по короткой схеме
+            {
+                "1 & (printi(2); 0)", new Value(0), "2", ""
+            },
+            {
+                "0 & (printi(0); 0)", new Value(0), "", ""
+            },
+            {
+                "0 | (printi(2); 0)", new Value(0), "2", ""
+            },
+            {
+                "1 | (printi(0); 0)", new Value(1), "", ""
             },
         };
     }
