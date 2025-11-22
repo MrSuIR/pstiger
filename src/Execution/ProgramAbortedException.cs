@@ -1,12 +1,12 @@
-namespace Semantics;
+namespace PsTiger.Execution;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
 /// <summary>
-/// Исключение из-за несовместимых типов данных в программе.
+/// Исключение вызывается при аварийной остановке программы.
 /// </summary>
-public class TypeErrorException : Exception
+public class ProgramAbortedException : Exception
 {
-    public TypeErrorException(string message)
+    public ProgramAbortedException(string message)
         : base(message)
     {
     }

@@ -1,5 +1,6 @@
 using Interpreter.IntegrationTests.TestDoubles;
 
+using PsTiger.Execution;
 using PsTiger.Interpreter;
 using PsTiger.Runtime;
 
@@ -17,31 +18,53 @@ public class BuiltinFunctionsTest
         Assert.Equal(expected, result, EqualityComparer<Value>.Default);
     }
 
-    [Theory]
-    [MemberData(nameof(GetEvaluateOutputFunctionsData))]
-    public void Can_evaluate_print_function(string code, string bufferedOutput, string flushedOutput)
+    [Fact]
+    public void Stops_on_invalid_char_conversion()
     {
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
-        Value result = interpreter.Execute(code);
-
-        Assert.Equal(result, new Value());
-        Assert.Equal(bufferedOutput, environment.BufferedOutput);
-        Assert.Equal(flushedOutput, environment.FlushedOutput);
+        Assert.Throws<ProgramAbortedException>(() => interpreter.Execute("chr(2025)"));
     }
 
     public static TheoryData<string, Value> GetEvaluateBuiltinFuntionsData()
     {
-        // Логические функции
         return new TheoryData<string, Value>
         {
+            // Логические функции
             {
                 "1 & not(0)", new Value(1)
             },
             {
                 "0 | not(2)", new Value(0)
             },
+
+            // Функции преобразования символов
+            {
+                "chr(ord(\"Hello\"))", new Value("H")
+            },
+            {
+                "ord(\"0\")", new Value(48)
+            },
+            {
+                "chr(49)", new Value("1")
+            },
+            {
+                "ord(\"\")", new Value(-1)
+            },
         };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetEvaluateOutputFunctionsData))]
+    public void Can_evaluate_output_functions(string code, string expectedBufferedOutput, string expectedFlushedOutput)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        Value result = interpreter.Execute(code);
+
+        Assert.Equal(result, new Value());
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+        Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
     }
 
     public static TheoryData<string, string, string> GetEvaluateOutputFunctionsData()
@@ -60,6 +83,30 @@ public class BuiltinFunctionsTest
             },
             {
                 "(printi(7); flush(); printi(4))", "4", "7"
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetEvaluateInputFunctionsData))]
+    public void Can_evaluate_input_functions(string code, string input, string expectedBufferedOutput)
+    {
+        FakeEnvironment environment = new();
+        environment.AddInput(input);
+
+        TigerInterpreter interpreter = new(environment);
+        Value result = interpreter.Execute(code);
+
+        Assert.Equal(result, new Value());
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+    }
+
+    public static TheoryData<string, string, string> GetEvaluateInputFunctionsData()
+    {
+        return new TheoryData<string, string, string>
+        {
+            {
+                "print(getchar())", "x", "x"
             },
         };
     }
