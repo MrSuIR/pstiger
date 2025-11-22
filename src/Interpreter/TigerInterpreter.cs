@@ -10,11 +10,14 @@ namespace PsTiger.Interpreter;
 public class TigerInterpreter
 {
     private readonly Builtins _builtins;
+    private int _exitCode;
 
     public TigerInterpreter(IEnvironment environment)
     {
         _builtins = new Builtins(environment);
     }
+
+    public int ExitCode => _exitCode;
 
     public Value Execute(string code)
     {
@@ -28,7 +31,15 @@ public class TigerInterpreter
 
         // 3. Исполнение программы.
         AstEvaluator evaluator = new(_builtins.Functions);
-        Value result = evaluator.Evaluate(program);
+        Value result = new();
+        try
+        {
+            result = evaluator.Evaluate(program);
+        }
+        catch (ProgramExitedException e)
+        {
+            _exitCode = e.ExitCode;
+        }
 
         return result;
     }

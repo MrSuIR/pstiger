@@ -124,4 +124,30 @@ public class BuiltinFunctionsTest
             },
         };
     }
+
+    [Theory]
+    [MemberData(nameof(GetEvaluateExitFunctionData))]
+    public void Can_evaluate_exit_function(string code, string expectedBufferedOutput, int expectedCode)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        Value result = interpreter.Execute(code);
+
+        Assert.Equal(result, new Value());
+        Assert.Equal(expectedCode, interpreter.ExitCode);
+        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+    }
+
+    public static TheoryData<string, string, int> GetEvaluateExitFunctionData()
+    {
+        return new TheoryData<string, string, int>
+        {
+            {
+                "(print(\"Hello, \"); exit(0); print(\"World!\"))", "Hello, ", 0
+            },
+            {
+                "(print(\"The End\"); exit(1))", "The End", 1
+            },
+        };
+    }
 }

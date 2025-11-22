@@ -158,6 +158,19 @@ public class Builtins
                 ValueType.Int,
                 arguments => (arguments[0].AsInt() == 0) ? new Value(1) : new Value(0)
             ),
+
+            new(
+                "exit", // `exit(i: int)` — завершает программу с кодом выхода `i`
+                [
+                    new ParameterDeclaration("i", ValueType.Int),
+                ],
+                ValueType.Void,
+                arguments =>
+                {
+                    int exitCode = arguments[0].AsInt();
+                    throw new ProgramExitedException(exitCode);
+                }
+            ),
         ];
 
         Functions = functions.ToDictionary(function => function.Name);
