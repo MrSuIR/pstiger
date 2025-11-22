@@ -26,8 +26,8 @@ public class TigerInterpreter
         Expression program = parser.ParseProgram();
 
         // 2. Проверка соответствия типов в программе.
-        TypeChecker typeChecker = new(_builtins.Functions);
-        program.Accept(typeChecker);
+        SemanticsChecker checker = new(_builtins.Functions);
+        checker.Check(program);
 
         // 3. Исполнение программы.
         AstEvaluator evaluator = new(_builtins.Functions);

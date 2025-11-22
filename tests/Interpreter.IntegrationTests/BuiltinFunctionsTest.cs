@@ -4,6 +4,8 @@ using PsTiger.Execution;
 using PsTiger.Interpreter;
 using PsTiger.Runtime;
 
+using Semantics;
+
 namespace Interpreter.IntegrationTests;
 
 public class BuiltinFunctionsTest
@@ -88,7 +90,7 @@ public class BuiltinFunctionsTest
 
     public static TheoryData<string, Value, string, string> GetEvaluateOutputFunctionsData()
     {
-        return new TheoryData<string, Value,string, string>
+        return new TheoryData<string, Value, string, string>
         {
             // Функции вывода
             {
@@ -166,6 +168,49 @@ public class BuiltinFunctionsTest
             },
             {
                 "(print(\"The End\"); exit(1))", "The End", 1
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetInvalidFunctionCallsData))]
+    public void Throws_on_invalid_function_calls(string code, Type expectedExceptionType)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetInvalidFunctionCallsData()
+    {
+        return new TheoryData<string, Type>
+        {
+            // Нельзя вызвать неизвестную функцию
+            {
+                "length(\"Hello!\")", typeof(InvalidFunctionCallException)
+            },
+
+            // Нельзя вызвать встроенную функцию с неправильными типами аргументов
+            {
+                "size(10)", typeof(TypeErrorException)
+            },
+
+            // Нельзя вызвать встроенную функцию с неправильным числом аргументов
+            {
+                "size(\"Hello!\", \"World\")", typeof(InvalidFunctionCallException)
+            },
+            {
+                "size()", typeof(InvalidFunctionCallException)
+            },
+            {
+                "concat()", typeof(InvalidFunctionCallException)
+            },
+            {
+                "concat(\"a\")", typeof(InvalidFunctionCallException)
+            },
+            {
+                "concat(\"a\", \"b\", \"c\")", typeof(InvalidFunctionCallException)
             },
         };
     }
