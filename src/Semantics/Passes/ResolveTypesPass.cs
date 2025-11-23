@@ -88,6 +88,19 @@ public sealed class ResolveTypesPass : AbstractPass
     /// </summary>
     public override void Visit(ScopeExpression e)
     {
+        // NOTE: Для поддержки взаимной рекурсии функций мы выполняем обход функций до основной части обхода.
+        foreach (Declaration d in e.Declarations)
+        {
+            if (d is FunctionDeclaration f)
+            {
+                f.ResultType = f.DeclaredType?.ResultType ?? ValueType.Void;
+                foreach (ParameterDeclaration p in f.Parameters.Cast<ParameterDeclaration>())
+                {
+                    p.ResultType = p.Type.ResultType;
+                }
+            }
+        }
+
         base.Visit(e);
         e.ResultType = ValueType.Void;
     }
@@ -170,9 +183,6 @@ public sealed class ResolveTypesPass : AbstractPass
 
     public override void Visit(FunctionDeclaration d)
     {
-        // Заранее описываем ResultType, чтобы поддержать рекурсивные функции.
-        d.ResultType = d.DeclaredType?.ResultType ?? ValueType.Void;
-
         base.Visit(d);
 
         ValueType bodyResultType = d.Body.ResultType;
@@ -182,12 +192,6 @@ public sealed class ResolveTypesPass : AbstractPass
                 $"Function {d.Name} must return {d.ResultType} value, but actually returns {bodyResultType}"
             );
         }
-    }
-
-    public override void Visit(ParameterDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = d.Type.ResultType;
     }
 
     /// <summary>
