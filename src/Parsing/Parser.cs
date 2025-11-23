@@ -208,7 +208,7 @@ public class Parser
     ///         | identifier, argument_list
     ///         | expression_sequence
     ///         | if_expression
-    ///         | "let", declaration_list, "in", [ expression_sequence_inner ], "end" ;
+    ///         | scope_expression ;
     /// </summary>
     private Expression ParsePrimaryExpression()
     {
@@ -239,19 +239,7 @@ public class Parser
                 return ParseIfExpression();
 
             case TokenType.Let:
-                {
-                    _tokens.Advance();
-                    List<Declaration> declarations = ParseDeclarationList();
-                    Match(TokenType.In);
-                    List<Expression> expressions = [];
-                    if (_tokens.Peek().Type != TokenType.End)
-                    {
-                        expressions = ParseInnerExpressionSequence();
-                    }
-
-                    Match(TokenType.End);
-                    return new ScopeExpression(declarations, expressions);
-                }
+                return ParseScopeExpression();
 
             default:
                 throw new UnexpectedLexemeException(
@@ -358,6 +346,26 @@ public class Parser
         }
 
         return new IfElseExpression(condition, thenBranch, elseBranch);
+    }
+
+    /// <summary>
+    /// Выполняет разбор конструкции let...in...end, задающей область видимости объявлений.
+    /// Правило:
+    ///     scope_expression = "let", declaration_list, "in", [ inner_expression_sequence ], "end" ;
+    /// </summary>
+    private Expression ParseScopeExpression()
+    {
+        _tokens.Advance();
+        List<Declaration> declarations = ParseDeclarationList();
+        Match(TokenType.In);
+        List<Expression> expressions = [];
+        if (_tokens.Peek().Type != TokenType.End)
+        {
+            expressions = ParseInnerExpressionSequence();
+        }
+
+        Match(TokenType.End);
+        return new ScopeExpression(declarations, expressions);
     }
 
     /// <summary>

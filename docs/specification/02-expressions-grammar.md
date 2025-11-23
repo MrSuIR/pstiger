@@ -135,7 +135,7 @@ primary_expression = literal
     | identifier
     | identifier, argument_list
     | expression_sequence
-    | "let", declaration_list, "in", [ inner_expression_sequence ], "end"
+    | scope_expression
     | if_expression ;
 
 (* Аргументы функций *)
@@ -144,6 +144,9 @@ arguments_list = "(", [ expression, { ",", expression } ], ")" ;
 (* Последовательность выражений *)
 expression_sequence = "(", [ inner_expression_sequence ], ")" ;
 inner_expression_sequence = expression,  { ";", expression } ;
+
+(* Область видимости объявлений *)
+scope_expression = "let", declaration_list, "in", [ inner_expression_sequence ], "end" ;
 
 (* Ветвление *)
 if_expression = "if", expression, "then", expression, [ "else", expression ] ;
