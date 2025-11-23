@@ -17,5 +17,9 @@ public interface IAstVisitor
 
     void Visit(ScopeExpression e);
 
+    void Visit(VariableAccessExpression e);
+
     void Visit(VariableDeclaration e);
+
+    void Visit(AssignmentExpression e);
 }

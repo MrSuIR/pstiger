@@ -30,7 +30,7 @@ public sealed class ResolveNamesPass : AbstractPass
         else
         {
             throw new InvalidFunctionCallException(
-                $"Name {e.Name} does not refer to function"
+                $"Name {e.Name} does not refer to a function"
             );
         }
 
@@ -48,6 +48,23 @@ public sealed class ResolveNamesPass : AbstractPass
         finally
         {
             _symbols = _symbols.Parent!;
+        }
+    }
+
+    public override void Visit(VariableAccessExpression e)
+    {
+        base.Visit(e);
+
+        Declaration symbol = _symbols.GetSymbol(e.Name);
+        if (symbol is VariableDeclaration variable)
+        {
+            e.Variable = variable;
+        }
+        else
+        {
+            throw new InvalidVariableAccess(
+                $"Name {e.Name} does not refer to a variable"
+            );
         }
     }
 

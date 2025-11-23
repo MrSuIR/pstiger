@@ -50,6 +50,16 @@ public abstract class AbstractPass : IAstVisitor
         e.Expression?.Accept(this);
     }
 
+    public virtual void Visit(VariableAccessExpression e)
+    {
+    }
+
+    public virtual void Visit(AssignmentExpression e)
+    {
+        e.Left.Accept(this);
+        e.Right.Accept(this);
+    }
+
     public virtual void Visit(VariableDeclaration e)
     {
         e.InitialValue.Accept(this);

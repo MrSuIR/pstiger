@@ -113,6 +113,18 @@ public sealed class ResolveTypesPass : AbstractPass
         }
     }
 
+    public override void Visit(AssignmentExpression e)
+    {
+        base.Visit(e);
+
+        if (e.Left.ResultType != e.Right.ResultType)
+        {
+            throw new TypeErrorException(
+                $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
+            );
+        }
+    }
+
     /// <summary>
     /// Вычисляет тип результата бинарной операции.
     /// Возвращает null, если бинарная операция не может быть выполнена с указанными типами.

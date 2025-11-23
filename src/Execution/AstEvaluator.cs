@@ -119,7 +119,17 @@ public class AstEvaluator : IAstVisitor
         throw new NotImplementedException();
     }
 
+    public void Visit(VariableAccessExpression e)
+    {
+        throw new NotImplementedException();
+    }
+
     public void Visit(VariableDeclaration e)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(AssignmentExpression e)
     {
         throw new NotImplementedException();
     }

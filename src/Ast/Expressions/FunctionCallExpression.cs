@@ -16,13 +16,13 @@ public class FunctionCallExpression : Expression
         Arguments = arguments;
     }
 
+    public string Name { get; }
+
     public AbstractFunctionDeclaration Function
     {
         get => _function.Get();
         set => _function.Set(value);
     }
-
-    public string Name { get; }
 
     public IReadOnlyList<Expression> Arguments { get; }
 
