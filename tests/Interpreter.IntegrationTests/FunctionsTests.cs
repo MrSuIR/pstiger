@@ -35,10 +35,10 @@ public class FunctionsTests
                 let
                     function one(): int = 1
                 in
-                    printi(rectsquare(1, 3, 6, 7))
+                    printi(one())
                 end
                 """,
-                "20"
+                "1"
             },
 
             // Функция с одним параметром
@@ -48,11 +48,13 @@ public class FunctionsTests
                     function abs(x: int): int = if x >= 0 then x else -x
                 in
                     printi(abs(7));
+                    print(" ");
                     printi(abs(-5));
+                print(" ");
                     printi(abs(4))
                 end
                 """,
-                "20"
+                "7 5 4"
             },
 
             // Функция с несколькими параметрами
@@ -85,7 +87,7 @@ public class FunctionsTests
                 """
                 let
                     function factorial(x: int): int =
-                        if x <= 1 then 1 else factorial(x - 1)
+                        if x <= 1 then 1 else x * factorial(x - 1)
                 in
                     printi(factorial(5))
                 end

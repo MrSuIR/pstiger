@@ -29,7 +29,7 @@ public class TigerInterpreter
         checker.Check(program);
 
         // 3. Исполнение программы.
-        AstEvaluator evaluator = new(_builtins.Functions);
+        AstEvaluator evaluator = new();
         Value result = Value.Void;
         try
         {

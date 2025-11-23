@@ -1,9 +1,8 @@
 using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Execution.Data;
 using PsTiger.Runtime;
-
-using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Execution;
 
@@ -14,11 +13,6 @@ namespace PsTiger.Execution;
 public class AstEvaluator : IAstVisitor
 {
     /// <summary>
-    /// Словарь встроенных функций языка.
-    /// </summary>
-    private readonly IReadOnlyDictionary<string, BuiltinFunction> _builtins;
-
-    /// <summary>
     /// В стек временно складываются результаты вычисления операндов текущей операции.
     /// </summary>
     private readonly Stack<Value> _values = [];
@@ -28,10 +22,10 @@ public class AstEvaluator : IAstVisitor
     /// </summary>
     private VariablesTable _variables = new();
 
-    public AstEvaluator(IReadOnlyDictionary<string, BuiltinFunction> builtins)
-    {
-        _builtins = builtins;
-    }
+    /// <summary>
+    /// Таблица захваченных контекстов функций.
+    /// </summary>
+    private FunctionCapturedContextTable _functionCapturedContext = new();
 
     public Value Evaluate(AstNode node)
     {
@@ -104,24 +98,24 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        BuiltinFunction function = _builtins[e.Name];
-
-        // Вычисляем аргументы функции.
-        List<Value> arguments = [];
-        foreach (Expression argument in e.Arguments)
+        // Выполняем вызов функции в зависимости от её типа.
+        switch (e.Function)
         {
-            argument.Accept(this);
-            arguments.Add(_values.Pop());
+            case BuiltinFunction builtinFunction:
+                InvokeBuiltinFunction(e, builtinFunction);
+                break;
+            case FunctionDeclaration function:
+                InvokeFunction(e, function);
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown function subclass {e.Function.GetType()}");
         }
-
-        // Вызываем функцию и сохраняем результат в стеке.
-        Value result = function.Invoke(arguments);
-        _values.Push(result);
     }
 
     public void Visit(ScopeExpression e)
     {
         _variables = new VariablesTable(_variables);
+        _functionCapturedContext = new FunctionCapturedContextTable(_functionCapturedContext);
         try
         {
             foreach (Declaration declaration in e.Declarations)
@@ -138,7 +132,12 @@ public class AstEvaluator : IAstVisitor
         }
         finally
         {
-            _variables = _variables.Parent ?? throw new InvalidOperationException("Cannot rollback to parent scope");
+            _variables = _variables.Parent ?? throw new InvalidOperationException(
+                "Cannot rollback to parent variables table"
+            );
+            _functionCapturedContext = _functionCapturedContext.Parent ?? throw new InvalidOperationException(
+                "Cannot rollback to parent captured context table"
+            );
         }
     }
 
@@ -196,11 +195,53 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
-        throw new NotImplementedException();
+        _functionCapturedContext.CaptureVariablesTable(d, _variables);
     }
 
     public void Visit(ParameterDeclaration d)
     {
-        throw new NotImplementedException();
+    }
+
+    private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
+    {
+        // Вычисляем аргументы функции.
+        List<Value> arguments = [];
+        foreach (Expression argument in e.Arguments)
+        {
+            argument.Accept(this);
+            arguments.Add(_values.Pop());
+        }
+
+        // Вызываем функцию и сохраняем результат в стеке.
+        Value result = function.Invoke(arguments);
+        _values.Push(result);
+    }
+
+    private void InvokeFunction(FunctionCallExpression e, FunctionDeclaration function)
+    {
+        VariablesTable capturedVariables = _functionCapturedContext.GetCapturedVariablesTable(function);
+        VariablesTable variables = new(capturedVariables);
+        VariablesTable oldVariables = _variables;
+
+        // Вычисляем аргументы функции и записываем их в таблицу переменных.
+        for (int i = 0, iMax = function.Parameters.Count; i < iMax; ++i)
+        {
+            e.Arguments[i].Accept(this);
+            Value argument = _values.Pop();
+
+            string name = function.Parameters[i].Name;
+            variables.DefineVariable(name, argument);
+        }
+
+        _variables = variables;
+        try
+        {
+            // Вызываем функцию и сохраняем результат в стеке.
+            function.Body.Accept(this);
+        }
+        finally
+        {
+            _variables = oldVariables;
+        }
     }
 }
