@@ -67,4 +67,11 @@ public abstract class AbstractPass : IAstVisitor
     {
         e.InitialValue.Accept(this);
     }
+
+    public virtual void Visit(IfElseExpression e)
+    {
+        e.Condition.Accept(this);
+        e.ThenBranch.Accept(this);
+        e.ElseBranch?.Accept(this);
+    }
 }

@@ -22,4 +22,6 @@ public interface IAstVisitor
     void Visit(VariableDeclaration e);
 
     void Visit(AssignmentExpression e);
+
+    void Visit(IfElseExpression e);
 }

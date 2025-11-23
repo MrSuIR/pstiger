@@ -31,7 +31,7 @@ public class IfElseTest
                 then
                     print("yes")
                 """,
-                Value.Void, "no"
+                Value.Void, "yes"
             },
             {
                 """
@@ -69,9 +69,9 @@ public class IfElseTest
                 """
                 if 7 - 1 = 6
                 then
-                    return "yes"
+                    "yes"
                 else
-                    return "no"
+                    "no"
                 """,
                 new Value("yes"), ""
             },
@@ -122,7 +122,7 @@ public class IfElseTest
                 """
                 if 0
                 then
-                    return "yes"
+                    "yes"
                 """,
                 typeof(TypeErrorException)
             },
@@ -132,9 +132,9 @@ public class IfElseTest
                 """
                 if 0
                 then
-                    return "yes"
+                    "yes"
                 else
-                    return 0
+                    0
                 """,
                 typeof(TypeErrorException)
             },
@@ -142,7 +142,7 @@ public class IfElseTest
                 """
                 if 0
                 then
-                    return "yes"
+                    "yes"
                 else
                     print("no")
                 """,

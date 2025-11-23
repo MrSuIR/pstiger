@@ -171,4 +171,26 @@ public class AstEvaluator : IAstVisitor
 
         _values.Push(Value.Void);
     }
+
+    public void Visit(IfElseExpression e)
+    {
+        e.Condition.Accept(this);
+        int condition = _values.Pop().AsInt();
+
+        if (condition != 0)
+        {
+            e.ThenBranch.Accept(this);
+        }
+        else
+        {
+            if (e.ElseBranch != null)
+            {
+                e.ElseBranch.Accept(this);
+            }
+            else
+            {
+                _values.Push(Value.Void);
+            }
+        }
+    }
 }

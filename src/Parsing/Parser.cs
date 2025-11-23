@@ -207,6 +207,7 @@ public class Parser
     ///         | identifier
     ///         | identifier, argument_list
     ///         | expression_sequence
+    ///         | if_expression
     ///         | "let", declaration_list, "in", [ expression_sequence_inner ], "end" ;
     /// </summary>
     private Expression ParsePrimaryExpression()
@@ -234,6 +235,9 @@ public class Parser
                     return new VariableAccessExpression(t.Value!.ToString());
                 }
 
+            case TokenType.If:
+                return ParseIfExpression();
+
             case TokenType.Let:
                 {
                     _tokens.Advance();
@@ -258,6 +262,7 @@ public class Parser
                         TokenType.StringLiteral,
                         TokenType.OpenParenthesis,
                         TokenType.Identifier,
+                        TokenType.If,
                         TokenType.Let,
                     ]
                 );
@@ -331,6 +336,28 @@ public class Parser
         }
 
         return expressions;
+    }
+
+    /// <summary>
+    /// Разбор условного выражения.
+    /// Правило:
+    ///     if_expression = "if", expression, "then", expression, [ "else", expression ] ;
+    /// </summary>
+    private Expression ParseIfExpression()
+    {
+        Match(TokenType.If);
+        Expression condition = ParseExpression();
+        Match(TokenType.Then);
+        Expression thenBranch = ParseExpression();
+
+        Expression? elseBranch = null;
+        if (_tokens.Peek().Type == TokenType.Else)
+        {
+            _tokens.Advance();
+            elseBranch = ParseExpression();
+        }
+
+        return new IfElseExpression(condition, thenBranch, elseBranch);
     }
 
     /// <summary>

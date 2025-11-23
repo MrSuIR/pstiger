@@ -32,5 +32,4 @@ declaration = variable_declaration ;
 
 (* Объявление переменной *)
 variable_declaration = "var", identifier, [":", identifier], ":=", expression ;
-
 ```
