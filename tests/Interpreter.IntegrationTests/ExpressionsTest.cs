@@ -1,3 +1,5 @@
+using Grammar;
+
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
@@ -12,6 +14,8 @@ public class ExpressionsTest
     [MemberData(nameof(GetEvaluateExpressionsData))]
     public void Can_evaluate_expressions(string code, Value expected)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
@@ -22,6 +26,8 @@ public class ExpressionsTest
     [MemberData(nameof(GetInvalidExpressionsData))]
     public void Rejects_invalid_expressions(string code)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Assert.Throws<UnexpectedLexemeException>(() => interpreter.Execute(code));

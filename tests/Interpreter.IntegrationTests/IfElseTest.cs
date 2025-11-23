@@ -1,3 +1,5 @@
+using Grammar;
+
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
@@ -12,6 +14,8 @@ public class IfElseTest
     [MemberData(nameof(GetEvaluateIfElseData))]
     public void Can_evaluate_if_else(string code, Value expectedResult, string expectedOutput)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
 
@@ -96,6 +100,8 @@ public class IfElseTest
     [MemberData(nameof(GetSemanticViolationsData))]
     public void Rejects_code_with_semantic_violations(string code, Type expectedExceptionType)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));

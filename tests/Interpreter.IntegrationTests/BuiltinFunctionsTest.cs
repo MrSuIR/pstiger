@@ -1,3 +1,5 @@
+using Grammar;
+
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Execution;
@@ -13,6 +15,8 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetEvaluateBuiltinFunctionsData))]
     public void Can_evaluate_builtin_functions(string code, Value expected)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
@@ -78,6 +82,8 @@ public class BuiltinFunctionsTest
         string expectedFlushedOutput
     )
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
@@ -125,6 +131,8 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetEvaluateInputFunctionsData))]
     public void Can_evaluate_input_functions(string code, string input, string expectedBufferedOutput)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         environment.AddInput(input);
 
@@ -149,6 +157,8 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetEvaluateExitFunctionData))]
     public void Can_evaluate_exit_function(string code, string expectedBufferedOutput, int expectedCode)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
@@ -175,6 +185,8 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetInvalidFunctionCallsData))]
     public void Throws_on_invalid_function_calls(string code, Type expectedExceptionType)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
 

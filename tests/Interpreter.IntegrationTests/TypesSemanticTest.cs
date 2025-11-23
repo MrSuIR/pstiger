@@ -1,3 +1,5 @@
+using Grammar;
+
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
@@ -11,6 +13,8 @@ public class TypesSemanticTest
     [MemberData(nameof(GetExpressionsWithTypeErrorsData))]
     public void Rejects_expressions_with_type_errors(string code)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
         Assert.Throws<TypeErrorException>(() => interpreter.Execute(code));

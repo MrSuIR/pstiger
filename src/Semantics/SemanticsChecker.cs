@@ -12,7 +12,7 @@ namespace PsTiger.Semantics;
 /// </summary>
 public class SemanticsChecker
 {
-    private readonly List<IAstVisitor> _passes;
+    private readonly AbstractPass[] _passes;
 
     public SemanticsChecker(
         IReadOnlyDictionary<string, BuiltinFunction> builtinFunctions,
@@ -40,7 +40,7 @@ public class SemanticsChecker
 
     public void Check(Expression program)
     {
-        foreach (IAstVisitor pass in _passes)
+        foreach (AbstractPass pass in _passes)
         {
             program.Accept(pass);
         }

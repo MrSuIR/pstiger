@@ -1,3 +1,5 @@
+using Grammar;
+
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
@@ -28,6 +30,7 @@ public class VariablesTest
               printi(square)
             end
             """;
+        TigerGrammar.CheckProgramSyntax(code);
 
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
@@ -52,6 +55,7 @@ public class VariablesTest
               print(greeting)
             end
             """;
+        TigerGrammar.CheckProgramSyntax(code);
 
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
@@ -71,6 +75,7 @@ public class VariablesTest
               printi(print)
             end
             """;
+        TigerGrammar.CheckProgramSyntax(code);
 
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
@@ -89,6 +94,7 @@ public class VariablesTest
             in
             end
             """;
+        TigerGrammar.CheckProgramSyntax(code);
 
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
@@ -123,6 +129,19 @@ public class VariablesTest
                 """,
                 typeof(UnexpectedLexemeException)
             },
+
+            // Выражение слева в присваивании должно быть переменной
+            {
+                """
+                let
+                  var x : int := 10
+                in
+                  10 := x;
+                  printi(x)
+                end
+                """,
+                typeof(InvalidAssignmentException)
+            },
         };
     }
 
@@ -130,6 +149,8 @@ public class VariablesTest
     [MemberData(nameof(GetSemanticViolationsData))]
     public void Throws_on_semantic_violations(string code, Type expectedExceptionType)
     {
+        TigerGrammar.CheckProgramSyntax(code);
+
         FakeEnvironment environment = new();
         TigerInterpreter interpreter = new(environment);
 
@@ -224,19 +245,6 @@ public class VariablesTest
                 end
                 """,
                 typeof(TypeErrorException)
-            },
-
-            // Выражение слева в присваивании должно быть переменной
-            {
-                """
-                let
-                  var x : int := 10
-                in
-                  10 := x;
-                  printi(x)
-                end
-                """,
-                typeof(InvalidAssignmentException)
             },
 
             // Нельзя повторно объявлять переменную с тем же именем в одной области видимости
