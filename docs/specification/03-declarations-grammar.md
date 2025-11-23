@@ -21,6 +21,24 @@ in
 end
 ```
 
+## Объявления переменных
+
+При объявлении переменной:
+
+1. Всегда нужно указывать инициализирующее выражение.
+2. Можно указывать или не указывать тип данных. Если тип не указан, то он выводится автоматически из инициализирующего выражения.
+
+Пример: `var x : int := 0`.
+
+## Объявления функций
+
+При объявлении функции:
+
+1. Можно указать список формальных параметров. У функции и процедуры может и не быть параметров.
+2. Можно указать тип возвращаемого значения. Если тип не указан, то функция считается процедурой, не возвращающей результатов.
+3. Можно вызывать функции рекурсивно.
+4. Взаимная рекурсия функций возможна тогда и только тогда, когда они объявлены в одном блоке и между ними нет объявлений переменных или типов.
+
 ## Грамматика в нотации EBNF
 
 ```ebnf
@@ -28,8 +46,17 @@ end
 declaration_list = declaration, { declaration } ;
 
 (* Объявление символа *)
-declaration = variable_declaration ;
+declaration = variable_declaration
+    | function_declaration ;
 
 (* Объявление переменной *)
 variable_declaration = "var", identifier, [":", identifier], ":=", expression ;
+
+(* Объявление функции *)
+function_declaration = "function", identifier, "(", [ parameter_declaration_list ], ")", [ ":", identifier], "=", "expression" ;
+
+parameter_declaration_list = parameter_declaration
+    | parameter_declaration, ",", parameter_declaration_list ;
+
+parameter_declaration = identifier, ":", identifier ;
 ```
