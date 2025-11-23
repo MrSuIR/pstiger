@@ -132,6 +132,8 @@ public sealed class ResolveTypesPass : AbstractPass
                 $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
             );
         }
+
+        e.ResultType = ValueType.Void;
     }
 
     public override void Visit(IfElseExpression e)

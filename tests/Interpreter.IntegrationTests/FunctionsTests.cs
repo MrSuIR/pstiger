@@ -123,6 +123,23 @@ public class FunctionsTests
                 """,
                 "I"
             },
+
+            // Функция захватывает переменные окружающей области видимости
+            {
+                """
+                let
+                    var counter: int := 0
+                    function increment() = counter := counter + 1
+                    function display() = (printi(counter); print(" "))
+                in
+                    increment();
+                    display();
+                    increment();
+                    display()
+                end
+                """,
+                "1 2 "
+            },
         };
     }
 
