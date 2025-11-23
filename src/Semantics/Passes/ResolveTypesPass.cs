@@ -134,6 +134,38 @@ public sealed class ResolveTypesPass : AbstractPass
         }
     }
 
+    public override void Visit(IfElseExpression e)
+    {
+        base.Visit(e);
+
+        ValueType conditionType = e.Condition.ResultType;
+        if (conditionType != ValueType.Int)
+        {
+            throw new TypeErrorException(
+                "Condition in \"if...then...else\" expression must be an integer value"
+            );
+        }
+
+        ValueType thenType = e.ThenBranch.ResultType;
+
+        if (e.ElseBranch != null)
+        {
+            ValueType elseType = e.ElseBranch.ResultType;
+            if (thenType != elseType)
+            {
+                throw new TypeErrorException(
+                    "Both branches in \"if...then...else\" expression must return the same data type"
+                );
+            }
+        }
+        else if (thenType != ValueType.Void)
+        {
+            throw new TypeErrorException("The \"if...then\" expression without \"else\" branch may not return value");
+        }
+
+        e.ResultType = thenType;
+    }
+
     /// <summary>
     /// Вычисляет тип результата бинарной операции.
     /// Возвращает null, если бинарная операция не может быть выполнена с указанными типами.
