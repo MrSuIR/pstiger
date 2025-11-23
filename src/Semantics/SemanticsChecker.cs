@@ -1,8 +1,10 @@
 using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Semantics.Passes;
+using PsTiger.Semantics.Symbols;
 
-namespace Semantics;
+namespace PsTiger.Semantics;
 
 /// <summary>
 /// Класс для проверки семантики программы.
@@ -14,10 +16,17 @@ public class SemanticsChecker
 
     public SemanticsChecker(IReadOnlyDictionary<string, BuiltinFunction> builtins)
     {
+        SymbolsTable globalSymbols = new(parent: null);
+        foreach ((string name, BuiltinFunction function) in builtins)
+        {
+            globalSymbols.DefineSymbol(name, function);
+        }
+
         _passes =
         [
-            new FunctionsChecker(builtins),
-            new TypeChecker(builtins),
+            new ResolveNamesPass(globalSymbols),
+            new CheckContextSensitiveRulesPass(),
+            new ResolveTypesPass(),
         ];
     }
 

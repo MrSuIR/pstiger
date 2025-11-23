@@ -2,14 +2,14 @@ using PsTiger.Ast.Attributes;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
-namespace PsTiger.Ast.Expressions;
+namespace PsTiger.Ast.Declarations;
 
-public abstract class Expression : AstNode
+public abstract class Declaration : AstNode
 {
     private AstAttribute<ValueType> _resultType;
 
     /// <summary>
-    /// Тип результата выражения.
+    /// Тип результата объявления.
     /// </summary>
     public ValueType ResultType
     {

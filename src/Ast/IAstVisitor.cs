@@ -14,4 +14,8 @@ public interface IAstVisitor
     void Visit(UnaryMinusExpression e);
 
     void Visit(FunctionCallExpression e);
+
+    void Visit(ScopeExpression e);
+
+    void Visit(VariableDeclaration e);
 }

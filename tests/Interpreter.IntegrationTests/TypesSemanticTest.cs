@@ -1,8 +1,7 @@
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
-
-using Semantics;
+using PsTiger.Semantics.Exceptions;
 
 namespace Interpreter.IntegrationTests;
 

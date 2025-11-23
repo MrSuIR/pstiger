@@ -113,4 +113,14 @@ public class AstEvaluator : IAstVisitor
         Value result = function.Invoke(arguments);
         _values.Push(result);
     }
+
+    public void Visit(ScopeExpression e)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(VariableDeclaration e)
+    {
+        throw new NotImplementedException();
+    }
 }

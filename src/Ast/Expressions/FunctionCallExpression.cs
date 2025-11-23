@@ -1,3 +1,6 @@
+using PsTiger.Ast.Attributes;
+using PsTiger.Ast.Declarations;
+
 namespace PsTiger.Ast.Expressions;
 
 /// <summary>
@@ -5,10 +8,18 @@ namespace PsTiger.Ast.Expressions;
 /// </summary>
 public class FunctionCallExpression : Expression
 {
+    private AstAttribute<AbstractFunctionDeclaration> _function;
+
     public FunctionCallExpression(string name, IReadOnlyList<Expression> arguments)
     {
         Name = name;
         Arguments = arguments;
+    }
+
+    public AbstractFunctionDeclaration Function
+    {
+        get => _function.Get();
+        set => _function.Set(value);
     }
 
     public string Name { get; }

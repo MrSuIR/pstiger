@@ -3,15 +3,14 @@ using Interpreter.IntegrationTests.TestDoubles;
 using PsTiger.Execution;
 using PsTiger.Interpreter;
 using PsTiger.Runtime;
-
-using Semantics;
+using PsTiger.Semantics.Exceptions;
 
 namespace Interpreter.IntegrationTests;
 
 public class BuiltinFunctionsTest
 {
     [Theory]
-    [MemberData(nameof(GetEvaluateBuiltinFuntionsData))]
+    [MemberData(nameof(GetEvaluateBuiltinFunctionsData))]
     public void Can_evaluate_builtin_functions(string code, Value expected)
     {
         FakeEnvironment environment = new();
@@ -28,7 +27,7 @@ public class BuiltinFunctionsTest
         Assert.Throws<ProgramAbortedException>(() => interpreter.Execute("chr(2025)"));
     }
 
-    public static TheoryData<string, Value> GetEvaluateBuiltinFuntionsData()
+    public static TheoryData<string, Value> GetEvaluateBuiltinFunctionsData()
     {
         return new TheoryData<string, Value>
         {
@@ -188,7 +187,7 @@ public class BuiltinFunctionsTest
         {
             // Нельзя вызвать неизвестную функцию
             {
-                "length(\"Hello!\")", typeof(InvalidFunctionCallException)
+                "length(\"Hello!\")", typeof(UnknownSymbolException)
             },
 
             // Нельзя вызвать встроенную функцию с неправильными типами аргументов

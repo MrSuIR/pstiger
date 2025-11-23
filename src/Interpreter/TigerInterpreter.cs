@@ -2,8 +2,7 @@ using PsTiger.Ast.Expressions;
 using PsTiger.Execution;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
-
-using Semantics;
+using PsTiger.Semantics;
 
 namespace PsTiger.Interpreter;
 

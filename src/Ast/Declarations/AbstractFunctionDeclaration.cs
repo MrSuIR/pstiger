@@ -1,13 +1,16 @@
+using PsTiger.Runtime;
+
 using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Declarations;
 
-/// <summary>
-/// Объявление функции языка.
-/// </summary>
-public abstract class FunctionDeclaration
+public abstract class AbstractFunctionDeclaration : Declaration
 {
-    protected FunctionDeclaration(string name, IReadOnlyList<ParameterDeclaration> parameters, ValueType resultType)
+    protected AbstractFunctionDeclaration(
+        string name,
+        IReadOnlyList<ParameterDeclaration> parameters,
+        ValueType resultType
+    )
     {
         Name = name;
         Parameters = parameters;
@@ -17,6 +20,4 @@ public abstract class FunctionDeclaration
     public string Name { get; }
 
     public IReadOnlyList<ParameterDeclaration> Parameters { get; }
-
-    public ValueType ResultType { get; }
 }

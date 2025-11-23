@@ -7,7 +7,7 @@ namespace PsTiger.Ast.Declarations;
 /// <summary>
 /// Определение встроенной функции языка.
 /// </summary>
-public class BuiltinFunction : FunctionDeclaration
+public sealed class BuiltinFunction : AbstractFunctionDeclaration
 {
     private readonly Func<IReadOnlyList<Value>, Value> _implementation;
 
@@ -25,5 +25,10 @@ public class BuiltinFunction : FunctionDeclaration
     public Value Invoke(IReadOnlyList<Value> arguments)
     {
         return _implementation(arguments);
+    }
+
+    public override void Accept(IAstVisitor visitor)
+    {
+        throw new NotImplementedException($"Visitor cannot be applied to {GetType()}");
     }
 }
