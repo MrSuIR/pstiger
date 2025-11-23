@@ -161,7 +161,7 @@ public class FunctionsTests
                     printHello("World!")
                 end
                 """,
-                typeof(FunctionCallExpression)
+                typeof(InvalidFunctionCallException)
             },
 
             // Нельзя передавать в функцию параметры неподходящих типов
@@ -171,6 +171,34 @@ public class FunctionsTests
                     function printLine(text: string) = print(concat(text, "\n"))
                 in
                     printLine(10)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Нельзя использовать в функции переменные, недоступные в её области видимости
+            {
+                """
+                let
+                    function printHello() = print(greeting)
+                in
+                    let
+                       var greeting: string := "Hello, World!"
+                    in
+                        printHello()
+                    end
+                end
+                """,
+                typeof(UnknownSymbolException)
+            },
+
+            // Нельзя возвращать из функции значение типа, не соответствующего заявленному
+            {
+                """
+                let
+                    function printHello() = "Hello, World!"
+                in
+                    printHello()
                 end
                 """,
                 typeof(TypeErrorException)

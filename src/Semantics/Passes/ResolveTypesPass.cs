@@ -166,6 +166,28 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = thenType;
     }
 
+    public override void Visit(FunctionDeclaration d)
+    {
+        // Заранее описываем ResultType, чтобы поддержать рекурсивные функции.
+        d.ResultType = d.DeclaredType?.ResultType ?? ValueType.Void;
+
+        base.Visit(d);
+
+        ValueType bodyResultType = d.Body.ResultType;
+        if (d.ResultType != bodyResultType)
+        {
+            throw new TypeErrorException(
+                $"Function {d.Name} must return {d.ResultType} value, but actually returns {bodyResultType}"
+            );
+        }
+    }
+
+    public override void Visit(ParameterDeclaration d)
+    {
+        base.Visit(d);
+        d.ResultType = d.Type.ResultType;
+    }
+
     /// <summary>
     /// Вычисляет тип результата бинарной операции.
     /// Возвращает null, если бинарная операция не может быть выполнена с указанными типами.

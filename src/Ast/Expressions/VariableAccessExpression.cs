@@ -8,7 +8,7 @@ namespace PsTiger.Ast.Expressions;
 /// </summary>
 public sealed class VariableAccessExpression : Expression
 {
-    private AstAttribute<VariableDeclaration> _variable;
+    private AstAttribute<AbstractVariableDeclaration> _variable;
 
     public VariableAccessExpression(string name)
     {
@@ -17,7 +17,7 @@ public sealed class VariableAccessExpression : Expression
 
     public string Name { get; }
 
-    public VariableDeclaration Variable
+    public AbstractVariableDeclaration Variable
     {
         get => _variable.Get();
         set => _variable.Set(value);

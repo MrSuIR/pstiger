@@ -9,18 +9,16 @@ namespace PsTiger.Ast.Declarations;
 ///  Узел дерева, представляющий объявление переменной.
 ///  У переменной может быть указан тип и всегда указано начальное значение.
 /// </summary>
-public sealed class VariableDeclaration : Declaration
+public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
     private AstAttribute<AbstractTypeDeclaration?> _declaredType;
 
     public VariableDeclaration(string name, string? declaredTypeName, Expression initialValue)
+        : base(name)
     {
-        Name = name;
         DeclaredTypeName = declaredTypeName;
         InitialValue = initialValue;
     }
-
-    public string Name { get; }
 
     public string? DeclaredTypeName { get; }
 

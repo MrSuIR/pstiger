@@ -56,6 +56,35 @@ public sealed class ResolveNamesPass : AbstractPass
         _symbols.DefineSymbol(d.Name, d);
     }
 
+    public override void Visit(FunctionDeclaration d)
+    {
+        // Заранее объявляем эту функцию.
+        _symbols.DefineSymbol(d.Name, d);
+
+        // Находим заявленный тип результата.
+        d.DeclaredType = d.DeclaredTypeName != null ? ResolveType(d.DeclaredTypeName) : null;
+
+        // Создаём дочернюю таблицу символов.
+        _symbols = new SymbolsTable(_symbols);
+        try
+        {
+            // Обходим поддерево функции.
+            base.Visit(d);
+        }
+        finally
+        {
+            _symbols = _symbols.Parent!;
+        }
+    }
+
+    public override void Visit(ParameterDeclaration d)
+    {
+        base.Visit(d);
+
+        d.Type = ResolveType(d.TypeName);
+        _symbols.DefineSymbol(d.Name, d);
+    }
+
     private AbstractFunctionDeclaration ResolveFunction(string name)
     {
         Declaration symbol = _symbols.GetSymbol(name);
@@ -69,10 +98,10 @@ public sealed class ResolveNamesPass : AbstractPass
         );
     }
 
-    private VariableDeclaration ResolveVariable(string name)
+    private AbstractVariableDeclaration ResolveVariable(string name)
     {
         Declaration symbol = _symbols.GetSymbol(name);
-        if (symbol is VariableDeclaration variable)
+        if (symbol is AbstractVariableDeclaration variable)
         {
             return variable;
         }

@@ -75,9 +75,9 @@ public abstract class AbstractPass : IAstVisitor
         d.InitialValue.Accept(this);
     }
 
-    public void Visit(FunctionDeclaration d)
+    public virtual void Visit(FunctionDeclaration d)
     {
-        foreach (ParameterDeclaration declaration in d.Parameters)
+        foreach (AbstractParameterDeclaration declaration in d.Parameters)
         {
             declaration.Accept(this);
         }
@@ -85,7 +85,7 @@ public abstract class AbstractPass : IAstVisitor
         d.Body.Accept(this);
     }
 
-    public void Visit(ParameterDeclaration d)
+    public virtual void Visit(ParameterDeclaration d)
     {
     }
 }

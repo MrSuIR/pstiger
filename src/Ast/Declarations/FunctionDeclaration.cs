@@ -1,3 +1,4 @@
+using PsTiger.Ast.Attributes;
 using PsTiger.Ast.Expressions;
 
 namespace PsTiger.Ast.Declarations;
@@ -7,19 +8,27 @@ namespace PsTiger.Ast.Declarations;
 /// </summary>
 public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 {
+    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
+
     public FunctionDeclaration(
         string name,
         IReadOnlyList<ParameterDeclaration> parameters,
-        string? resultTypeName,
+        string? declaredTypeName,
         Expression body
     )
         : base(name, parameters)
     {
-        ResultTypeName = resultTypeName;
+        DeclaredTypeName = declaredTypeName;
         Body = body;
     }
 
-    public string? ResultTypeName { get; }
+    public string? DeclaredTypeName { get; }
+
+    public AbstractTypeDeclaration? DeclaredType
+    {
+        get => _declaredType.Get();
+        set => _declaredType.Set(value);
+    }
 
     public Expression Body { get; }
 
