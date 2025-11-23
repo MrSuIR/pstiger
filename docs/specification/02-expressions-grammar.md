@@ -68,6 +68,14 @@
 
 Присваивания не возвращает значения, поэтому конструкции вида `a := b := 0` недопустимы.
 
+## Ветвления if...then...else
+
+1. Выражение условия должно иметь целочисленный тип
+2. Если условие истинно, то вычисляется ветка then, иначе ветка else
+3. Ветки then и else должны либо обе не возвращать значения, либо возвращать значения одного типа
+4. Ветка else необязательна — при её отсутствии ветка then не должна возвращать значения
+5. Если ветки then и else возвращают значение, то и всё выражение if...then...else возвращает значение того же типа
+
 ## Встроенные функции
 
 1. `print(s: string)` — выводит строку в стандартный поток вывода
@@ -127,7 +135,8 @@ primary_expression = literal
     | identifier
     | identifier, argument_list
     | expression_sequence
-    | "let", declaration_list, "in", [ inner_expression_sequence ], "end" ;
+    | "let", declaration_list, "in", [ inner_expression_sequence ], "end"
+    | if_expression ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
@@ -135,6 +144,7 @@ arguments_list = "(", [ expression, { ",", expression } ], ")" ;
 (* Последовательность выражений *)
 expression_sequence = "(", [ inner_expression_sequence ], ")" ;
 inner_expression_sequence = expression,  { ";", expression } ;
+
+(* Ветвление *)
+if_expression = "if", expression, "then", expression, [ "else", expression ] ;
 ```
-
-
