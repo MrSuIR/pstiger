@@ -5,13 +5,13 @@ namespace PsTiger.Ast.Expressions;
 /// </summary>
 public sealed class AssignmentExpression : Expression
 {
-    public AssignmentExpression(VariableAccessExpression left, Expression right)
+    public AssignmentExpression(Expression left, Expression right)
     {
         Left = left;
         Right = right;
     }
 
-    public VariableAccessExpression Left { get; }
+    public Expression Left { get; }
 
     public Expression Right { get; }
 

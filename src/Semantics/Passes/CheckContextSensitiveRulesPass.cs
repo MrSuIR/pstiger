@@ -28,4 +28,14 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
             );
         }
     }
+
+    public override void Visit(AssignmentExpression e)
+    {
+        base.Visit(e);
+
+        if (e.Left is not VariableAccessExpression)
+        {
+            throw new InvalidAssignmentException("Left side of assignment must be a variable access expression");
+        }
+    }
 }

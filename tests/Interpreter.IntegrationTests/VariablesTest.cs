@@ -224,6 +224,19 @@ public class VariablesTest
                 """,
                 typeof(TypeErrorException)
             },
+
+            // Выражение слева в присваивании должно быть переменной
+            {
+                """
+                let
+                  var x : int = 10
+                in
+                  10 := x
+                  printi(x)
+                end
+                """,
+                typeof(InvalidAssignmentException)
+            },
         };
     }
 }

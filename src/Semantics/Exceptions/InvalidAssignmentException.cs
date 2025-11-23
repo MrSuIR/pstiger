@@ -4,9 +4,9 @@ namespace PsTiger.Semantics.Exceptions;
 /// <summary>
 /// Исключение из-за некорректного обращения к переменной.
 /// </summary>
-public class InvalidVariableAccess : Exception
+public class InvalidAssignmentException : Exception
 {
-    public InvalidVariableAccess(string message)
+    public InvalidAssignmentException(string message)
         : base(message)
     {
     }

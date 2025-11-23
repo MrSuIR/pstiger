@@ -62,7 +62,7 @@ public sealed class ResolveNamesPass : AbstractPass
         }
         else
         {
-            throw new InvalidVariableAccess(
+            throw new InvalidVariableAccessException(
                 $"Name {e.Name} does not refer to a variable"
             );
         }
