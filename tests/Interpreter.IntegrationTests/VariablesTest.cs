@@ -1,6 +1,8 @@
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
+using PsTiger.Parsing;
+using PsTiger.Semantics.Exceptions;
 
 namespace Interpreter.IntegrationTests;
 
@@ -11,14 +13,14 @@ public class VariablesTest
     {
         const string code =
             """
-            var
-              x1 := 0
-              y1 := 4
-              x2 := 6
-              y2 := 7
-              width: int := 0
-              height: int := 0
-              square: int := 0
+            let
+              var x1 := 0
+              var y1 := 4
+              var x2 := 6
+              var y2 := 7
+              var width: int := 0
+              var height: int := 0
+              var square: int := 0
             in
               width := x2 - x1
               height := y2 - y1
@@ -39,10 +41,10 @@ public class VariablesTest
     {
         const string code =
             """
-            var
-              greeting: string := ""
-              exclamation := "!"
-              space := " "
+            let
+              var greeting: string := ""
+              var exclamation := "!"
+              var space := " "
             in
               greeting := concat("Hello", space)
               greeting := concat(greeting, "world")
@@ -56,5 +58,172 @@ public class VariablesTest
         interpreter.Execute(code);
 
         Assert.Equal("Hello world!", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void Allows_to_shadow_builtin_function_with_variable()
+    {
+        const string code =
+            """
+            let
+              var print: int = 10
+            in
+              printi(print)
+            end
+            """;
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        interpreter.Execute(code);
+
+        Assert.Equal("10", environment.BufferedOutput);
+    }
+
+    [Fact]
+    public void Allows_scope_without_expression()
+    {
+        const string code =
+            """
+            let
+              var x: int = 10
+            in
+            end
+            """;
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        interpreter.Execute(code);
+
+        Assert.Equal("", environment.BufferedOutput);
+    }
+
+    [Theory]
+    [MemberData(nameof(GetSyntaxViolationsData))]
+    public void Throws_on_syntax_violations(string code, Type expectedExceptionType)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetSyntaxViolationsData()
+    {
+        return new TheoryData<string, Type>
+        {
+            // Присваивание не возвращает результата: `a := b := 0` недопустимо
+            {
+                """
+                let
+                    var x: int := 0,
+                    var y: int := 0
+                in
+                   x := y := 0
+                end
+                """,
+                typeof(UnexpectedLexemeException)
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetSemanticViolationsData))]
+    public void Throws_on_semantic_violations(string code, Type expectedExceptionType)
+    {
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetSemanticViolationsData()
+    {
+        return new TheoryData<string, Type>
+        {
+            // Нельзя использовать необъявленную переменную
+            {
+                "x", typeof(UnknownSymbolException)
+            },
+            {
+                "print(x)", typeof(UnknownSymbolException)
+            },
+
+            // Нельзя инициализировать переменную значением другого типа
+            {
+                """
+                let
+                  var x : int = "Hello"
+                in
+                  printi(x)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+            {
+                """
+                let
+                  var x : string = 10
+                in
+                  printi(x)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Нельзя использовать переменную, объявленную в другой области видимости
+            {
+                """
+                let
+                  var x : int = 10
+                in
+                  printi(x)
+                end
+
+                let
+                  var y : int = 20
+                in
+                  printi(x)
+                end
+                """,
+                typeof(UnknownSymbolException)
+            },
+
+            // Нельзя вызывать переменную как функцию
+            {
+                """
+                let
+                  var x : int = 10
+                in
+                  printi(x())
+                end
+                """,
+                typeof(InvalidFunctionCallException)
+            },
+
+            // Нельзя вызывать встроенную функцию, если её имя перекрыто переменной
+            {
+                """
+                let
+                  var printi : int = 10
+                in
+                  printi(10)
+                end
+                """,
+                typeof(InvalidFunctionCallException)
+            },
+
+            // Нельзя присвоить переменной значение другого типа
+            {
+                """
+                let
+                  var x : int = 10
+                in
+                  x := "eleven"
+                  printi(x)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+        };
     }
 }
