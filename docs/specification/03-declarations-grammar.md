@@ -53,7 +53,10 @@ declaration = variable_declaration
 variable_declaration = "var", identifier, [":", identifier], ":=", expression ;
 
 (* Объявление функции *)
-function_declaration = "function", identifier, "(", [ parameter_declaration_list ], ")", [ ":", identifier], "=", "expression" ;
+function_declaration = "function", identifier,
+    "(", [ parameter_declaration_list ], ")",
+    [ ":", identifier],
+    "=", "expression" ;
 
 parameter_declaration_list = parameter_declaration
     | parameter_declaration, ",", parameter_declaration_list ;

@@ -13,12 +13,13 @@ public sealed class BuiltinFunction : AbstractFunctionDeclaration
 
     public BuiltinFunction(
         string name,
-        IReadOnlyList<ParameterDeclaration> parameters,
+        IReadOnlyList<BuiltinFunctionParameter> parameters,
         ValueType resultType,
         Func<IReadOnlyList<Value>, Value> implementation
     )
-        : base(name, parameters, resultType)
+        : base(name, parameters)
     {
+        ResultType = resultType;
         _implementation = implementation;
     }
 

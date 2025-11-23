@@ -102,24 +102,24 @@ public sealed class ResolveTypesPass : AbstractPass
     /// <summary>
     /// Проверяет тип переменной и тип выражения, которым она инициализируется.
     /// </summary>
-    public override void Visit(VariableDeclaration e)
+    public override void Visit(VariableDeclaration d)
     {
-        base.Visit(e);
+        base.Visit(d);
 
-        ValueType inferredType = e.InitialValue.ResultType;
+        ValueType inferredType = d.InitialValue.ResultType;
         if (inferredType == ValueType.Void)
         {
             throw new TypeErrorException("Cannot initialize variable from expression without value");
         }
 
-        if (e.DeclaredType != null && e.DeclaredType.ResultType != inferredType)
+        if (d.DeclaredType != null && d.DeclaredType.ResultType != inferredType)
         {
             throw new TypeErrorException(
-                $"Cannot initialize variable of type {e.DeclaredTypeName} with value of type {inferredType}"
+                $"Cannot initialize variable of type {d.DeclaredTypeName} with value of type {inferredType}"
             );
         }
 
-        e.ResultType = inferredType;
+        d.ResultType = inferredType;
     }
 
     public override void Visit(AssignmentExpression e)
@@ -218,11 +218,11 @@ public sealed class ResolveTypesPass : AbstractPass
         for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
         {
             Expression argument = e.Arguments[i];
-            ParameterDeclaration parameter = function.Parameters[i];
-            if (argument.ResultType != parameter.ValueType)
+            AbstractParameterDeclaration parameter = function.Parameters[i];
+            if (argument.ResultType != parameter.ResultType)
             {
                 throw new TypeErrorException(
-                    $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ValueType}"
+                    $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"
                 );
             }
         }

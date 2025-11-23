@@ -17,7 +17,7 @@ public class Builtins
             new(
                 "print", // print(s: string)` — выводит строку в стандартный поток вывода
                 [
-                    new ParameterDeclaration("s", ValueType.String),
+                    new BuiltinFunctionParameter("s", ValueType.String),
                 ],
                 ValueType.Void,
                 arguments =>
@@ -30,7 +30,7 @@ public class Builtins
             new(
                 "printi", // `printi(i: int)` — выводит целое число в стандартный поток вывода
                 [
-                    new ParameterDeclaration("i", ValueType.Int),
+                    new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
                 ValueType.Void,
                 arguments =>
@@ -71,7 +71,7 @@ public class Builtins
             new(
                 "ord", // `ord(s: string): int` — возвращает ASCII-код первого символа `s`
                 [
-                    new ParameterDeclaration("s", ValueType.String),
+                    new BuiltinFunctionParameter("s", ValueType.String),
                 ],
                 ValueType.Int,
                 arguments =>
@@ -85,7 +85,7 @@ public class Builtins
             new(
                 "chr", // `chr(i: int): string` — возвращает строку из одного символа для ASCII-значения `i`
                 [
-                    new ParameterDeclaration("i", ValueType.Int),
+                    new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
                 ValueType.String,
                 arguments =>
@@ -104,7 +104,7 @@ public class Builtins
             new(
                 "size", // `size(s: string): int` — возвращает количество символов в строке `s`
                 [
-                    new ParameterDeclaration("s", ValueType.String),
+                    new BuiltinFunctionParameter("s", ValueType.String),
                 ],
                 ValueType.Int,
                 arguments =>
@@ -117,9 +117,9 @@ public class Builtins
             new(
                 "substring", // `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
                 [
-                    new ParameterDeclaration("s", ValueType.String),
-                    new ParameterDeclaration("f", ValueType.Int),
-                    new ParameterDeclaration("n", ValueType.Int),
+                    new BuiltinFunctionParameter("s", ValueType.String),
+                    new BuiltinFunctionParameter("f", ValueType.Int),
+                    new BuiltinFunctionParameter("n", ValueType.Int),
                 ],
                 ValueType.String,
                 arguments =>
@@ -138,8 +138,8 @@ public class Builtins
             new(
                 "concat", // `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
                 [
-                    new ParameterDeclaration("s1", ValueType.String),
-                    new ParameterDeclaration("s2", ValueType.String),
+                    new BuiltinFunctionParameter("s1", ValueType.String),
+                    new BuiltinFunctionParameter("s2", ValueType.String),
                 ],
                 ValueType.String,
                 arguments =>
@@ -153,7 +153,7 @@ public class Builtins
             new(
                 "not", // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
                 [
-                    new ParameterDeclaration("i", ValueType.Int),
+                    new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
                 ValueType.Int,
                 arguments => (arguments[0].AsInt() == 0) ? new Value(1) : new Value(0)
@@ -162,7 +162,7 @@ public class Builtins
             new(
                 "exit", // `exit(i: int)` — завершает программу с кодом выхода `i`
                 [
-                    new ParameterDeclaration("i", ValueType.Int),
+                    new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
                 ValueType.Void,
                 arguments =>

@@ -1,23 +1,20 @@
-using PsTiger.Runtime;
-
-using ValueType = PsTiger.Runtime.ValueType;
-
 namespace PsTiger.Ast.Declarations;
 
+/// <summary>
+/// Абстрактный класс с информацией о функции — как встроенной, так и пользовательской.
+/// </summary>
 public abstract class AbstractFunctionDeclaration : Declaration
 {
     protected AbstractFunctionDeclaration(
         string name,
-        IReadOnlyList<ParameterDeclaration> parameters,
-        ValueType resultType
+        IReadOnlyList<AbstractParameterDeclaration> parameters
     )
     {
         Name = name;
         Parameters = parameters;
-        ResultType = resultType;
     }
 
     public string Name { get; }
 
-    public IReadOnlyList<ParameterDeclaration> Parameters { get; }
+    public IReadOnlyList<AbstractParameterDeclaration> Parameters { get; }
 }

@@ -19,9 +19,13 @@ public interface IAstVisitor
 
     void Visit(VariableAccessExpression e);
 
-    void Visit(VariableDeclaration e);
-
     void Visit(AssignmentExpression e);
 
     void Visit(IfElseExpression e);
+
+    void Visit(VariableDeclaration d);
+
+    void Visit(FunctionDeclaration d);
+
+    void Visit(ParameterDeclaration d);
 }

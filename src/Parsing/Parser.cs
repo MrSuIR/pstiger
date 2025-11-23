@@ -390,11 +390,21 @@ public class Parser
     /// <summary>
     /// Разбирает объявление символа.
     /// Правило:
-    ///     declaration = variable_declaration ;
+    ///     declaration = variable_declaration
+    ///         | function_declaration ;
     /// </summary>
     private Declaration ParseDeclaration()
     {
-        return ParseVariableDeclaration();
+        Token t = _tokens.Peek();
+        switch (t.Type)
+        {
+            case TokenType.Var:
+                return ParseVariableDeclaration();
+            case TokenType.Function:
+                return ParseFunctionDeclaration();
+            default:
+                throw new UnexpectedLexemeException(t, [TokenType.Var, TokenType.Function]);
+        }
     }
 
     /// <summary>
@@ -418,6 +428,78 @@ public class Parser
         Expression expression = ParseExpression();
 
         return new VariableDeclaration(name, typeName, expression);
+    }
+
+    /// <summary>
+    /// Разбирает объявление функции или процедуры.
+    /// Правило:
+    ///     function_declaration = "function", identifier,
+    ///         "(", [ parameter_declaration_list ], ")",
+    ///         [ ":", identifier],
+    ///         "=", "expression" ;
+    /// </summary>
+    private Declaration ParseFunctionDeclaration()
+    {
+        Match(TokenType.Function);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+
+        Match(TokenType.OpenParenthesis);
+
+        List<ParameterDeclaration> parameters = [];
+        if (_tokens.Peek().Type != TokenType.CloseParenthesis)
+        {
+            parameters = ParseParameterDeclarationList();
+        }
+
+        Match(TokenType.CloseParenthesis);
+
+        string? resultTypeName = null;
+        if (_tokens.Peek().Type == TokenType.Colon)
+        {
+            _tokens.Advance();
+            resultTypeName = Match(TokenType.Identifier).Value!.ToString();
+        }
+
+        Match(TokenType.Equal);
+        Expression expression = ParseExpression();
+
+        return new FunctionDeclaration(name, parameters, resultTypeName, expression);
+    }
+
+    /// <summary>
+    /// Разбирает список параметров функции или процедуры.
+    /// Правило:
+    ///     parameter_declaration_list = parameter_declaration
+    ///         | parameter_declaration, ",", parameter_declaration_list ;
+    /// </summary>
+    private List<ParameterDeclaration> ParseParameterDeclarationList()
+    {
+        List<ParameterDeclaration> declarations =
+        [
+            ParseParameterDeclaration(),
+        ];
+
+        while (_tokens.Peek().Type == TokenType.Comma)
+        {
+            _tokens.Advance();
+            declarations.Add(ParseParameterDeclaration());
+        }
+
+        return declarations;
+    }
+
+    /// <summary>
+    /// Разбирает объявление одного параметра функции или процедуры.
+    /// Правило:
+    ///     parameter_declaration = identifier, ":", identifier ;
+    /// </summary>
+    private ParameterDeclaration ParseParameterDeclaration()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+        string typeName = Match(TokenType.Identifier).Value!.ToString();
+
+        return new ParameterDeclaration(name, typeName);
     }
 
     /// <summary>

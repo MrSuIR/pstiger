@@ -48,12 +48,12 @@ public sealed class ResolveNamesPass : AbstractPass
         e.Variable = ResolveVariable(e.Name);
     }
 
-    public override void Visit(VariableDeclaration e)
+    public override void Visit(VariableDeclaration d)
     {
-        base.Visit(e);
+        base.Visit(d);
 
-        e.DeclaredType = e.DeclaredTypeName != null ? ResolveType(e.DeclaredTypeName) : null;
-        _symbols.DefineSymbol(e.Name, e);
+        d.DeclaredType = d.DeclaredTypeName != null ? ResolveType(d.DeclaredTypeName) : null;
+        _symbols.DefineSymbol(d.Name, d);
     }
 
     private AbstractFunctionDeclaration ResolveFunction(string name)

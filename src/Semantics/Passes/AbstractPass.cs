@@ -63,15 +63,29 @@ public abstract class AbstractPass : IAstVisitor
         e.Right.Accept(this);
     }
 
-    public virtual void Visit(VariableDeclaration e)
-    {
-        e.InitialValue.Accept(this);
-    }
-
     public virtual void Visit(IfElseExpression e)
     {
         e.Condition.Accept(this);
         e.ThenBranch.Accept(this);
         e.ElseBranch?.Accept(this);
+    }
+
+    public virtual void Visit(VariableDeclaration d)
+    {
+        d.InitialValue.Accept(this);
+    }
+
+    public void Visit(FunctionDeclaration d)
+    {
+        foreach (ParameterDeclaration declaration in d.Parameters)
+        {
+            declaration.Accept(this);
+        }
+
+        d.Body.Accept(this);
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
     }
 }

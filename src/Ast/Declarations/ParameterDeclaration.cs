@@ -5,15 +5,18 @@ namespace PsTiger.Ast.Declarations;
 /// <summary>
 /// Объявление параметра функции.
 /// </summary>
-public class ParameterDeclaration
+public class ParameterDeclaration : AbstractParameterDeclaration
 {
-    public ParameterDeclaration(string name, ValueType valueType)
+    public ParameterDeclaration(string name, string typeName)
+        : base(name)
     {
-        this.Name = name;
-        this.ValueType = valueType;
+        this.TypeName = typeName;
     }
 
-    public string Name { get; }
+    public string TypeName { get; }
 
-    public ValueType ValueType { get; }
+    public override void Accept(IAstVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 }

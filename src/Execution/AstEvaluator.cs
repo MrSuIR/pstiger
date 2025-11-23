@@ -147,14 +147,6 @@ public class AstEvaluator : IAstVisitor
         _values.Push(_variables.GetVariable(e.Name));
     }
 
-    public void Visit(VariableDeclaration e)
-    {
-        e.InitialValue.Accept(this);
-
-        Value initialValue = _values.Pop();
-        _variables.DefineVariable(e.Name, initialValue);
-    }
-
     public void Visit(AssignmentExpression e)
     {
         e.Right.Accept(this);
@@ -192,5 +184,23 @@ public class AstEvaluator : IAstVisitor
                 _values.Push(Value.Void);
             }
         }
+    }
+
+    public void Visit(VariableDeclaration d)
+    {
+        d.InitialValue.Accept(this);
+
+        Value initialValue = _values.Pop();
+        _variables.DefineVariable(d.Name, initialValue);
+    }
+
+    public void Visit(FunctionDeclaration d)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
+        throw new NotImplementedException();
     }
 }
