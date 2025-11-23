@@ -29,6 +29,6 @@ public sealed class BuiltinFunction : AbstractFunctionDeclaration
 
     public override void Accept(IAstVisitor visitor)
     {
-        throw new NotImplementedException($"Visitor cannot be applied to {GetType()}");
+        throw new InvalidOperationException($"Visitor cannot be applied to {GetType()}");
     }
 }

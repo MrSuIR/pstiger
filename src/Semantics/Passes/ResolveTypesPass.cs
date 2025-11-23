@@ -92,6 +92,13 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = ValueType.Void;
     }
 
+    public override void Visit(VariableAccessExpression e)
+    {
+        base.Visit(e);
+
+        e.ResultType = e.Variable.ResultType;
+    }
+
     /// <summary>
     /// Проверяет тип переменной и тип выражения, которым она инициализируется.
     /// </summary>
@@ -105,12 +112,14 @@ public sealed class ResolveTypesPass : AbstractPass
             throw new TypeErrorException("Cannot initialize variable from expression without value");
         }
 
-        if (e.DeclaredType != inferredType)
+        if (e.DeclaredType != null && e.DeclaredType.ResultType != inferredType)
         {
             throw new TypeErrorException(
-                $"Cannot initialize variable of type {e.DeclaredType} with value of type {inferredType}"
+                $"Cannot initialize variable of type {e.DeclaredTypeName} with value of type {inferredType}"
             );
         }
+
+        e.ResultType = inferredType;
     }
 
     public override void Visit(AssignmentExpression e)

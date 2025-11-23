@@ -4,15 +4,15 @@ namespace PsTiger.Ast.Expressions;
 
 public class ScopeExpression : Expression
 {
-    public ScopeExpression(List<Declaration> declarations, Expression? expression)
+    public ScopeExpression(List<Declaration> declarations, List<Expression> expressions)
     {
         Declarations = declarations;
-        Expression = expression;
+        Expressions = expressions;
     }
 
     public List<Declaration> Declarations { get; }
 
-    public Expression? Expression { get; }
+    public List<Expression> Expressions { get; }
 
     public override void Accept(IAstVisitor visitor)
     {

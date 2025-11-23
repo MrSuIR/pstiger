@@ -2,11 +2,11 @@ namespace PsTiger.Semantics.Exceptions;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
 /// <summary>
-/// Исключение из-за некорректного обращения к переменной.
+/// Исключение из-за некорректного использования символа (функции, переменной, типа).
 /// </summary>
-public class InvalidVariableAccessException : Exception
+public class InvalidSymbolException : Exception
 {
-    public InvalidVariableAccessException(string message)
+    public InvalidSymbolException(string message)
         : base(message)
     {
     }

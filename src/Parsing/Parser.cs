@@ -1,5 +1,4 @@
-using System.Linq.Expressions;
-
+using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Lexemes;
 using PsTiger.Runtime;
@@ -35,7 +34,25 @@ public class Parser
     /// </summary>
     private Expression ParseExpression()
     {
-        return ParseLogicalOrExpression();
+        return ParseAssignmentExpression();
+    }
+
+    /// <summary>
+    /// Разбирает присваивание.
+    /// Правила:
+    ///     assignment_expression = logical_or_expression
+    ///         | [ ":=", logical_or_expression ] ;
+    /// </summary>
+    private Expression ParseAssignmentExpression()
+    {
+        Expression expr = ParseLogicalOrExpression();
+        while (_tokens.Peek().Type == TokenType.Assign)
+        {
+            _tokens.Advance();
+            expr = new AssignmentExpression(expr, ParseLogicalOrExpression());
+        }
+
+        return expr;
     }
 
     /// <summary>
@@ -187,8 +204,10 @@ public class Parser
     /// Разбирает элементарные выражения.
     /// Правило:
     ///     primary_expression = literal
+    ///         | identifier
     ///         | identifier, argument_list
-    ///         | expression_sequence ;
+    ///         | expression_sequence
+    ///         | "let", declaration_list, "in", [ expression_sequence_inner ], "end" ;
     /// </summary>
     private Expression ParsePrimaryExpression()
     {
@@ -206,13 +225,41 @@ public class Parser
             case TokenType.Identifier:
                 {
                     _tokens.Advance();
-                    List<Expression> arguments = ParseArgumentsList();
-                    return new FunctionCallExpression(t.Value!.ToString(), arguments);
+                    if (_tokens.Peek().Type == TokenType.OpenParenthesis)
+                    {
+                        List<Expression> arguments = ParseArgumentsList();
+                        return new FunctionCallExpression(t.Value!.ToString(), arguments);
+                    }
+
+                    return new VariableAccessExpression(t.Value!.ToString());
+                }
+
+            case TokenType.Let:
+                {
+                    _tokens.Advance();
+                    List<Declaration> declarations = ParseDeclarationList();
+                    Match(TokenType.In);
+                    List<Expression> expressions = [];
+                    if (_tokens.Peek().Type != TokenType.End)
+                    {
+                        expressions = ParseInnerExpressionSequence();
+                    }
+
+                    Match(TokenType.End);
+                    return new ScopeExpression(declarations, expressions);
                 }
 
             default:
                 throw new UnexpectedLexemeException(
-                    t, [TokenType.Identifier, TokenType.IntLiteral, TokenType.StringLiteral]
+                    t,
+                    expected:
+                    [
+                        TokenType.IntLiteral,
+                        TokenType.StringLiteral,
+                        TokenType.OpenParenthesis,
+                        TokenType.Identifier,
+                        TokenType.Let,
+                    ]
                 );
         }
     }
@@ -245,31 +292,97 @@ public class Parser
     }
 
     /// <summary>
-    /// Разбор последовательности выражений.
+    /// Разбор последовательности выражений в скобках.
     /// Правила:
-    ///     expression_sequence = "(", [ expression_sequence_inner ], ")" ;
-    ///     expression_sequence_inner = expression,  { ";", expression } ;
+    ///     expression_sequence = "(", [ inner_expression_sequence ], ")" ;
     /// </summary>
     private Expression ParseExpressionSequence()
     {
-        List<Expression> expressions = [];
-
         Match(TokenType.OpenParenthesis);
+
+        List<Expression> expressions = [];
         if (_tokens.Peek().Type != TokenType.CloseParenthesis)
         {
-            expressions.Add(ParseExpression());
-
-            // Читаем последующие выражения, разделённые лексемой ";".
-            while (_tokens.Peek().Type == TokenType.Semicolon)
-            {
-                _tokens.Advance();
-                expressions.Add(ParseExpression());
-            }
+            expressions = ParseInnerExpressionSequence();
         }
 
         Match(TokenType.CloseParenthesis);
 
         return new SequenceExpression(expressions);
+    }
+
+    /// <summary>
+    /// Разбор последовательности выражений.
+    /// Правила:
+    ///     inner_expression_sequence = expression,  { ";", expression } ;
+    /// </summary>
+    private List<Expression> ParseInnerExpressionSequence()
+    {
+        List<Expression> expressions =
+        [
+            ParseExpression(),
+        ];
+
+        // Читаем последующие выражения, разделённые лексемой ";".
+        while (_tokens.Peek().Type == TokenType.Semicolon)
+        {
+            _tokens.Advance();
+            expressions.Add(ParseExpression());
+        }
+
+        return expressions;
+    }
+
+    /// <summary>
+    /// Разбирает список объявлений символов.
+    /// Правило:
+    ///     declaration_list = declaration, { declaration } ;
+    /// </summary>
+    private List<Declaration> ParseDeclarationList()
+    {
+        List<Declaration> declarations =
+        [
+            ParseDeclaration()
+        ];
+        while (_tokens.Peek().Type != TokenType.In)
+        {
+            declarations.Add(ParseDeclaration());
+        }
+
+        return declarations;
+    }
+
+    /// <summary>
+    /// Разбирает объявление символа.
+    /// Правило:
+    ///     declaration = variable_declaration ;
+    /// </summary>
+    private Declaration ParseDeclaration()
+    {
+        return ParseVariableDeclaration();
+    }
+
+    /// <summary>
+    /// Разбирает объявление переменной.
+    /// Правило:
+    ///     variable_declaration = "var", identifier, [":", identifier], ":=", expression ;
+    /// </summary>
+    private VariableDeclaration ParseVariableDeclaration()
+    {
+        Match(TokenType.Var);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+
+        string? typeName = null;
+        if (_tokens.Peek().Type == TokenType.Colon)
+        {
+            _tokens.Advance();
+            typeName = Match(TokenType.Identifier).Value!.ToString();
+        }
+
+        Match(TokenType.Assign);
+        Expression expression = ParseExpression();
+
+        return new VariableDeclaration(name, typeName, expression);
     }
 
     /// <summary>

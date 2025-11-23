@@ -14,12 +14,20 @@ public class SemanticsChecker
 {
     private readonly List<IAstVisitor> _passes;
 
-    public SemanticsChecker(IReadOnlyDictionary<string, BuiltinFunction> builtins)
+    public SemanticsChecker(
+        IReadOnlyDictionary<string, BuiltinFunction> builtinFunctions,
+        IReadOnlyDictionary<string, BuiltinType> builtinTypes
+    )
     {
         SymbolsTable globalSymbols = new(parent: null);
-        foreach ((string name, BuiltinFunction function) in builtins)
+        foreach ((string name, BuiltinFunction function) in builtinFunctions)
         {
             globalSymbols.DefineSymbol(name, function);
+        }
+
+        foreach ((string name, BuiltinType type) in builtinTypes)
+        {
+            globalSymbols.DefineSymbol(name, type);
         }
 
         _passes =

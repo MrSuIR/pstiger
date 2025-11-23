@@ -22,9 +22,9 @@ public class VariablesTest
               var height: int := 0
               var square: int := 0
             in
-              width := x2 - x1
-              height := y2 - y1
-              square := width * height
+              width := x2 - x1;
+              height := y2 - y1;
+              square := width * height;
               printi(square)
             end
             """;
@@ -46,9 +46,9 @@ public class VariablesTest
               var exclamation := "!"
               var space := " "
             in
-              greeting := concat("Hello", space)
-              greeting := concat(greeting, "world")
-              greeting := concat(greeting, exclamation)
+              greeting := concat("Hello", space);
+              greeting := concat(greeting, "world");
+              greeting := concat(greeting, exclamation);
               print(greeting)
             end
             """;
@@ -66,7 +66,7 @@ public class VariablesTest
         const string code =
             """
             let
-              var print: int = 10
+              var print: int := 10
             in
               printi(print)
             end
@@ -85,7 +85,7 @@ public class VariablesTest
         const string code =
             """
             let
-              var x: int = 10
+              var x: int := 10
             in
             end
             """;
@@ -152,7 +152,7 @@ public class VariablesTest
             {
                 """
                 let
-                  var x : int = "Hello"
+                  var x : int := "Hello"
                 in
                   printi(x)
                 end
@@ -162,7 +162,7 @@ public class VariablesTest
             {
                 """
                 let
-                  var x : string = 10
+                  var x : string := 10
                 in
                   printi(x)
                 end
@@ -173,17 +173,18 @@ public class VariablesTest
             // Нельзя использовать переменную, объявленную в другой области видимости
             {
                 """
-                let
-                  var x : int = 10
-                in
-                  printi(x)
-                end
-
-                let
-                  var y : int = 20
-                in
-                  printi(x)
-                end
+                (
+                    let
+                      var x : int := 10
+                    in
+                      printi(x)
+                    end;
+                    let
+                      var y : int := 20
+                    in
+                      printi(x)
+                    end
+                )
                 """,
                 typeof(UnknownSymbolException)
             },
@@ -192,33 +193,33 @@ public class VariablesTest
             {
                 """
                 let
-                  var x : int = 10
+                  var x : int := 10
                 in
                   printi(x())
                 end
                 """,
-                typeof(InvalidFunctionCallException)
+                typeof(InvalidSymbolException)
             },
 
             // Нельзя вызывать встроенную функцию, если её имя перекрыто переменной
             {
                 """
                 let
-                  var printi : int = 10
+                  var printi : int := 10
                 in
                   printi(10)
                 end
                 """,
-                typeof(InvalidFunctionCallException)
+                typeof(InvalidSymbolException)
             },
 
             // Нельзя присвоить переменной значение другого типа
             {
                 """
                 let
-                  var x : int = 10
+                  var x : int := 10
                 in
-                  x := "eleven"
+                  x := "eleven";
                   printi(x)
                 end
                 """,
@@ -229,9 +230,9 @@ public class VariablesTest
             {
                 """
                 let
-                  var x : int = 10
+                  var x : int := 10
                 in
-                  10 := x
+                  10 := x;
                   printi(x)
                 end
                 """,

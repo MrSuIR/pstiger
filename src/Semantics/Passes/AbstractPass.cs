@@ -47,7 +47,10 @@ public abstract class AbstractPass : IAstVisitor
             declaration.Accept(this);
         }
 
-        e.Expression?.Accept(this);
+        foreach (Expression nested in e.Expressions)
+        {
+            nested.Accept(this);
+        }
     }
 
     public virtual void Visit(VariableAccessExpression e)

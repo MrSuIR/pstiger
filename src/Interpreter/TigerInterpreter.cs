@@ -25,7 +25,7 @@ public class TigerInterpreter
         Expression program = parser.ParseProgram();
 
         // 2. Проверка соответствия типов в программе.
-        SemanticsChecker checker = new(_builtins.Functions);
+        SemanticsChecker checker = new(_builtins.Functions, _builtins.Types);
         checker.Check(program);
 
         // 3. Исполнение программы.

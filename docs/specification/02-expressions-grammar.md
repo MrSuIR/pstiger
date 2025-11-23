@@ -37,6 +37,7 @@
 | \<\=      | Меньше или равно                  | Нет ассоциативности          |
 | \&        | Логическое «И»                    | Вычисления по короткой схеме |
 | \|        | Логическое «ИЛИ»                  | Вычисления по короткой схеме |
+| \:\=      | Присваивание                      | Не возвращает значения       |
 
 Приоритеты операторов (в порядке убывания приоритета):
 
@@ -46,6 +47,7 @@
 4. Операторы сравнения: `=`, `<>`, `<`, `>`, `<=`, `=>`
 5. Логическое «И»: `&`
 6. Логическое «ИЛИ»: `|`
+7. Присваивание: `:=`
 
 Особенности операторов:
 
@@ -61,6 +63,10 @@
 
 - В этом случае выражения выполняются последовательно и возвращается результат последнего: `(2 * 2; 2 * 5) → 10`
 - Допускается пустая последовательность и она не возвращает значения: `()`
+
+## Присваивание
+
+Присваивания не возвращает значения, поэтому конструкции вида `a := b := 0` недопустимы.
 
 ## Встроенные функции
 
@@ -87,7 +93,11 @@
 program = expression ;
 
 (* Выражения *)
-expression = logical_or_expression ;
+expression = assignment_expression ;
+
+(* Присваивание *)
+assignment_expression = logical_or_expression
+   | [ ":=", logical_or_expression ] ;
 
 (* Логическое ИЛИ *)
 logical_or_expression = logical_and_expression,
@@ -114,15 +124,17 @@ unary_expression = { "-" }, primary_expression ;
 
 (* Элементарное выражение *)
 primary_expression = literal
+    | identifier
     | identifier, argument_list
-    | expression_sequence ;
+    | expression_sequence
+    | "let", declaration_list, "in", [ inner_expression_sequence ], "end" ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
 
 (* Последовательность выражений *)
-expression_sequence = "(", [ expression_sequence_inner ], ")" ;
-expression_sequence_inner = expression,  { ";", expression } ;
+expression_sequence = "(", [ inner_expression_sequence ], ")" ;
+inner_expression_sequence = expression,  { ";", expression } ;
 ```
 
 

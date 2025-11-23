@@ -174,10 +174,23 @@ public class Builtins
         ];
 
         Functions = functions.ToDictionary(function => function.Name);
+
+        List<BuiltinType> types =
+        [
+            new("int", ValueType.Int),
+            new("string", ValueType.String),
+        ];
+
+        Types = types.ToDictionary(type => type.Name);
     }
 
     /// <summary>
     /// Список встроенных функций языка.
     /// </summary>
     public IReadOnlyDictionary<string, BuiltinFunction> Functions { get; }
+
+    /// <summary>
+    /// Список встроенных типов языка.
+    /// </summary>
+    public IReadOnlyDictionary<string, BuiltinType> Types { get; }
 }
