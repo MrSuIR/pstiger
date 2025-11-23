@@ -23,7 +23,7 @@ public class Builtins
                 arguments =>
                 {
                     environment.Print(arguments[0].AsString());
-                    return new Value();
+                    return Value.Void;
                 }
             ),
 
@@ -36,7 +36,7 @@ public class Builtins
                 arguments =>
                 {
                     environment.PrintInt(arguments[0].AsInt());
-                    return new Value();
+                    return Value.Void;
                 }
             ),
 
@@ -47,7 +47,7 @@ public class Builtins
                 _ =>
                 {
                     environment.Flush();
-                    return new Value();
+                    return Value.Void;
                 }
             ),
 

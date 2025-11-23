@@ -23,6 +23,11 @@ public class AstEvaluator : IAstVisitor
     /// </summary>
     private readonly Stack<Value> _values = [];
 
+    /// <summary>
+    /// Таблица переменных, доступных в текущей области видимости с учётом родительских областей видимости.
+    /// </summary>
+    private VariablesTable _variables = new();
+
     public AstEvaluator(IReadOnlyDictionary<string, BuiltinFunction> builtins)
     {
         _builtins = builtins;
@@ -81,7 +86,7 @@ public class AstEvaluator : IAstVisitor
     public void Visit(SequenceExpression e)
     {
         // Вычисляем все выражения последовательно, но сохраняем только последний результат.
-        _values.Push(new Value());
+        _values.Push(Value.Void);
         foreach (Expression nested in e.Sequence)
         {
             _values.Pop();
@@ -116,21 +121,54 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(ScopeExpression e)
     {
-        throw new NotImplementedException();
+        _variables = new VariablesTable(_variables);
+        try
+        {
+            foreach (Declaration declaration in e.Declarations)
+            {
+                declaration.Accept(this);
+            }
+
+            _values.Push(Value.Void);
+            foreach (Expression nested in e.Expressions)
+            {
+                _values.Pop();
+                nested.Accept(this);
+            }
+        }
+        finally
+        {
+            _variables = _variables.Parent ?? throw new InvalidOperationException("Cannot rollback to parent scope");
+        }
     }
 
     public void Visit(VariableAccessExpression e)
     {
-        throw new NotImplementedException();
+        _values.Push(_variables.GetVariable(e.Name));
     }
 
     public void Visit(VariableDeclaration e)
     {
-        throw new NotImplementedException();
+        e.InitialValue.Accept(this);
+
+        Value initialValue = _values.Pop();
+        _variables.DefineVariable(e.Name, initialValue);
     }
 
     public void Visit(AssignmentExpression e)
     {
-        throw new NotImplementedException();
+        e.Right.Accept(this);
+        Value value = _values.Pop();
+
+        if (e.Left is VariableAccessExpression variable)
+        {
+            _variables.AssignVariable(variable.Name, value);
+        }
+        else
+        {
+            throw new InvalidOperationException("Assignment expression must be a variable access");
+        }
+
+        _values.Push(Value.Void);
     }
 }

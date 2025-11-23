@@ -3,9 +3,9 @@ namespace PsTiger.Runtime;
 /// <summary>
 /// Специальный тип, обозначающий отсутствие значения.
 /// </summary>
-public record struct Void
+public record struct VoidType
 {
-    public static readonly Void Value = default;
+    public static readonly VoidType Value = default;
 
     public override string ToString()
     {

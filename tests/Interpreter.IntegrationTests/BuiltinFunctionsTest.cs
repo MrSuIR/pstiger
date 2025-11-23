@@ -93,16 +93,16 @@ public class BuiltinFunctionsTest
         {
             // Функции вывода
             {
-                "print(\"Hello!\")", new Value(), "Hello!", ""
+                "print(\"Hello!\")", Value.Void, "Hello!", ""
             },
             {
-                "printi(2 + 7)", new Value(), "9", ""
+                "printi(2 + 7)", Value.Void, "9", ""
             },
             {
-                "(printi(2 + 7); print(\"\\n\"); flush(); printi(2 - 7); print(\"\\n\"))", new Value(), "-5\n", "9\n"
+                "(printi(2 + 7); print(\"\\n\"); flush(); printi(2 - 7); print(\"\\n\"))", Value.Void, "-5\n", "9\n"
             },
             {
-                "(printi(7); flush(); printi(4))", new Value(), "4", "7"
+                "(printi(7); flush(); printi(4))", Value.Void, "4", "7"
             },
 
             // Вычисления логических операций по короткой схеме
@@ -131,7 +131,7 @@ public class BuiltinFunctionsTest
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
 
-        Assert.Equal(result, new Value());
+        Assert.Equal(result, Value.Void);
         Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
     }
 
@@ -153,7 +153,7 @@ public class BuiltinFunctionsTest
         TigerInterpreter interpreter = new(environment);
         Value result = interpreter.Execute(code);
 
-        Assert.Equal(result, new Value());
+        Assert.Equal(result, Value.Void);
         Assert.Equal(expectedCode, interpreter.ExitCode);
         Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
     }

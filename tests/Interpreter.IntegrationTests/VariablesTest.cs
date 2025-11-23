@@ -33,7 +33,7 @@ public class VariablesTest
         TigerInterpreter interpreter = new(environment);
         interpreter.Execute(code);
 
-        Assert.Equal("7", environment.BufferedOutput);
+        Assert.Equal("18", environment.BufferedOutput);
     }
 
     [Fact]
@@ -237,6 +237,19 @@ public class VariablesTest
                 end
                 """,
                 typeof(InvalidAssignmentException)
+            },
+
+            // Нельзя повторно объявлять переменную с тем же именем в одной области видимости
+            {
+                """
+                let
+                    var x : int := 10
+                    var x : int := 12
+                in
+                    printi(x)
+                end
+                """,
+                typeof(DuplicateSymbolException)
             },
         };
     }

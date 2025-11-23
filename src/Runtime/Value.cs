@@ -1,18 +1,14 @@
 using System.Globalization;
 
 using ValueType = PsTiger.Runtime.ValueType;
-using Void = PsTiger.Runtime.Void;
 
 namespace PsTiger.Runtime;
 
 public class Value : IEquatable<Value>
 {
-    private readonly object _value;
+    public static readonly Value Void = new(VoidType.Value);
 
-    public Value()
-    {
-        _value = Void.Value;
-    }
+    private readonly object _value;
 
     public Value(string value)
     {
@@ -20,6 +16,11 @@ public class Value : IEquatable<Value>
     }
 
     public Value(int value)
+    {
+        _value = value;
+    }
+
+    private Value(VoidType value)
     {
         _value = value;
     }
@@ -33,7 +34,7 @@ public class Value : IEquatable<Value>
         {
             string => ValueType.String,
             int => ValueType.Int,
-            Void => ValueType.Void,
+            VoidType => ValueType.Void,
             _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
         };
     }
@@ -71,7 +72,7 @@ public class Value : IEquatable<Value>
         {
             string s => ValueUtil.EscapeStringValue(s),
             int i => i.ToString(CultureInfo.InvariantCulture),
-            Void v => v.ToString(),
+            VoidType v => v.ToString(),
             _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
         };
     }
@@ -95,7 +96,7 @@ public class Value : IEquatable<Value>
         {
             string s => other.AsString() == s,
             int i => other.AsInt() == i,
-            Void => true,
+            VoidType => true,
             _ => throw new NotImplementedException(),
         };
     }

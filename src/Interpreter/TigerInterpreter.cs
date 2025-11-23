@@ -30,7 +30,7 @@ public class TigerInterpreter
 
         // 3. Исполнение программы.
         AstEvaluator evaluator = new(_builtins.Functions);
-        Value result = new();
+        Value result = Value.Void;
         try
         {
             result = evaluator.Evaluate(program);
