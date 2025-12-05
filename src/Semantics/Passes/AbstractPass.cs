@@ -70,6 +70,12 @@ public abstract class AbstractPass : IAstVisitor
         e.ElseBranch?.Accept(this);
     }
 
+    public void Visit(WhileExpression e)
+    {
+        e.Condition.Accept(this);
+        e.LoopBody.Accept(this);
+    }
+
     public virtual void Visit(VariableDeclaration d)
     {
         d.InitialValue.Accept(this);

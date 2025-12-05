@@ -28,4 +28,6 @@ public interface IAstVisitor
     void Visit(FunctionDeclaration d);
 
     void Visit(ParameterDeclaration d);
+
+    void Visit(WhileExpression e);
 }

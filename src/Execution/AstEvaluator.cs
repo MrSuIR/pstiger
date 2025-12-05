@@ -202,6 +202,23 @@ public class AstEvaluator : IAstVisitor
     {
     }
 
+    public void Visit(WhileExpression e)
+    {
+        _values.Push(Value.Void);
+        while (true)
+        {
+            e.Condition.Accept(this);
+            int condition = _values.Pop().AsInt();
+            if (condition == 0)
+            {
+                break;
+            }
+
+            _values.Pop();
+            e.LoopBody.Accept(this);
+        }
+    }
+
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
     {
         // Вычисляем аргументы функции.
