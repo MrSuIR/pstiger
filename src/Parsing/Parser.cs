@@ -208,6 +208,7 @@ public class Parser
     ///         | identifier, argument_list
     ///         | expression_sequence
     ///         | if_expression
+    ///         | while_expression
     ///         | scope_expression ;
     /// </summary>
     private Expression ParsePrimaryExpression()
@@ -238,6 +239,9 @@ public class Parser
             case TokenType.If:
                 return ParseIfExpression();
 
+            case TokenType.While:
+                return ParseWhileExpression();
+
             case TokenType.Let:
                 return ParseScopeExpression();
 
@@ -251,6 +255,7 @@ public class Parser
                         TokenType.OpenParenthesis,
                         TokenType.Identifier,
                         TokenType.If,
+                        TokenType.While,
                         TokenType.Let,
                     ]
                 );
@@ -346,6 +351,21 @@ public class Parser
         }
 
         return new IfElseExpression(condition, thenBranch, elseBranch);
+    }
+
+    /// <summary>
+    /// Разбор цикла с условием.
+    /// Правило:
+    ///     while_expression = "while", expression, "do", expression ;
+    /// </summary>
+    private Expression ParseWhileExpression()
+    {
+        Match(TokenType.While);
+        Expression condition = ParseExpression();
+        Match(TokenType.Do);
+        Expression loopBody = ParseExpression();
+
+        return new WhileExpression(condition, loopBody);
     }
 
     /// <summary>

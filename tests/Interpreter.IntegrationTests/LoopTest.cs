@@ -39,11 +39,13 @@ public class LoopTest
             // Цикл while выполняется до тех пор, пока условие истинно
             {
                 """
-                let n := 5 in
+                let
+                    var n := 5
+                in
                     while n > 2 do (
                         printi(n);
                         print(" ");
-                        n := n - 1;
+                        n := n - 1
                     )
                 end
                 """,
