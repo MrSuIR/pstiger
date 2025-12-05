@@ -106,7 +106,10 @@ primary_expression = literal
     | identifier, argument_list
     | expression_sequence
     | scope_expression
-    | if_expression ;
+    | if_expression
+    | while_expression
+    | for_expression
+    | break_expression;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
@@ -120,4 +123,13 @@ scope_expression = "let", declaration_list, "in", [ inner_expression_sequence ],
 
 (* Ветвление *)
 if_expression = "if", expression, "then", expression, [ "else", expression ] ;
+
+(* Цикл с условием *)
+while_expression = "while", expression, "do", expression ;
+
+(* Цикл с итератором *)
+for_expression = "for", identifier, ":=", expression, "to", expression, "do", expression ;
+
+(* Прерывание цикла *)
+break_expression = "break" ;
 ```
