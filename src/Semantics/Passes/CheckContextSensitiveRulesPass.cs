@@ -13,17 +13,18 @@ namespace PsTiger.Semantics.Passes;
 /// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
+    // Стек контекстов выражений используется для проверки контекстно-зависимых правил.
     private readonly Stack<ExpressionContext> _expressionContextStack;
 
     public CheckContextSensitiveRulesPass()
     {
         _expressionContextStack = [];
-        _expressionContextStack.Push(ExpressionContext.None);
+        _expressionContextStack.Push(ExpressionContext.Default);
     }
 
     private enum ExpressionContext
     {
-        None,
+        Default,
         InsideLoop,
     }
 
@@ -47,6 +48,9 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     {
         base.Visit(e);
 
+        // Проверяем контекстно-зависимые правила присваивания:
+        // 1) Левая часть присваивания должна быть переменной.
+        // 2) Не допускается присваивание значения итератору цикла for.
         if (e.Left is VariableAccessExpression variableAccessExpression)
         {
             if (variableAccessExpression.Variable is ForIteratorDeclaration)
@@ -60,8 +64,23 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         }
     }
 
+    public override void Visit(FunctionDeclaration d)
+    {
+        // Меняем текущий контекст: дочерние узлы AST находятся в контексте по умолчанию.
+        _expressionContextStack.Push(ExpressionContext.Default);
+        try
+        {
+            base.Visit(d);
+        }
+        finally
+        {
+            _expressionContextStack.Pop();
+        }
+    }
+
     public override void Visit(WhileLoopExpression e)
     {
+        // Меняем текущий контекст: дочерние узлы AST находятся внутри цикла.
         _expressionContextStack.Push(ExpressionContext.InsideLoop);
         try
         {
@@ -75,6 +94,7 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
 
     public override void Visit(ForLoopExpression e)
     {
+        // Меняем текущий контекст: дочерние узлы AST находятся внутри цикла.
         _expressionContextStack.Push(ExpressionContext.InsideLoop);
         try
         {
@@ -90,6 +110,8 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     {
         base.Visit(e);
 
+        // Контекстно-зависимое правило: "break" допускается только внутри цикла,
+        //  расположенного в пределах текущей функции.
         if (_expressionContextStack.Peek() != ExpressionContext.InsideLoop)
         {
             throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
