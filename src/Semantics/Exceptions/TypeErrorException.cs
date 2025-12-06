@@ -10,5 +10,10 @@ public class TypeErrorException : Exception
         : base(message)
     {
     }
+
+    public TypeErrorException(string category, ValueType expected, ValueType actual)
+        : base($"Type mismatch: {category} must be an {expected}, got {actual}")
+    {
+    }
 }
 #pragma warning restore RCS1194

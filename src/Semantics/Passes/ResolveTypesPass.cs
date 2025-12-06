@@ -153,25 +153,13 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
 
-        ValueType conditionType = e.Condition.ResultType;
-        if (conditionType != ValueType.Int)
-        {
-            throw new TypeErrorException(
-                "Condition in \"if...then...else\" expression must be an integer value"
-            );
-        }
+        CheckResultType("if-else condition", e.Condition, ValueType.Int);
 
         ValueType thenType = e.ThenBranch.ResultType;
 
         if (e.ElseBranch != null)
         {
-            ValueType elseType = e.ElseBranch.ResultType;
-            if (thenType != elseType)
-            {
-                throw new TypeErrorException(
-                    "Both branches in \"if...then...else\" expression must return the same data type"
-                );
-            }
+            CheckResultType("else branch", e.ElseBranch, thenType);
         }
         else if (thenType != ValueType.Void)
         {
@@ -185,13 +173,21 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(d);
 
-        ValueType bodyResultType = d.Body.ResultType;
-        if (d.ResultType != bodyResultType)
-        {
-            throw new TypeErrorException(
-                $"Function {d.Name} must return {d.ResultType} value, but actually returns {bodyResultType}"
-            );
-        }
+        CheckResultType("function body", d.Body, d.ResultType);
+    }
+
+    public override void Visit(WhileLoopExpression e)
+    {
+        base.Visit(e);
+
+        CheckResultType("while loop condition", e.Condition, ValueType.Int);
+        e.ResultType = ValueType.Void;
+    }
+
+    public override void Visit(ForLoopExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = ValueType.Void;
     }
 
     /// <summary>
@@ -240,7 +236,7 @@ public sealed class ResolveTypesPass : AbstractPass
     /// <summary>
     /// Проверяет соответствие типов формальных параметров и фактических параметров (аргументов) при вызове функции.
     /// </summary>
-    private void CheckFunctionArgumentTypes(FunctionCallExpression e, AbstractFunctionDeclaration function)
+    private static void CheckFunctionArgumentTypes(FunctionCallExpression e, AbstractFunctionDeclaration function)
     {
         // Для каждого i-го аргумента выводим тип и сверяем с типом i-го параметра функции.
         for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
@@ -253,6 +249,14 @@ public sealed class ResolveTypesPass : AbstractPass
                     $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"
                 );
             }
+        }
+    }
+
+    private static void CheckResultType(string category, Expression expression, ValueType expectedType)
+    {
+        if (expression.ResultType != expectedType)
+        {
+            throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
     }
 }
