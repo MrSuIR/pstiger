@@ -64,6 +64,7 @@ public sealed class ResolveNamesPass : AbstractPass
         }
         finally
         {
+            // Возвращаемся к прежней таблице символов.
             _symbols = _symbols.Parent!;
         }
 
@@ -117,6 +118,21 @@ public sealed class ResolveNamesPass : AbstractPass
 
         d.Type = ResolveType(d.TypeName);
         _symbols.DefineSymbol(d.Name, d);
+    }
+
+    public override void Visit(ForLoopExpression e)
+    {
+        // Создаём дочернюю таблицу символов.
+        _symbols = new SymbolsTable(_symbols);
+        try
+        {
+            base.Visit(e);
+        }
+        finally
+        {
+            // Возвращаемся к прежней таблице символов.
+            _symbols = _symbols.Parent!;
+        }
     }
 
     public override void Visit(ForIteratorDeclaration d)

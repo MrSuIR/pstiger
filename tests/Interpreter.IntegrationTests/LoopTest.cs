@@ -85,6 +85,21 @@ public class LoopTest
                 """,
                 Value.Void, ""
             },
+
+            // Итератор цикла for может скрыть переменную внешней области видимости
+            {
+                """
+                let
+                    var i := 77
+                in
+                    (
+                        for i := 0 to 2 do printi(i);
+                        printi(i)
+                    )
+                end
+                """,
+                Value.Void, "01277"
+            },
         };
     }
 
@@ -198,6 +213,17 @@ public class LoopTest
                 for i := 0 to 2 do i
                 """,
                 typeof(TypeErrorException)
+            },
+
+            // Область видимости итератора цикла ограничена самим циклом
+            {
+                """
+                (
+                    for i := 0 to 2 do printi(i);
+                    printi(i)
+                )
+                """,
+                typeof(UnknownSymbolException)
             },
         };
     }
