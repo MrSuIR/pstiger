@@ -13,6 +13,20 @@ namespace PsTiger.Semantics.Passes;
 /// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
+    private readonly Stack<ExpressionContext> _expressionContextStack;
+
+    public CheckContextSensitiveRulesPass()
+    {
+        _expressionContextStack = [];
+        _expressionContextStack.Push(ExpressionContext.None);
+    }
+
+    private enum ExpressionContext
+    {
+        None,
+        InsideLoop,
+    }
+
     /// <summary>
     /// Проверяет корректность программы с точки зрения использования функций.
     /// </summary>
@@ -43,6 +57,42 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         else
         {
             throw new InvalidAssignmentException("Left side of assignment must be a variable access expression");
+        }
+    }
+
+    public override void Visit(WhileLoopExpression e)
+    {
+        _expressionContextStack.Push(ExpressionContext.InsideLoop);
+        try
+        {
+            base.Visit(e);
+        }
+        finally
+        {
+            _expressionContextStack.Pop();
+        }
+    }
+
+    public override void Visit(ForLoopExpression e)
+    {
+        _expressionContextStack.Push(ExpressionContext.InsideLoop);
+        try
+        {
+            base.Visit(e);
+        }
+        finally
+        {
+            _expressionContextStack.Pop();
+        }
+    }
+
+    public override void Visit(BreakLoopExpression e)
+    {
+        base.Visit(e);
+
+        if (_expressionContextStack.Peek() != ExpressionContext.InsideLoop)
+        {
+            throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
         }
     }
 }

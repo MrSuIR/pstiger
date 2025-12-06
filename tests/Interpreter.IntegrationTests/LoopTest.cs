@@ -256,6 +256,42 @@ public class LoopTest
                 """,
                 typeof(UnknownSymbolException)
             },
+
+            // Инструкция break не допускается за пределами циклов
+            {
+                """
+                (
+                    for i := 0 to 2 do printi(i);
+                    break
+                )
+                """,
+                typeof(InvalidExpressionException)
+            },
+
+            // Инструкция break не допускается, если цикл объявлен в одной из вызывающих функций и отсутствует в вызванной
+            {
+                """
+                let
+                    var stopLoop: int := 0
+                in
+                    while not(stopLoop) do (
+                        let
+                            function breakInFunction() = break
+                        in
+                            for x := 1 to 100 do (
+                                if x * x > 20
+                                then
+                                    breakInFunction();
+                                printi(x);
+                                print(" ")
+                            )
+                        end;
+                        stopLoop := 1
+                    )
+                end
+                """,
+                typeof(InvalidExpressionException)
+            },
         };
     }
 }
