@@ -100,6 +100,37 @@ public class LoopTest
                 """,
                 Value.Void, "01277"
             },
+
+            // Инструкция break прерывает ближайший к ней цикл while или for
+            {
+                """
+                let
+                    var x := 1
+                in
+                    while 1 do (
+                        if x * x > 20
+                        then
+                            break;
+                        printi(x);
+                        print(" ");
+                        x := x + 1
+                    )
+                end
+                """,
+                Value.Void, "1 2 3 4 "
+            },
+            {
+                """
+                for x := 1 to 100 do (
+                    if x * x > 20
+                    then
+                        break;
+                    printi(x);
+                    print(" ")
+                )
+                """,
+                Value.Void, "1 2 3 4 "
+            },
         };
     }
 

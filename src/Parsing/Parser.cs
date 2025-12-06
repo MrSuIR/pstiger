@@ -249,6 +249,10 @@ public class Parser
             case TokenType.Let:
                 return ParseScopeExpression();
 
+            case TokenType.Break:
+                _tokens.Advance();
+                return new BreakLoopExpression();
+
             default:
                 throw new UnexpectedLexemeException(
                     t,
@@ -261,6 +265,7 @@ public class Parser
                         TokenType.If,
                         TokenType.While,
                         TokenType.For,
+                        TokenType.Break,
                         TokenType.Let,
                     ]
                 );

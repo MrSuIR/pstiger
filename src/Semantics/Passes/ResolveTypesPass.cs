@@ -201,6 +201,12 @@ public sealed class ResolveTypesPass : AbstractPass
         d.ResultType = ValueType.Int;
     }
 
+    public override void Visit(BreakLoopExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = ValueType.Void;
+    }
+
     /// <summary>
     /// Вычисляет тип результата бинарной операции.
     /// Возвращает null, если бинарная операция не может быть выполнена с указанными типами.

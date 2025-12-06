@@ -2,6 +2,7 @@ using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Execution.Data;
+using PsTiger.Execution.Exceptions;
 using PsTiger.Runtime;
 
 namespace PsTiger.Execution;
@@ -216,19 +217,25 @@ public class AstEvaluator : IAstVisitor
     {
         // Цикл ничего не возвращает - сразу добавляем в стек значение Void.
         _values.Push(Value.Void);
-        while (true)
+        try
         {
-            // Выполняем цикл, пока условие истинно (не равно 0).
-            e.Condition.Accept(this);
-            int condition = _values.Pop().AsInt();
-            if (condition == 0)
+            while (true)
             {
-                break;
-            }
+                // Выполняем цикл, пока условие истинно (не равно 0).
+                e.Condition.Accept(this);
+                int condition = _values.Pop().AsInt();
+                if (condition == 0)
+                {
+                    break;
+                }
 
-            // Выполняем тело цикла, перед этим выбрасываем из стека значение Void, сохранённое на предыдущей итерации.
-            _values.Pop();
-            e.LoopBody.Accept(this);
+                // Выполняем тело цикла, перед этим выбрасываем из стека значение Void, сохранённое на предыдущей итерации.
+                _values.Pop();
+                e.LoopBody.Accept(this);
+            }
+        }
+        catch (BreakLoopException)
+        {
         }
     }
 
@@ -259,6 +266,9 @@ public class AstEvaluator : IAstVisitor
                 e.LoopBody.Accept(this);
             }
         }
+        catch (BreakLoopException)
+        {
+        }
         finally
         {
             // Восстанавливаем прежнюю область видимости.
@@ -270,6 +280,12 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(ForIteratorDeclaration d)
     {
+    }
+
+    public void Visit(BreakLoopExpression e)
+    {
+        _values.Push(Value.Void);
+        throw new BreakLoopException();
     }
 
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)

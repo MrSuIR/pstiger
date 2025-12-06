@@ -88,6 +88,10 @@ public abstract class AbstractPass : IAstVisitor
     {
     }
 
+    public virtual void Visit(BreakLoopExpression e)
+    {
+    }
+
     public virtual void Visit(VariableDeclaration d)
     {
         d.InitialValue.Accept(this);

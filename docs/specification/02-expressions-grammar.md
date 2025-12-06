@@ -109,7 +109,7 @@ primary_expression = literal
     | if_expression
     | while_expression
     | for_expression
-    | break_expression;
+    | "break" ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
@@ -129,7 +129,4 @@ while_expression = "while", expression, "do", expression ;
 
 (* Цикл с итератором *)
 for_expression = "for", identifier, ":=", expression, "to", expression, "do", expression ;
-
-(* Прерывание цикла *)
-break_expression = "break" ;
 ```
