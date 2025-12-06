@@ -133,6 +133,22 @@ public class LoopTest
                 typeof(TypeErrorException)
             },
 
+            // Тело цикла while не может возвращать значения
+            {
+                """
+                let
+                    var x := 0
+                in
+                    while x > 0 do (
+                        printi(x);
+                        x := x - 1;
+                        x
+                    )
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
             // Цикл for нельзя использовать там, где ожидается возврат значения
             {
                 """
@@ -141,6 +157,14 @@ public class LoopTest
                 in
                     x := for i := 0 to 2 do printi(i)
                 end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Тело цикла for не может возвращать значения
+            {
+                """
+                for i := 0 to 2 do i
                 """,
                 typeof(TypeErrorException)
             },

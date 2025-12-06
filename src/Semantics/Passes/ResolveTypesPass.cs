@@ -181,12 +181,15 @@ public sealed class ResolveTypesPass : AbstractPass
         base.Visit(e);
 
         CheckResultType("while loop condition", e.Condition, ValueType.Int);
+        CheckResultType("while loop body", e.LoopBody, ValueType.Void);
         e.ResultType = ValueType.Void;
     }
 
     public override void Visit(ForLoopExpression e)
     {
         base.Visit(e);
+
+        CheckResultType("for loop body", e.LoopBody, ValueType.Void);
         e.ResultType = ValueType.Void;
     }
 

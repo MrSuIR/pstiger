@@ -12,7 +12,7 @@ public class TypeErrorException : Exception
     }
 
     public TypeErrorException(string category, ValueType expected, ValueType actual)
-        : base($"Type mismatch: {category} must be an {expected}, got {actual}")
+        : base($"Type mismatch: {category} must be of type {expected}, got {actual}")
     {
     }
 }
