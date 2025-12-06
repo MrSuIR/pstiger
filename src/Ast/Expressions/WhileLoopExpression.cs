@@ -1,8 +1,8 @@
 namespace PsTiger.Ast.Expressions;
 
-public class WhileExpression : Expression
+public class WhileLoopExpression : Expression
 {
-    public WhileExpression(Expression condition, Expression loopBody)
+    public WhileLoopExpression(Expression condition, Expression loopBody)
     {
         Condition = condition;
         LoopBody = loopBody;

@@ -114,15 +114,18 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(ScopeExpression e)
     {
+        // Добавляем область видимости переменных и сохраняем контекст для захвата переменных вложенными функциями.
         _variables = new VariablesTable(_variables);
         _functionCapturedContext = new FunctionCapturedContextTable(_functionCapturedContext);
         try
         {
+            // Последовательно применяем все объявления этой области видимости.
             foreach (Declaration declaration in e.Declarations)
             {
                 declaration.Accept(this);
             }
 
+            // Последовательно вычисляем все выражения в области видимости.
             _values.Push(Value.Void);
             foreach (Expression nested in e.Expressions)
             {
@@ -132,6 +135,7 @@ public class AstEvaluator : IAstVisitor
         }
         finally
         {
+            // Восстанавливаем прежнюю область видимости и контекст для захвата переменных.
             _variables = _variables.Parent ?? throw new InvalidOperationException(
                 "Cannot rollback to parent variables table"
             );
@@ -148,9 +152,11 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(AssignmentExpression e)
     {
+        // Вычисляем правую часть выражения до присваивания.
         e.Right.Accept(this);
         Value value = _values.Pop();
 
+        // Присваиваем значение левой части выражения.
         if (e.Left is VariableAccessExpression variable)
         {
             _variables.AssignVariable(variable.Name, value);
@@ -160,20 +166,24 @@ public class AstEvaluator : IAstVisitor
             throw new InvalidOperationException("Assignment expression must be a variable access");
         }
 
+        // Присваивание не возвращает значения.
         _values.Push(Value.Void);
     }
 
     public void Visit(IfElseExpression e)
     {
+        // Вычисляем условие.
         e.Condition.Accept(this);
         int condition = _values.Pop().AsInt();
 
+        // Выполняем ветку then, если условие истинно (не равно 0).
         if (condition != 0)
         {
             e.ThenBranch.Accept(this);
         }
         else
         {
+            // Выполняем необязательную ветку else, если условие ложно (равно 0).
             if (e.ElseBranch != null)
             {
                 e.ElseBranch.Accept(this);
@@ -202,11 +212,13 @@ public class AstEvaluator : IAstVisitor
     {
     }
 
-    public void Visit(WhileExpression e)
+    public void Visit(WhileLoopExpression e)
     {
+        // Цикл ничего не возвращает - сразу добавляем в стек значение Void.
         _values.Push(Value.Void);
         while (true)
         {
+            // Выполняем цикл, пока условие истинно (не равно 0).
             e.Condition.Accept(this);
             int condition = _values.Pop().AsInt();
             if (condition == 0)
@@ -214,8 +226,45 @@ public class AstEvaluator : IAstVisitor
                 break;
             }
 
+            // Выполняем тело цикла, перед этим выбрасываем из стека значение Void, сохранённое на предыдущей итерации.
             _values.Pop();
             e.LoopBody.Accept(this);
+        }
+    }
+
+    public void Visit(ForLoopExpression e)
+    {
+        // Вычисляем начальное и конечное значение заранее - до объявления переменной-итератора.
+        e.Iterator.InitialValue.Accept(this);
+        int firstValue = _values.Pop().AsInt();
+
+        e.EndValue.Accept(this);
+        int lastValue = _values.Pop().AsInt();
+
+        // Добавляем область видимости переменных.
+        _variables = new VariablesTable(_variables);
+        try
+        {
+            // Объявляем переменную-итератор.
+            _variables.DefineVariable(e.Iterator.Name, new Value(firstValue));
+
+            // Цикл ничего не возвращает - сразу добавляем в стек значение Void.
+            _values.Push(Value.Void);
+            for (int i = firstValue; i <= lastValue; ++i)
+            {
+                // Выполняем цикл с новым значением итератора, а перед этим выбрасываем из стека значение Void,
+                // сохранённое на предыдущей итерации.
+                _values.Pop();
+                _variables.AssignVariable(e.Iterator.Name, new Value(i));
+                e.LoopBody.Accept(this);
+            }
+        }
+        finally
+        {
+            // Восстанавливаем прежнюю область видимости.
+            _variables = _variables.Parent ?? throw new InvalidOperationException(
+                "Cannot rollback to parent variables table"
+            );
         }
     }
 

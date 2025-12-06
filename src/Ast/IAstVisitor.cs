@@ -29,5 +29,7 @@ public interface IAstVisitor
 
     void Visit(ParameterDeclaration d);
 
-    void Visit(WhileExpression e);
+    void Visit(WhileLoopExpression e);
+
+    void Visit(ForLoopExpression e);
 }

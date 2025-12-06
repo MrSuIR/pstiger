@@ -209,6 +209,7 @@ public class Parser
     ///         | expression_sequence
     ///         | if_expression
     ///         | while_expression
+    ///         | for_expression
     ///         | scope_expression ;
     /// </summary>
     private Expression ParsePrimaryExpression()
@@ -242,6 +243,9 @@ public class Parser
             case TokenType.While:
                 return ParseWhileExpression();
 
+            case TokenType.For:
+                return ParseForExpression();
+
             case TokenType.Let:
                 return ParseScopeExpression();
 
@@ -256,6 +260,7 @@ public class Parser
                         TokenType.Identifier,
                         TokenType.If,
                         TokenType.While,
+                        TokenType.For,
                         TokenType.Let,
                     ]
                 );
@@ -365,7 +370,26 @@ public class Parser
         Match(TokenType.Do);
         Expression loopBody = ParseExpression();
 
-        return new WhileExpression(condition, loopBody);
+        return new WhileLoopExpression(condition, loopBody);
+    }
+
+    /// <summary>
+    /// Разбор цикла с итератором.
+    /// Правило:
+    ///     for_expression = "for", identifier, ":=", expression, "to", expression, "do", expression ;
+    /// </summary>
+    private Expression ParseForExpression()
+    {
+        Match(TokenType.For);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Assign);
+        Expression firstValue = ParseExpression();
+        Match(TokenType.To);
+        Expression lastValue = ParseExpression();
+        Match(TokenType.Do);
+        Expression loopBody = ParseExpression();
+
+        return new ForLoopExpression(new VariableDeclaration(name, null, firstValue), lastValue, loopBody);
     }
 
     /// <summary>
