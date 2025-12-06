@@ -32,4 +32,6 @@ public interface IAstVisitor
     void Visit(WhileLoopExpression e);
 
     void Visit(ForLoopExpression e);
+
+    void Visit(ForIteratorDeclaration d);
 }

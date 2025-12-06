@@ -235,7 +235,7 @@ public class AstEvaluator : IAstVisitor
     public void Visit(ForLoopExpression e)
     {
         // Вычисляем начальное и конечное значение заранее - до объявления переменной-итератора.
-        e.Iterator.InitialValue.Accept(this);
+        e.StartValue.Accept(this);
         int firstValue = _values.Pop().AsInt();
 
         e.EndValue.Accept(this);
@@ -266,6 +266,10 @@ public class AstEvaluator : IAstVisitor
                 "Cannot rollback to parent variables table"
             );
         }
+    }
+
+    public void Visit(ForIteratorDeclaration d)
+    {
     }
 
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)

@@ -389,7 +389,7 @@ public class Parser
         Match(TokenType.Do);
         Expression loopBody = ParseExpression();
 
-        return new ForLoopExpression(new VariableDeclaration(name, null, firstValue), lastValue, loopBody);
+        return new ForLoopExpression(name, firstValue, lastValue, loopBody);
     }
 
     /// <summary>

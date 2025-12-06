@@ -4,14 +4,17 @@ namespace PsTiger.Ast.Expressions;
 
 public class ForLoopExpression : Expression
 {
-    public ForLoopExpression(VariableDeclaration iterator, Expression endValue, Expression loopBody)
+    public ForLoopExpression(string iteratorName, Expression startValue, Expression endValue, Expression loopBody)
     {
-        Iterator = iterator;
+        Iterator = new ForIteratorDeclaration(iteratorName);
+        StartValue = startValue;
         EndValue = endValue;
         LoopBody = loopBody;
     }
 
-    public VariableDeclaration Iterator { get; }
+    public ForIteratorDeclaration Iterator { get; }
+
+    public Expression StartValue { get; }
 
     public Expression EndValue { get; }
 

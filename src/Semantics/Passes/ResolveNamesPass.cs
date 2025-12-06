@@ -119,6 +119,13 @@ public sealed class ResolveNamesPass : AbstractPass
         _symbols.DefineSymbol(d.Name, d);
     }
 
+    public override void Visit(ForIteratorDeclaration d)
+    {
+        base.Visit(d);
+
+        _symbols.DefineSymbol(d.Name, d);
+    }
+
     private AbstractFunctionDeclaration ResolveFunction(string name)
     {
         Declaration symbol = _symbols.GetSymbol(name);

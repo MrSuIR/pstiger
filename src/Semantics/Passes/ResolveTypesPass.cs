@@ -189,8 +189,16 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
 
+        CheckResultType("for loop start value", e.StartValue, ValueType.Int);
+        CheckResultType("for loop end value", e.EndValue, ValueType.Int);
         CheckResultType("for loop body", e.LoopBody, ValueType.Void);
         e.ResultType = ValueType.Void;
+    }
+
+    public override void Visit(ForIteratorDeclaration d)
+    {
+        base.Visit(d);
+        d.ResultType = ValueType.Int;
     }
 
     /// <summary>

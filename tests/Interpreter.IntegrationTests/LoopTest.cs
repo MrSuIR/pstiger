@@ -149,6 +149,37 @@ public class LoopTest
                 typeof(TypeErrorException)
             },
 
+            // Первые два выражения в цикле for могут возвращать только целочисленный тип
+            {
+                """
+                for i := "zero" to 2 do printi(i)
+                """,
+                typeof(TypeErrorException)
+            },
+            {
+                """
+                for i := 0 to "hero" do printi(i)
+                """,
+                typeof(TypeErrorException)
+            },
+            {
+                """
+                for i := "zero" to "hero" do printi(i)
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Итератору цикла for нельзя присвоить значение
+            {
+                """
+                for i := 0 to 2 do (
+                    printi(i);
+                    i := i + 1
+                )
+                """,
+                typeof(InvalidAssignmentException)
+            },
+
             // Цикл for нельзя использовать там, где ожидается возврат значения
             {
                 """

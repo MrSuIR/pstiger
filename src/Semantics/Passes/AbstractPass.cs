@@ -79,8 +79,13 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(ForLoopExpression e)
     {
         e.Iterator.Accept(this);
+        e.StartValue.Accept(this);
         e.EndValue.Accept(this);
         e.LoopBody.Accept(this);
+    }
+
+    public virtual void Visit(ForIteratorDeclaration d)
+    {
     }
 
     public virtual void Visit(VariableDeclaration d)
