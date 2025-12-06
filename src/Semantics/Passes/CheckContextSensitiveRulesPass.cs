@@ -33,7 +33,14 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     {
         base.Visit(e);
 
-        if (e.Left is not VariableAccessExpression)
+        if (e.Left is VariableAccessExpression variableAccessExpression)
+        {
+            if (variableAccessExpression.Variable is ForIteratorDeclaration)
+            {
+                throw new InvalidAssignmentException("Assigning a for loop iterator is not allowed");
+            }
+        }
+        else
         {
             throw new InvalidAssignmentException("Left side of assignment must be a variable access expression");
         }
