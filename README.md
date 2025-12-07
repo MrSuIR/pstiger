@@ -66,6 +66,56 @@ dotnet build
 dotnet test
 ```
 
+## Архитектура
+
+Проект написан на C# 12 и .NET 8.
+
+Взаимосвязь модулей:
+
+```mermaid
+graph TD
+    Ast["Ast"]
+    Execution["Execution"]
+    Interpreter["Interpreter"]
+    Lexemes["Lexemes"]
+    Parsing["Parsing"]
+    Runtime["Runtime"]
+    Semantics["Semantics"]
+
+    Ast --> Runtime
+    Execution --> Ast
+    Interpreter --> Execution
+    Interpreter --> Parsing
+    Interpreter --> Runtime
+    Interpreter --> Semantics
+    Parsing --> Ast
+    Parsing --> Lexemes
+    Semantics --> Ast
+    Semantics --> Runtime
+```
+
+## Покрытие тестами
+
+В проекте есть:
+1. Приёмочные интеграционные тесты: `Interpreter.IntegrationTests`
+2. Тесты модуля Grammar, содержащего валидатор синтаксиса на ANTLR4: `Grammar.UnitTests`
+3. Тесты модуля Lexer, содержащего лексический анализатор: `Lexemes.UnitTests`
+
+```mermaid
+graph TD
+    Grammar["Grammar"]
+    Grammar.UnitTests["Grammar.UnitTests"]
+    Interpreter["Interpreter"]
+    Interpreter.IntegrationTests["Interpreter.IntegrationTests"]
+    Lexemes["Lexemes"]
+    Lexemes.UnitTests["Lexemes.UnitTests"]
+
+    Grammar.UnitTests --> Grammar
+    Interpreter.IntegrationTests --> Grammar
+    Interpreter.IntegrationTests --> Interpreter
+    Lexemes.UnitTests --> Lexemes
+```
+
 ## Лицензия
 
 - Исходный код интерпретатора доступен под лицензией MIT.
