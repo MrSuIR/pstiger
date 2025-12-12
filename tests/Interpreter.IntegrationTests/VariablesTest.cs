@@ -130,7 +130,7 @@ public class VariablesTest
                 typeof(UnexpectedLexemeException)
             },
 
-            // Выражение слева в присваивании должно быть переменной
+            // Выражение слева в присваивании должно быть lvalue
             {
                 """
                 let
