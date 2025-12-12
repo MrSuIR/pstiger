@@ -109,7 +109,12 @@ primary_expression = literal
     | if_expression
     | while_expression
     | for_expression
-    | "break" ;
+    | "break"
+    | array_literal;
+
+(* Значение, допустимое слева от присваивания: доступ к переменной или элементу массива *)
+lvalue = identifier
+   | lvalue, "[", expression, "]" ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
@@ -129,4 +134,7 @@ while_expression = "while", expression, "do", expression ;
 
 (* Цикл с итератором *)
 for_expression = "for", identifier, ":=", expression, "to", expression, "do", expression ;
+
+(* Литерал массива *)
+array_literal := identifier, "[", expression, "]", "of", expression ;
 ```

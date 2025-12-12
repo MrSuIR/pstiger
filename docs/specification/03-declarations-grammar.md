@@ -47,7 +47,8 @@ declaration_list = declaration, { declaration } ;
 
 (* Объявление символа *)
 declaration = variable_declaration
-    | function_declaration ;
+    | function_declaration
+    | type_declaration;
 
 (* Объявление переменной *)
 variable_declaration = "var", identifier, [":", identifier], ":=", expression ;
@@ -62,4 +63,10 @@ parameter_declaration_list = parameter_declaration
     | parameter_declaration, ",", parameter_declaration_list ;
 
 parameter_declaration = identifier, ":", identifier ;
+
+(* Объявление типа *)
+type_declaration = "type", identifier, "=", type_expression ;
+
+type_expression := identifier
+    | "array", "of", identifier ;
 ```

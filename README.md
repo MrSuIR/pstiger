@@ -37,6 +37,7 @@ Tiger — учебный язык программирования, разраб
 | 05_if_else          | Ветвления                            |
 | 06_functions        | Пользовательские функции и процедуры |
 | 07_loops            | Циклы for и while, выражение break   |
+| 08_arrays           | Массивы и объявления типов           |
 
 ## Клонирование проекта
 
@@ -81,7 +82,6 @@ graph TD
     Parsing["Parsing"]
     Runtime["Runtime"]
     Semantics["Semantics"]
-
     Ast --> Runtime
     Execution --> Ast
     Interpreter --> Execution
@@ -97,6 +97,7 @@ graph TD
 ## Покрытие тестами
 
 В проекте есть:
+
 1. Приёмочные интеграционные тесты: `Interpreter.IntegrationTests`
 2. Тесты модуля Grammar, содержащего валидатор синтаксиса на ANTLR4: `Grammar.UnitTests`
 3. Тесты модуля Lexer, содержащего лексический анализатор: `Lexemes.UnitTests`
@@ -109,7 +110,6 @@ graph TD
     Interpreter.IntegrationTests["Interpreter.IntegrationTests"]
     Lexemes["Lexemes"]
     Lexemes.UnitTests["Lexemes.UnitTests"]
-
     Grammar.UnitTests --> Grammar
     Interpreter.IntegrationTests --> Grammar
     Interpreter.IntegrationTests --> Interpreter
