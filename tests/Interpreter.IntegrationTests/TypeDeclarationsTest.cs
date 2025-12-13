@@ -54,6 +54,40 @@ public class TypeDeclarationsTest
                 """,
                 "10 hello"
             },
+
+            // Можно объявить тип, перекрыв имя встроенного типа
+            {
+                """
+                let
+                    type tmp = string
+                    type string = int
+                    type int = tmp
+                    var number: string := 10
+                    var text: int := "hello"
+                in
+                    printi(number);
+                    print(" ");
+                    print(text)
+                end
+                """,
+                "10 hello"
+            },
+
+            // Можно использовать одно имя для типа и для переменной/функции в одной области видимости
+            {
+                """
+                let
+                    type text = string
+                    var int: int := 10
+                    var text: text := "hello"
+                in
+                    printi(int);
+                    print(" ");
+                    print(text)
+                end
+                """,
+                "10 hello"
+            },
         };
     }
 
