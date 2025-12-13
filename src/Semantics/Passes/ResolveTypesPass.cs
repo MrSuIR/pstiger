@@ -8,11 +8,9 @@ using ValueType = PsTiger.Runtime.ValueType;
 namespace PsTiger.Semantics.Passes;
 
 /// <summary>
-/// Проход по AST выполняет две задачи:
-///  1. Вычислить типы данных.
-///  2. Проверить корректность программы с точки зрения совместимости типов данных.
+/// Проход по AST для вычисления типов данных.
 /// </summary>
-/// <exception cref="TypeErrorException">Бросается при несоответствии типов данных.</exception>
+/// <exception cref="TypeErrorException">Бросается при несоответствии типов данных в процессе вычисления типов.</exception>
 public sealed class ResolveTypesPass : AbstractPass
 {
     /// <summary>
@@ -73,126 +71,96 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = operandType;
     }
 
-    /// <summary>
-    /// Проверяет соответствие типов параметров функции и аргументов при вызове этой функции.
-    /// </summary>
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
-
-        CheckFunctionArgumentTypes(e, e.Function);
         e.ResultType = e.Function.ResultType;
     }
 
-    /// <summary>
-    /// Выражение var...in...end не возвращает результата.
-    /// </summary>
     public override void Visit(ScopeExpression e)
     {
-        // NOTE: Для поддержки взаимной рекурсии функций мы выполняем обход функций до основной части обхода.
+        // NOTE: Для поддержки взаимной рекурсии функций мы выполняем обход дочерних узлов необычным способом:
+        // 1. Для подряд идущих объявлений функций мы обрабатываем их заранее (до посещения дочерних узлов)
+        // 2. Как только подряд идущие функции заканчиваются — запускаем обход узлов этих функций.
+        Queue<Declaration> visitQueue = [];
+
+        // Обходим объявления, при этом идущие подряд функции объявляем заранее.
         foreach (Declaration d in e.Declarations)
         {
             if (d is FunctionDeclaration f)
             {
+                // Заранее сохраняем тип функции.
                 f.ResultType = f.DeclaredType?.ResultType ?? ValueType.Void;
-                foreach (ParameterDeclaration p in f.Parameters.Cast<ParameterDeclaration>())
-                {
-                    p.ResultType = p.Type.ResultType;
-                }
+                visitQueue.Enqueue(d);
+            }
+            else
+            {
+                ProcessVisitQueue();
+                d.Accept(this);
             }
         }
 
-        base.Visit(e);
+        ProcessVisitQueue();
+
+        // Обходим последовательность выражений в данной области видимости.
+        foreach (Expression nested in e.Expressions)
+        {
+            nested.Accept(this);
+        }
+
+        // Выражение var...in...end не возвращает результата.
         e.ResultType = ValueType.Void;
+
+        return;
+
+        void ProcessVisitQueue()
+        {
+            while (visitQueue.TryDequeue(out Declaration? declaration))
+            {
+                declaration.Accept(this);
+            }
+        }
+    }
+
+    public override void Visit(ParameterDeclaration d)
+    {
+        d.ResultType = d.Type.ResultType;
     }
 
     public override void Visit(VariableAccessExpression e)
     {
         base.Visit(e);
-
         e.ResultType = e.Variable.ResultType;
     }
 
-    /// <summary>
-    /// Проверяет тип переменной и тип выражения, которым она инициализируется.
-    /// </summary>
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
-
-        ValueType inferredType = d.InitialValue.ResultType;
-        if (inferredType == ValueType.Void)
-        {
-            throw new TypeErrorException("Cannot initialize variable from expression without value");
-        }
-
-        if (d.DeclaredType != null && d.DeclaredType.ResultType != inferredType)
-        {
-            throw new TypeErrorException(
-                $"Cannot initialize variable of type {d.DeclaredTypeName} with value of type {inferredType}"
-            );
-        }
-
-        d.ResultType = inferredType;
+        d.ResultType = d.InitialValue.ResultType;
     }
 
     public override void Visit(AssignmentExpression e)
     {
         base.Visit(e);
-
-        if (e.Left.ResultType != e.Right.ResultType)
-        {
-            throw new TypeErrorException(
-                $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
-            );
-        }
-
         e.ResultType = ValueType.Void;
     }
 
     public override void Visit(IfElseExpression e)
     {
         base.Visit(e);
-
-        CheckResultType("if-else condition", e.Condition, ValueType.Int);
-
-        ValueType thenType = e.ThenBranch.ResultType;
-
-        if (e.ElseBranch != null)
-        {
-            CheckResultType("else branch", e.ElseBranch, thenType);
-        }
-        else if (thenType != ValueType.Void)
-        {
-            throw new TypeErrorException("The \"if...then\" expression without \"else\" branch may not return value");
-        }
-
-        e.ResultType = thenType;
-    }
-
-    public override void Visit(FunctionDeclaration d)
-    {
-        base.Visit(d);
-
-        CheckResultType("function body", d.Body, d.ResultType);
+        e.ResultType = e.ThenBranch.ResultType;
     }
 
     public override void Visit(WhileLoopExpression e)
     {
         base.Visit(e);
 
-        CheckResultType("while loop condition", e.Condition, ValueType.Int);
-        CheckResultType("while loop body", e.LoopBody, ValueType.Void);
         e.ResultType = ValueType.Void;
     }
 
     public override void Visit(ForLoopExpression e)
     {
         base.Visit(e);
-
-        CheckResultType("for loop start value", e.StartValue, ValueType.Int);
-        CheckResultType("for loop end value", e.EndValue, ValueType.Int);
-        CheckResultType("for loop body", e.LoopBody, ValueType.Void);
         e.ResultType = ValueType.Void;
     }
 
@@ -276,33 +244,6 @@ public sealed class ResolveTypesPass : AbstractPass
 
             default:
                 throw new InvalidOperationException($"Unknown binary operation {operation}");
-        }
-    }
-
-    /// <summary>
-    /// Проверяет соответствие типов формальных параметров и фактических параметров (аргументов) при вызове функции.
-    /// </summary>
-    private static void CheckFunctionArgumentTypes(FunctionCallExpression e, AbstractFunctionDeclaration function)
-    {
-        // Для каждого i-го аргумента выводим тип и сверяем с типом i-го параметра функции.
-        for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
-        {
-            Expression argument = e.Arguments[i];
-            AbstractParameterDeclaration parameter = function.Parameters[i];
-            if (argument.ResultType != parameter.ResultType)
-            {
-                throw new TypeErrorException(
-                    $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"
-                );
-            }
-        }
-    }
-
-    private static void CheckResultType(string category, Expression expression, ValueType expectedType)
-    {
-        if (expression.ResultType != expectedType)
-        {
-            throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
     }
 }

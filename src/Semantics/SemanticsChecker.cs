@@ -35,6 +35,7 @@ public class SemanticsChecker
             new ResolveNamesPass(globalSymbols),
             new CheckContextSensitiveRulesPass(),
             new ResolveTypesPass(),
+            new CheckTypesPass(),
         ];
     }
 

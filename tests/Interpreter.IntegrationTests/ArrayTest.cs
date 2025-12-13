@@ -64,6 +64,42 @@ public class ArrayTest
                 """,
                 "0300\n0000\n0015\n"
             },
+
+            // Присваивание переменных с типом массива создаёт ссылку на массив, а не его копию
+            {
+                """
+                let
+                    type intArray = array of int
+                    var numsCount := 3
+                    var nums: intArray := intArray[numsCount] of 7
+                    var numsCopy := nums
+                in
+                    numsCopy[0] := 3;
+                    numsCopy[1] := 4;
+                    for i := 0 to numsCount - 1 do
+                        printi(nums[i])
+                end
+                """,
+                "347"
+            },
+
+            // Массив передаётся в функцию по ссылке, а не по значению
+            {
+                """
+                let
+                    type intArray = array of int
+                    var numsCount := 4
+                    var nums: intArray := intArray[numsCount] of 2
+                    function setNumber(nums: intArray, index: int, value: int) = nums[index] := value
+                in
+                    setNumber(nums, 0, 8);
+                    setNumber(nums, 1, 5);
+                    for i := 0 to numsCount - 1 do
+                        printi(nums[i])
+                end
+                """,
+                "8522"
+            },
         };
     }
 }
