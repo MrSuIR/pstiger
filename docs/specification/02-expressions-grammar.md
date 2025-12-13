@@ -108,8 +108,7 @@ primary_expression = literal
     | if_expression
     | while_expression
     | for_expression
-    | "break"
-    | array_literal;
+    | "break";
 
 (* Выражение, начинающеся с идентификатора: *)
 (*   1. Литерал массива *)
@@ -141,7 +140,4 @@ while_expression = "while", expression, "do", expression ;
 
 (* Цикл с итератором *)
 for_expression = "for", identifier, ":=", expression, "to", expression, "do", expression ;
-
-(* Литерал массива *)
-array_literal := identifier, "[", expression, "]", "of", expression ;
 ```
