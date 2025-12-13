@@ -316,6 +316,24 @@ public class AstEvaluator : IAstVisitor
         _values.Push(Value.NewArray(size, initialValue));
     }
 
+    public void Visit(RecordTypeExpression e)
+    {
+    }
+
+    public void Visit(FieldDeclaration d)
+    {
+    }
+
+    public void Visit(RecordLiteralExpression e)
+    {
+        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+    }
+
+    public void Visit(FieldAccessExpression e)
+    {
+        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+    }
+
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
     {
         // Вычисляем аргументы функции.

@@ -3,7 +3,7 @@ using PsTiger.Ast.Declarations;
 
 namespace PsTiger.Ast.Expressions;
 
-public class ArrayLiteralExpression : Expression
+public sealed class ArrayLiteralExpression : Expression
 {
     private AstAttribute<AbstractTypeDeclaration> _arrayType;
 

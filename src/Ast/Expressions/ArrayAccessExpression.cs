@@ -4,8 +4,8 @@ public sealed class ArrayAccessExpression : Expression
 {
     public ArrayAccessExpression(Expression array, Expression index)
     {
-        this.Array = array;
-        this.Index = index;
+        Array = array;
+        Index = index;
     }
 
     public Expression Array { get; }

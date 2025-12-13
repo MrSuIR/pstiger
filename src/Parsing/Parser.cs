@@ -310,40 +310,71 @@ public class Parser
     /// Правила:
     ///     name_expression =
     ///         identifier, array_access, "of", expression
-    ///         | identifier, { array_access } ;
-    ///         | identifier, argument_list ; ;
+    ///         | identifier, { array_access | field_access }
+    ///         | identifier, argument_list
+    ///         | identifier, "{", [field_initializer_list], "}";
     /// </summary>
     private Expression ParseNameExpression()
     {
         string name = Match(TokenType.Identifier).Value!.ToString();
+
         if (_tokens.Peek().Type == TokenType.OpenParenthesis)
         {
+            // Разбираем аргументы вызова функции.
             List<Expression> arguments = ParseArgumentsList();
             return new FunctionCallExpression(name, arguments);
         }
 
-        Expression result = new VariableAccessExpression(name);
-
-        if (_tokens.Peek().Type == TokenType.OpenBracket)
+        if (_tokens.Peek().Type == TokenType.OpenBrace)
         {
-            Expression index = ParseArrayAccess();
-            if (_tokens.Peek().Type == TokenType.Of)
+            // Разбираем инициализаторы полей структуры
+            Match(TokenType.OpenBrace);
+            List<FieldInitializer> initializers = ParseFieldInitializerList();
+            Match(TokenType.CloseBrace);
+            return new RecordLiteralExpression(name, initializers);
+        }
+
+        // Разбираем lvalue (выражение слева от присваивания).
+        Expression lvalue = new VariableAccessExpression(name);
+        lvalue = ParseArrayOrFieldAccessList(lvalue);
+
+        // Устраняем неоднозначность: если впереди "of" и разобранная часть имеет определённую структуру,
+        //  то это литерал массива, а не доступ к элементу массива.
+        if (_tokens.Peek().Type == TokenType.Of)
+        {
+            if (lvalue is ArrayAccessExpression { Array: VariableAccessExpression } arrayAccess)
             {
+                // Разбираем остаток литерала массива.
                 Match(TokenType.Of);
                 Expression initialValue = ParseExpression();
-                return new ArrayLiteralExpression(name, index, initialValue);
-            }
-
-            // Разбираем остаток последовательности доступов к элементу массива.
-            result = new ArrayAccessExpression(result, index);
-            while (_tokens.Peek().Type == TokenType.OpenBracket)
-            {
-                index = ParseArrayAccess();
-                result = new ArrayAccessExpression(result, index);
+                return new ArrayLiteralExpression(name, arrayAccess.Index, initialValue);
             }
         }
 
-        return result;
+        return lvalue;
+    }
+
+    /// <summary>
+    /// Разбирает список доступов к элементу массива или полю структуры.
+    /// Правило:
+    ///    array_or_field_access_list = { array_access | field_access }
+    /// </summary>
+    private Expression ParseArrayOrFieldAccessList(Expression target)
+    {
+        while (true)
+        {
+            switch (_tokens.Peek().Type)
+            {
+                case TokenType.OpenBracket:
+                    target = ParseArrayAccess(target);
+                    break;
+                case TokenType.Dot:
+                    target = ParseFieldAccess(target);
+                    break;
+                default:
+                    return target;
+            }
+        }
     }
 
     /// <summary>
@@ -351,13 +382,62 @@ public class Parser
     /// Правила:
     ///     array_access = "[", expression, "]" ;
     /// </summary>
-    private Expression ParseArrayAccess()
+    private ArrayAccessExpression ParseArrayAccess(Expression target)
     {
         Match(TokenType.OpenBracket);
         Expression index = ParseExpression();
         Match(TokenType.CloseBracket);
 
-        return index;
+        return new ArrayAccessExpression(target, index);
+    }
+
+    /// <summary>
+    /// Разбирает доступ к полю структуры.
+    /// Правила:
+    ///     field_access = ".", identifier ;
+    /// </summary>
+    private FieldAccessExpression ParseFieldAccess(Expression target)
+    {
+        Match(TokenType.Dot);
+        string name = Match(TokenType.Identifier).Value!.ToString();
+
+        return new FieldAccessExpression(target, name);
+    }
+
+    /// <summary>
+    /// Разбирает список инициализаторов полей структуры.
+    /// Правило:
+    ///     field_initializer_list = field_initializer
+    ///         | field_initializer_list, ",", field_initializer ;
+    /// </summary>
+    private List<FieldInitializer> ParseFieldInitializerList()
+    {
+        List<FieldInitializer> initializers =
+        [
+            ParseFieldInitializer(),
+        ];
+
+        while (_tokens.Peek().Type == TokenType.Comma)
+        {
+            _tokens.Advance();
+            initializers.Add(ParseFieldInitializer());
+        }
+
+        return initializers;
+    }
+
+    /// <summary>
+    /// Разбирает инициализатор поля структуры.
+    /// Правило:
+    ///     field_initializer = identifier, "=", expression ;
+    /// </summary>
+    private FieldInitializer ParseFieldInitializer()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Equal);
+        Expression value = ParseExpression();
+
+        return new FieldInitializer(name, value);
     }
 
     /// <summary>
@@ -563,28 +643,86 @@ public class Parser
     /// Разбирает объявление типа.
     /// Правила:
     ///     type_declaration = "type", identifier, "=", type_expression ;
-    ///     type_expression := identifier
-    ///         | "array", "of", identifier ;
     /// </summary>
     private TypeDeclaration ParseTypeDeclaration()
     {
         Match(TokenType.Type);
         string typeName = Match(TokenType.Identifier).Value!.ToString();
         Match(TokenType.Equal);
+        AbstractTypeExpression typeExpression = ParseTypeExpression();
 
+        return new TypeDeclaration(typeName, typeExpression);
+    }
+
+    /// <summary>
+    /// Разбирает выражение, определяющее объявляемый тип.
+    /// Правила:
+    ///     type_expression := identifier
+    ///         | "array", "of", identifier
+    ///         | "{", field_declaration_list, "}" ;
+    /// </summary>
+    private AbstractTypeExpression ParseTypeExpression()
+    {
         switch (_tokens.Peek().Type)
         {
             case TokenType.Identifier:
                 string otherTypeName = Match(TokenType.Identifier).Value!.ToString();
-                return new TypeDeclaration(typeName, new NamedTypeExpression(otherTypeName));
+                return new NamedTypeExpression(otherTypeName);
+
             case TokenType.Array:
                 Match(TokenType.Array);
                 Match(TokenType.Of);
                 string elementTypeName = Match(TokenType.Identifier).Value!.ToString();
-                return new TypeDeclaration(typeName, new ArrayTypeExpression(elementTypeName));
+                return new ArrayTypeExpression(elementTypeName);
+
+            case TokenType.OpenBrace:
+                Match(TokenType.OpenBrace);
+                List<FieldDeclaration> fields = ParseFieldDeclarationList();
+                Match(TokenType.CloseBrace);
+                return new RecordTypeExpression(fields);
+
             default:
-                throw new UnexpectedLexemeException(_tokens.Peek(), [TokenType.Identifier, TokenType.Array]);
+                throw new UnexpectedLexemeException(
+                    _tokens.Peek(),
+                    [TokenType.Identifier, TokenType.Array, TokenType.OpenBrace]
+                );
         }
+    }
+
+    /// <summary>
+    /// Разбирает список объявлений полей структуры.
+    /// Правила:
+    ///     field_declaration_list = field_declaration
+    ///         | field_declaration, ",", field_declaration_list ;
+    /// </summary>
+    private List<FieldDeclaration> ParseFieldDeclarationList()
+    {
+        List<FieldDeclaration> fields =
+        [
+            ParseFieldDeclaration(),
+        ];
+
+        while (_tokens.Peek().Type == TokenType.Comma)
+        {
+            _tokens.Advance();
+            fields.Add(ParseFieldDeclaration());
+        }
+
+        return fields;
+    }
+
+    /// <summary>
+    /// Разбирает объявление поля структуры.
+    /// Правило:
+    ///     field_declaration = identifier, ":", identifier ;
+    /// </summary>
+    private FieldDeclaration ParseFieldDeclaration()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+        string typeName = Match(TokenType.Identifier).Value!.ToString();
+
+        return new FieldDeclaration(name, typeName);
     }
 
     /// <summary>

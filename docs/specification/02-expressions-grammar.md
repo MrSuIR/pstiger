@@ -117,12 +117,15 @@ primary_expression = literal
 (*   4. Литерал структуры *)
 name_expression =
    identifier, array_access, "of", expression
-    | identifier, { array_access } ;
+    | identifier, { array_access | field_access }
     | identifier, argument_list
     | identifier, "{", [field_initializer_list], "}";
 
 (* Доступ к элементу массива *)
 array_access = "[", expression, "]" ;
+
+(* Доступ к полю структуры *)
+field_access = ".", identifier ;
 
 (* Аргументы функции *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;

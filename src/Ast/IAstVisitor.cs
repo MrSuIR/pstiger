@@ -46,4 +46,12 @@ public interface IAstVisitor
     void Visit(ArrayAccessExpression e);
 
     void Visit(ArrayLiteralExpression e);
+
+    void Visit(RecordTypeExpression e);
+
+    void Visit(FieldDeclaration d);
+
+    void Visit(RecordLiteralExpression e);
+
+    void Visit(FieldAccessExpression e);
 }

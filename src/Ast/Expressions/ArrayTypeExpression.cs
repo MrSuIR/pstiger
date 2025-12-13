@@ -6,7 +6,7 @@ namespace PsTiger.Ast.Expressions;
 /// <summary>
 /// Выражение, определяющее тип массива с заданным типом элементов: "array of T".
 /// </summary>
-public class ArrayTypeExpression : AbstractTypeExpression
+public sealed class ArrayTypeExpression : AbstractTypeExpression
 {
     private AstAttribute<AbstractTypeDeclaration> _elementType;
 
@@ -26,7 +26,6 @@ public class ArrayTypeExpression : AbstractTypeExpression
     public AbstractTypeDeclaration ElementType
     {
         get => _elementType.Get();
-
         set => _elementType.Set(value);
     }
 

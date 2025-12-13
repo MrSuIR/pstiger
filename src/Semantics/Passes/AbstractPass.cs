@@ -135,4 +135,25 @@ public abstract class AbstractPass : IAstVisitor
         e.Size.Accept(this);
         e.InitialValue.Accept(this);
     }
+
+    public void Visit(RecordTypeExpression e)
+    {
+        foreach (FieldDeclaration field in e.FieldDeclarations)
+        {
+            field.Accept(this);
+        }
+    }
+
+    public void Visit(FieldDeclaration d)
+    {
+    }
+
+    public void Visit(RecordLiteralExpression e)
+    {
+    }
+
+    public void Visit(FieldAccessExpression e)
+    {
+        e.Record.Accept(this);
+    }
 }
