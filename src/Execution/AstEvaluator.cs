@@ -305,6 +305,11 @@ public class AstEvaluator : IAstVisitor
         throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
     }
 
+    public void Visit(ArrayLiteralExpression e)
+    {
+        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+    }
+
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
     {
         // Вычисляем аргументы функции.

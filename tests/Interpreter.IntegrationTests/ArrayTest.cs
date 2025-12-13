@@ -52,9 +52,9 @@ public class ArrayTest
                     var columnCount := 4
                     var values: table := table[rowCount] of row[columnCount] of 0
                 in
-                    table[0][1] := 3;
-                    table[2][2] := 1;
-                    table[2][3] := 5;
+                    values[0][1] := 3;
+                    values[2][2] := 1;
+                    values[2][3] := 5;
                     for rowIndex := 0 to rowCount - 1 do (
                         for columnIndex := 0 to columnCount - 1 do
                             printi(values[rowIndex][columnIndex]);

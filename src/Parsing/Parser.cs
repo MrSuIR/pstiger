@@ -204,7 +204,7 @@ public class Parser
     /// Разбирает элементарные выражения.
     /// Правило:
     ///     primary_expression = literal
-    ///         | lvalue_or_function_call
+    ///         | name_expression
     ///         | expression_sequence
     ///         | if_expression
     ///         | while_expression
@@ -225,7 +225,7 @@ public class Parser
             case TokenType.OpenParenthesis:
                 return ParseExpressionSequence();
             case TokenType.Identifier:
-                return ParseLvalueOrFunctionCall();
+                return ParseNameExpression();
             case TokenType.If:
                 return ParseIfExpression();
             case TokenType.While:
@@ -305,13 +305,14 @@ public class Parser
     }
 
     /// <summary>
-    /// Разбирает выражение слева от присваивания (lvalue) либо вызов функции
+    /// Выражение, начинающеся с идентификатора
     /// Правила:
-    ///     lvalue_or_function_call = identifier, { array_access } ;
-    ///         | identifier, argument_list ;
-    ///     array_access = "[", expression, "]" ;
+    ///     name_expression =
+    ///         identifier, array_access, "of", expression
+    ///         | identifier, { array_access } ;
+    ///         | identifier, argument_list ; ;
     /// </summary>
-    private Expression ParseLvalueOrFunctionCall()
+    private Expression ParseNameExpression()
     {
         string name = Match(TokenType.Identifier).Value!.ToString();
         if (_tokens.Peek().Type == TokenType.OpenParenthesis)
@@ -322,17 +323,40 @@ public class Parser
 
         Expression result = new VariableAccessExpression(name);
 
-        // Разбираем последовательность доступов к элементу массива.
-        while (_tokens.Peek().Type == TokenType.OpenBracket)
+        if (_tokens.Peek().Type == TokenType.OpenBracket)
         {
-            _tokens.Advance();
-            Expression index = ParseExpression();
-            Match(TokenType.CloseBracket);
+            Expression index = ParseArrayAccess();
+            if (_tokens.Peek().Type == TokenType.Of)
+            {
+                Match(TokenType.Of);
+                Expression initialValue = ParseExpression();
+                return new ArrayLiteralExpression(name, index, initialValue);
+            }
 
+            // Разбираем остаток последовательности доступов к элементу массива.
             result = new ArrayAccessExpression(result, index);
+            while (_tokens.Peek().Type == TokenType.OpenBracket)
+            {
+                index = ParseArrayAccess();
+                result = new ArrayAccessExpression(result, index);
+            }
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Разбирает доступ к элементу массива.
+    /// Правила:
+    ///     array_access = "[", expression, "]" ;
+    /// </summary>
+    private Expression ParseArrayAccess()
+    {
+        Match(TokenType.OpenBracket);
+        Expression index = ParseExpression();
+        Match(TokenType.CloseBracket);
+
+        return index;
     }
 
     /// <summary>

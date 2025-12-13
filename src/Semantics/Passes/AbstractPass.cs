@@ -129,4 +129,10 @@ public abstract class AbstractPass : IAstVisitor
         e.Array.Accept(this);
         e.Index.Accept(this);
     }
+
+    public void Visit(ArrayLiteralExpression e)
+    {
+        e.Size.Accept(this);
+        e.InitialValue.Accept(this);
+    }
 }
