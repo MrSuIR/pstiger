@@ -42,4 +42,6 @@ public interface IAstVisitor
     void Visit(NamedTypeExpression e);
 
     void Visit(ArrayTypeExpression e);
+
+    void Visit(ArrayAccessExpression e);
 }

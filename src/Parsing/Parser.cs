@@ -204,8 +204,7 @@ public class Parser
     /// Разбирает элементарные выражения.
     /// Правило:
     ///     primary_expression = literal
-    ///         | identifier
-    ///         | identifier, argument_list
+    ///         | lvalue_or_function_call
     ///         | expression_sequence
     ///         | if_expression
     ///         | while_expression
@@ -226,29 +225,15 @@ public class Parser
             case TokenType.OpenParenthesis:
                 return ParseExpressionSequence();
             case TokenType.Identifier:
-                {
-                    _tokens.Advance();
-                    if (_tokens.Peek().Type == TokenType.OpenParenthesis)
-                    {
-                        List<Expression> arguments = ParseArgumentsList();
-                        return new FunctionCallExpression(t.Value!.ToString(), arguments);
-                    }
-
-                    return new VariableAccessExpression(t.Value!.ToString());
-                }
-
+                return ParseLvalueOrFunctionCall();
             case TokenType.If:
                 return ParseIfExpression();
-
             case TokenType.While:
                 return ParseWhileExpression();
-
             case TokenType.For:
                 return ParseForExpression();
-
             case TokenType.Let:
                 return ParseScopeExpression();
-
             case TokenType.Break:
                 _tokens.Advance();
                 return new BreakLoopExpression();
@@ -317,6 +302,37 @@ public class Parser
         Match(TokenType.CloseParenthesis);
 
         return new SequenceExpression(expressions);
+    }
+
+    /// <summary>
+    /// Разбирает выражение слева от присваивания (lvalue) либо вызов функции
+    /// Правила:
+    ///     lvalue_or_function_call = identifier, { array_access } ;
+    ///         | identifier, argument_list ;
+    ///     array_access = "[", expression, "]" ;
+    /// </summary>
+    private Expression ParseLvalueOrFunctionCall()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        if (_tokens.Peek().Type == TokenType.OpenParenthesis)
+        {
+            List<Expression> arguments = ParseArgumentsList();
+            return new FunctionCallExpression(name, arguments);
+        }
+
+        Expression result = new VariableAccessExpression(name);
+
+        // Разбираем последовательность доступов к элементу массива.
+        while (_tokens.Peek().Type == TokenType.OpenBracket)
+        {
+            _tokens.Advance();
+            Expression index = ParseExpression();
+            Match(TokenType.CloseBracket);
+
+            result = new ArrayAccessExpression(result, index);
+        }
+
+        return result;
     }
 
     /// <summary>

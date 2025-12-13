@@ -102,8 +102,7 @@ unary_expression = { "-" }, primary_expression ;
 
 (* Элементарное выражение *)
 primary_expression = literal
-    | identifier
-    | identifier, argument_list
+    | lvalue_or_function_call
     | expression_sequence
     | scope_expression
     | if_expression
@@ -112,9 +111,12 @@ primary_expression = literal
     | "break"
     | array_literal;
 
-(* Значение, допустимое слева от присваивания: доступ к переменной или элементу массива *)
-lvalue = identifier
-   | lvalue, "[", expression, "]" ;
+(* Выражение слева от присваивания (lvalue) либо вызов функции *)
+lvalue_or_function_call = identifier, { array_access } ;
+    | identifier, argument_list ;
+
+(* Доступ к элементу массива *)
+array_access = "[", expression, "]" ;
 
 (* Аргументы функций *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;

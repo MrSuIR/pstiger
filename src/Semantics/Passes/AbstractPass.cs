@@ -123,4 +123,10 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(ArrayTypeExpression e)
     {
     }
+
+    public virtual void Visit(ArrayAccessExpression e)
+    {
+        e.Array.Accept(this);
+        e.Index.Accept(this);
+    }
 }

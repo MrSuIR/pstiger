@@ -300,6 +300,11 @@ public class AstEvaluator : IAstVisitor
     {
     }
 
+    public void Visit(ArrayAccessExpression e)
+    {
+        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+    }
+
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
     {
         // Вычисляем аргументы функции.
