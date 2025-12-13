@@ -4,6 +4,7 @@ using PsTiger.Lexemes;
 using PsTiger.Runtime;
 
 using Expression = PsTiger.Ast.Expressions.Expression;
+using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Parsing;
 
@@ -218,10 +219,10 @@ public class Parser
         {
             case TokenType.IntLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(new Value(t.Value!.ToInt()));
+                return new LiteralExpression(ValueType.Int, new Value(t.Value!.ToInt()));
             case TokenType.StringLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(new Value(t.Value!.ToString()));
+                return new LiteralExpression(ValueType.String, new Value(t.Value!.ToString()));
             case TokenType.OpenParenthesis:
                 return ParseExpressionSequence();
             case TokenType.Identifier:

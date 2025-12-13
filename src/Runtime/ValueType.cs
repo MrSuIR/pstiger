@@ -1,19 +1,31 @@
+using System.Runtime.CompilerServices;
+
 namespace PsTiger.Runtime;
 
-public enum ValueType
+public class ValueType
 {
     /// <summary>
     /// Значение отсутствует.
     /// </summary>
-    Void,
+    public static readonly ValueType Void = new();
 
     /// <summary>
     /// Целочисленное значение.
     /// </summary>
-    Int,
+    public static readonly ValueType Int = new();
 
     /// <summary>
     /// Строковое значение.
     /// </summary>
-    String,
+    public static readonly ValueType String = new();
+
+    public override bool Equals(object? obj)
+    {
+        return ReferenceEquals(this, obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return RuntimeHelpers.GetHashCode(this);
+    }
 }

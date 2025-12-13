@@ -6,8 +6,7 @@ namespace PsTiger.Runtime;
 
 public class Value : IEquatable<Value>
 {
-    public static readonly Value Void = new(VoidType.Value);
-
+    public static readonly Value Void = new(VoidValue.Value);
     private readonly object _value;
 
     public Value(string value)
@@ -20,23 +19,9 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    private Value(VoidType value)
+    private Value(VoidValue value)
     {
         _value = value;
-    }
-
-    /// <summary>
-    /// Возвращает тип значения.
-    /// </summary>
-    public ValueType GetValueType()
-    {
-        return _value switch
-        {
-            string => ValueType.String,
-            int => ValueType.Int,
-            VoidType => ValueType.Void,
-            _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
-        };
     }
 
     /// <summary>
@@ -48,6 +33,15 @@ public class Value : IEquatable<Value>
         {
             string s => s,
             _ => throw new InvalidOperationException($"Value {_value} is not a string"),
+        };
+    }
+
+    public bool IsInt()
+    {
+        return _value switch
+        {
+            int i => true,
+            _ => false,
         };
     }
 
@@ -63,6 +57,15 @@ public class Value : IEquatable<Value>
         };
     }
 
+    public bool IsString()
+    {
+        return _value switch
+        {
+            string s => true,
+            _ => false,
+        };
+    }
+
     /// <summary>
     /// Печатает значение для отладки.
     /// </summary>
@@ -72,7 +75,7 @@ public class Value : IEquatable<Value>
         {
             string s => ValueUtil.EscapeStringValue(s),
             int i => i.ToString(CultureInfo.InvariantCulture),
-            VoidType v => v.ToString(),
+            VoidValue v => v.ToString(),
             _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
         };
     }
@@ -87,7 +90,7 @@ public class Value : IEquatable<Value>
             return false;
         }
 
-        if (GetValueType() != other.GetValueType())
+        if (_value.GetType() != other._value.GetType())
         {
             return false;
         }
@@ -96,7 +99,7 @@ public class Value : IEquatable<Value>
         {
             string s => other.AsString() == s,
             int i => other.AsInt() == i,
-            VoidType => true,
+            VoidValue => true,
             _ => throw new NotImplementedException(),
         };
     }

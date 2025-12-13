@@ -20,7 +20,7 @@ public sealed class ResolveTypesPass : AbstractPass
     public override void Visit(LiteralExpression e)
     {
         base.Visit(e);
-        e.ResultType = e.Value.GetValueType();
+        e.ResultType = e.Type;
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ public sealed class ResolveTypesPass : AbstractPass
             );
         }
 
-        e.ResultType = resultType.Value;
+        e.ResultType = resultType;
     }
 
     /// <summary>

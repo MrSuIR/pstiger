@@ -108,18 +108,13 @@ public static class EvaluationUtil
         Value left = evaluateLeft();
         Value right = evaluateRight();
 
-        if (left.GetValueType() != right.GetValueType())
-        {
-            throw new InvalidOperationException($"Cannot compare values of different types: {left} and {right}");
-        }
-
-        if (left.GetValueType() == ValueType.Int && right.GetValueType() == ValueType.Int)
+        if (left.IsInt() && right.IsInt())
         {
             bool result = compareInts(left.AsInt(), right.AsInt());
             return new Value(result ? 1 : 0);
         }
 
-        if (left.GetValueType() == ValueType.String && right.GetValueType() == ValueType.String)
+        if (left.IsString() && right.IsString())
         {
             bool result = compareStrings(left.AsString(), right.AsString());
             return new Value(result ? 1 : 0);
