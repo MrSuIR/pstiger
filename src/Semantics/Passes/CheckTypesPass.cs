@@ -1,5 +1,6 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
 
 using ValueType = PsTiger.Runtime.ValueType;
@@ -91,6 +92,26 @@ public class CheckTypesPass : AbstractPass
         CheckResultType("for loop start value", e.StartValue, ValueType.Int);
         CheckResultType("for loop end value", e.EndValue, ValueType.Int);
         CheckResultType("for loop body", e.LoopBody, ValueType.Void);
+    }
+
+    public override void Visit(ArrayAccessExpression e)
+    {
+        base.Visit(e);
+
+        CheckResultType("array index", e.Index, ValueType.Int);
+    }
+
+    public override void Visit(ArrayLiteralExpression e)
+    {
+        base.Visit(e);
+
+        ValueType elementType = e.ResultType switch
+        {
+            ArrayType arrayType => arrayType.ElementType,
+            _ => throw new InvalidOperationException($"Unexpected non-array value type {e.ResultType}"),
+        };
+
+        CheckResultType("array initialization value", e.InitialValue, elementType);
     }
 
     /// <summary>
