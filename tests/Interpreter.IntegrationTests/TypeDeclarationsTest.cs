@@ -3,6 +3,7 @@ using Grammar;
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
+using PsTiger.Semantics.Exceptions;
 
 namespace Interpreter.IntegrationTests;
 
@@ -11,19 +12,6 @@ public class TypeDeclarationsTest
     [Theory]
     [MemberData(nameof(GetDeclareTypeAliasData))]
     public void Can_declare_type_alias(string code, string expectedOutput)
-    {
-        TigerGrammar.CheckProgramSyntax(code);
-
-        FakeEnvironment environment = new();
-        TigerInterpreter interpreter = new(environment);
-
-        interpreter.Execute(code);
-        Assert.Equal(expectedOutput, environment.BufferedOutput);
-    }
-
-    [Theory]
-    [MemberData(nameof(GetDeclareArrayTypeData))]
-    public void Can_declare_array_type(string code, string expectedOutput)
     {
         TigerGrammar.CheckProgramSyntax(code);
 
@@ -91,6 +79,19 @@ public class TypeDeclarationsTest
         };
     }
 
+    [Theory]
+    [MemberData(nameof(GetDeclareArrayTypeData))]
+    public void Can_declare_array_type(string code, string expectedOutput)
+    {
+        TigerGrammar.CheckProgramSyntax(code);
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        interpreter.Execute(code);
+        Assert.Equal(expectedOutput, environment.BufferedOutput);
+    }
+
     public static TheoryData<string, string> GetDeclareArrayTypeData()
     {
         return new TheoryData<string, string>
@@ -116,6 +117,47 @@ public class TypeDeclarationsTest
                 end
                 """,
                 ""
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetInvalidTypeDeclarationsData))]
+    public void Rejects_invalid_type_declarations(string code, Type exceptionType)
+    {
+        TigerGrammar.CheckProgramSyntax(code);
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        Assert.Throws(exceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetInvalidTypeDeclarationsData()
+    {
+        return new TheoryData<string, Type>
+        {
+            // Нельзя объявить два типа с одинаковым именем
+            {
+                """
+                let
+                    type text = string
+                    type text = string
+                in
+                end
+                """,
+                typeof(DuplicateSymbolException)
+            },
+
+            // Нельзя объявить переменную несуществующего типа
+            {
+                """
+                let
+                    var t: text := "hello"
+                in
+                end
+                """,
+                typeof(UnknownSymbolException)
             },
         };
     }
