@@ -1,6 +1,7 @@
 using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Execution.Assignment;
 using PsTiger.Execution.Data;
 using PsTiger.Execution.Exceptions;
 using PsTiger.Runtime;
@@ -157,15 +158,8 @@ public class AstEvaluator : IAstVisitor
         e.Right.Accept(this);
         Value value = _values.Pop();
 
-        // Присваиваем значение левой части выражения.
-        if (e.Left is VariableAccessExpression variable)
-        {
-            _variables.AssignVariable(variable.Name, value);
-        }
-        else
-        {
-            throw new InvalidOperationException("Assignment expression must be a variable access");
-        }
+        IValueAccessor accessor = CreateValueAccessor(e.Left);
+        accessor.Store(value);
 
         // Присваивание не возвращает значения.
         _values.Push(Value.Void);
@@ -302,12 +296,24 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(ArrayAccessExpression e)
     {
-        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+        e.Array.Accept(this);
+        Value array = _values.Pop();
+
+        e.Index.Accept(this);
+        int index = _values.Pop().AsInt();
+
+        _values.Push(array.GetElement(index));
     }
 
     public void Visit(ArrayLiteralExpression e)
     {
-        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+        e.Size.Accept(this);
+        int size = _values.Pop().AsInt();
+
+        e.InitialValue.Accept(this);
+        Value initialValue = _values.Pop();
+
+        _values.Push(Value.NewArray(size, initialValue));
     }
 
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
@@ -350,6 +356,28 @@ public class AstEvaluator : IAstVisitor
         finally
         {
             _variables = oldVariables;
+        }
+    }
+
+    private IValueAccessor CreateValueAccessor(Expression lvalue)
+    {
+        switch (lvalue)
+        {
+            case VariableAccessExpression variable:
+                return new VariableAccessor(_variables, variable.Name);
+
+            case ArrayAccessExpression arrayAccess:
+                {
+                    IValueAccessor array = CreateValueAccessor(arrayAccess.Array);
+
+                    arrayAccess.Index.Accept(this);
+                    int index = _values.Pop().AsInt();
+
+                    return new ArrayElementAccessor(array, index);
+                }
+
+            default:
+                throw new InvalidOperationException("Assignment expression is not a lvalue");
         }
     }
 }

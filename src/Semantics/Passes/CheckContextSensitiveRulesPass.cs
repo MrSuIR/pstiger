@@ -49,18 +49,16 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         base.Visit(e);
 
         // Проверяем контекстно-зависимые правила присваивания:
-        // 1) Левая часть присваивания должна быть переменной.
+        // 1) Левая часть присваивания должна быть lvalue.
         // 2) Не допускается присваивание значения итератору цикла for.
-        if (e.Left is VariableAccessExpression variableAccessExpression)
+        if (!IsLvalue(e.Left))
         {
-            if (variableAccessExpression.Variable is ForIteratorDeclaration)
-            {
-                throw new InvalidAssignmentException("Assigning a for loop iterator is not allowed");
-            }
+            throw new InvalidAssignmentException("Left side of assignment must be a lvalue");
         }
-        else
+
+        if (e.Left is VariableAccessExpression { Variable: ForIteratorDeclaration })
         {
-            throw new InvalidAssignmentException("Left side of assignment must be a variable access expression");
+            throw new InvalidAssignmentException("Assigning a for loop iterator is not allowed");
         }
     }
 
@@ -116,5 +114,24 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         {
             throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
         }
+    }
+
+    /// <summary>
+    /// Проверяет, является ли выражение lvalue-выражением.
+    /// Термин lvalue означает «значение слева от присваивания».
+    /// </summary>
+    private static bool IsLvalue(Expression e)
+    {
+        if (e is VariableAccessExpression)
+        {
+            return true;
+        }
+
+        if (e is ArrayAccessExpression arrayAccess)
+        {
+            return IsLvalue(arrayAccess.Array);
+        }
+
+        return false;
     }
 }

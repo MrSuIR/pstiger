@@ -1,5 +1,3 @@
-using ValueType = PsTiger.Runtime.ValueType;
-
 namespace PsTiger.Ast.Declarations;
 
 public abstract class AbstractTypeDeclaration : Declaration

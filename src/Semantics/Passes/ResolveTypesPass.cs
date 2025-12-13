@@ -1,5 +1,6 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
 
 using ValueType = PsTiger.Runtime.ValueType;
@@ -33,7 +34,7 @@ public sealed class ResolveTypesPass : AbstractPass
         base.Visit(e);
 
         ValueType? resultType = GetBinaryOperationResultType(e.Operation, e.Left.ResultType, e.Right.ResultType);
-        if (resultType == null)
+        if (resultType is null)
         {
             throw new TypeErrorException(
                 $"Binary operation {e.Operation} is not allowed for types {e.Left.ResultType} and {e.Right.ResultType}"
@@ -211,10 +212,28 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(d);
 
-        if (d.TypeExpression is NamedTypeExpression namedType)
+        d.ResultType = d.TypeExpression switch
         {
-            d.ResultType = namedType.Type.ResultType;
-        }
+            NamedTypeExpression namedType => namedType.Type.ResultType,
+            ArrayTypeExpression arrayType => new ArrayType(arrayType.ElementType.ResultType),
+            _ => throw new InvalidOperationException($"Unexpected type expression class {d.TypeExpression.GetType()}"),
+        };
+    }
+
+    public override void Visit(ArrayAccessExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = e.Array.ResultType switch
+        {
+            ArrayType arrayType => arrayType.ElementType,
+            _ => throw new TypeErrorException($"Cannot use type {e.Array.ResultType} as array"),
+        };
+    }
+
+    public override void Visit(ArrayLiteralExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = e.ArrayType.ResultType;
     }
 
     /// <summary>
@@ -256,7 +275,7 @@ public sealed class ResolveTypesPass : AbstractPass
                 return null;
 
             default:
-                throw new ArgumentException($"Unknown binary operation {operation}");
+                throw new InvalidOperationException($"Unknown binary operation {operation}");
         }
     }
 

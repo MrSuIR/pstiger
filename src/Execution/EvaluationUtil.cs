@@ -1,8 +1,6 @@
 using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 
-using ValueType = PsTiger.Runtime.ValueType;
-
 namespace PsTiger.Execution;
 
 public static class EvaluationUtil

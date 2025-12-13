@@ -3,12 +3,34 @@ using System.Text;
 
 namespace PsTiger.Runtime;
 
-public static class ValueUtil
+internal static class ValueUtil
 {
+    /// <summary>
+    /// Форматирует массив значений как строку.
+    /// </summary>
+    internal static string FormatArray(Value[] values)
+    {
+        StringBuilder sb = new();
+        sb.Append('[');
+        for (int i = 0, iMax = values.Length; i < iMax; ++i)
+        {
+            if (i > 0)
+            {
+                sb.Append(", ");
+            }
+
+            sb.Append(values[i]);
+        }
+
+        sb.Append(']');
+
+        return sb.ToString();
+    }
+
     /// <summary>
     /// Печатает строковое значение в кавычках с базовым экранированием.
     /// </summary>
-    public static string EscapeStringValue(string s)
+    internal static string EscapeStringValue(string s)
     {
         StringBuilder sb = new();
         sb.Append('"');

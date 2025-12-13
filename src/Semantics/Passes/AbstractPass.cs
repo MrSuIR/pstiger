@@ -130,7 +130,7 @@ public abstract class AbstractPass : IAstVisitor
         e.Index.Accept(this);
     }
 
-    public void Visit(ArrayLiteralExpression e)
+    public virtual void Visit(ArrayLiteralExpression e)
     {
         e.Size.Accept(this);
         e.InitialValue.Accept(this);

@@ -4,24 +4,61 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Runtime;
 
+/// <summary>
+/// Представляет значение времени выполнения языка Tiger.
+///  - Скалярные значения неизменяемы: они не меняются после создания.
+///  - Массивы изменяемы: они могут быть изменены после создания.
+/// </summary>
 public class Value : IEquatable<Value>
 {
     public static readonly Value Void = new(VoidValue.Value);
     private readonly object _value;
 
+    /// <summary>
+    /// Создаёт строковое значение.
+    /// </summary>
     public Value(string value)
     {
         _value = value;
     }
 
+    /// <summary>
+    /// Создаёт целочисленное значение.
+    /// </summary>
     public Value(int value)
     {
         _value = value;
     }
 
-    private Value(VoidValue value)
+    private Value(object value)
     {
         _value = value;
+    }
+
+    /// <summary>
+    /// Создаёт изменяемый массив заданного размера с указанным начальным значением элементов.
+    /// </summary>
+    public static Value NewArray(int size, Value initialValue)
+    {
+        Value[] array = new Value[size];
+        for (int i = 0; i < size; ++i)
+        {
+            array[i] = initialValue.DeepCopy();
+        }
+
+        return new Value(array);
+    }
+
+    /// <summary>
+    /// Определяет, является ли значение строкой.
+    /// </summary>
+    public bool IsString()
+    {
+        return _value switch
+        {
+            string => true,
+            _ => false,
+        };
     }
 
     /// <summary>
@@ -36,11 +73,14 @@ public class Value : IEquatable<Value>
         };
     }
 
+    /// <summary>
+    /// Определяет, является ли значение целым числом.
+    /// </summary>
     public bool IsInt()
     {
         return _value switch
         {
-            int i => true,
+            int => true,
             _ => false,
         };
     }
@@ -57,13 +97,18 @@ public class Value : IEquatable<Value>
         };
     }
 
-    public bool IsString()
+    public Value GetElement(int index)
     {
-        return _value switch
-        {
-            string s => true,
-            _ => false,
-        };
+        Value[] values = AsArray();
+        CheckArrayBounds(values, index);
+        return values[index];
+    }
+
+    public void SetElement(int index, Value value)
+    {
+        Value[] values = AsArray();
+        CheckArrayBounds(values, index);
+        values[index] = value;
     }
 
     /// <summary>
@@ -73,6 +118,7 @@ public class Value : IEquatable<Value>
     {
         return _value switch
         {
+            Value[] values => ValueUtil.FormatArray(values),
             string s => ValueUtil.EscapeStringValue(s),
             int i => i.ToString(CultureInfo.InvariantCulture),
             VoidValue v => v.ToString(),
@@ -97,9 +143,18 @@ public class Value : IEquatable<Value>
 
         return _value switch
         {
+            // Массивы равны, если указывают на один и тот же массив.
+            Value[] => ReferenceEquals(other._value, _value),
+
+            // Строки сравниваются посимвольно.
             string s => other.AsString() == s,
+
+            // Числа сравниваются по значению.
             int i => other.AsInt() == i,
+
+            // Пустые значения всегда равны.
             VoidValue => true,
+
             _ => throw new NotImplementedException(),
         };
     }
@@ -112,5 +167,35 @@ public class Value : IEquatable<Value>
     public override int GetHashCode()
     {
         return _value.GetHashCode();
+    }
+
+    /// <summary>
+    /// Выполняет глубокое копирование значения, если оно изменяемое.
+    /// </summary>
+    private Value DeepCopy()
+    {
+        if (_value is Value[] values)
+        {
+            return new Value(values.Select(v => v.DeepCopy()).ToArray());
+        }
+
+        return this;
+    }
+
+    private Value[] AsArray()
+    {
+        return _value switch
+        {
+            Value[] values => values,
+            _ => throw new InvalidOperationException($"Value {_value} is not an array"),
+        };
+    }
+
+    private static void CheckArrayBounds(Value[] array, int index)
+    {
+        if (index < 0 || index >= array.Length)
+        {
+            throw new IndexOutOfRangeException($"Index {index} is out of array with length {array.Length}");
+        }
     }
 }

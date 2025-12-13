@@ -157,4 +157,11 @@ public sealed class ResolveNamesPass : AbstractPass
         base.Visit(d);
         _symbols.DeclareType(d);
     }
+
+    public override void Visit(ArrayLiteralExpression e)
+    {
+        base.Visit(e);
+
+        e.ArrayType = _symbols.GetTypeDeclaration(e.ArrayTypeName);
+    }
 }
