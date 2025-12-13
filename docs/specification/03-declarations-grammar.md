@@ -68,5 +68,11 @@ parameter_declaration = identifier, ":", identifier ;
 type_declaration = "type", identifier, "=", type_expression ;
 
 type_expression := identifier
-    | "array", "of", identifier ;
+    | "array", "of", identifier
+    | "{", field_declaration_list, "}" ;
+
+field_declaration_list = field_declaration
+    | field_declaration, ",", field_declaration_list ;
+
+field_declaration = identifier, ":", identifier ;
 ```

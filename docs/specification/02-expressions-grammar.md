@@ -114,16 +114,24 @@ primary_expression = literal
 (*   1. Литерал массива *)
 (*   2. Выражение слева от присваивания (lvalue) *)
 (*   3. Вызов функции *)
+(*   4. Литерал структуры *)
 name_expression =
    identifier, array_access, "of", expression
     | identifier, { array_access } ;
-    | identifier, argument_list ;
+    | identifier, argument_list
+    | identifier, "{", [field_initializer_list], "}";
 
 (* Доступ к элементу массива *)
 array_access = "[", expression, "]" ;
 
 (* Аргументы функции *)
 arguments_list = "(", [ expression, { ",", expression } ], ")" ;
+
+(* Инициализаторы полей структуры *)
+field_initializer_list = field_initializer
+   | field_initializer_list, ",", field_initializer ;
+
+field_initializer = identifier, "=", expression ;
 
 (* Последовательность выражений *)
 expression_sequence = "(", [ inner_expression_sequence ], ")" ;
