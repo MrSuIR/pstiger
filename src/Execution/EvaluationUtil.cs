@@ -31,37 +31,35 @@ public static class EvaluationUtil
                 evaluateRight,
                 (i1, i2) => i1 / i2
             ),
-            BinaryOperation.Equal => ApplyComparisonOperation(
+            BinaryOperation.Equal => ApplyEqualityOperator(
                 evaluateLeft,
                 evaluateRight,
-                (i1, i2) => i1 == i2,
-                (s1, s2) => s1 == s2
+                (v1, v2) => v1.Equals(v2)
             ),
-            BinaryOperation.NotEqual => ApplyComparisonOperation(
+            BinaryOperation.NotEqual => ApplyEqualityOperator(
                 evaluateLeft,
                 evaluateRight,
-                (i1, i2) => i1 != i2,
-                (s1, s2) => s1 != s2
+                (v1, v2) => !v1.Equals(v2)
             ),
-            BinaryOperation.LessThan => ApplyComparisonOperation(
+            BinaryOperation.LessThan => ApplyOrderingOperator(
                 evaluateLeft,
                 evaluateRight,
                 (i1, i2) => i1 < i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) < 0
             ),
-            BinaryOperation.GreaterThan => ApplyComparisonOperation(
+            BinaryOperation.GreaterThan => ApplyOrderingOperator(
                 evaluateLeft,
                 evaluateRight,
                 (i1, i2) => i1 > i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) > 0
             ),
-            BinaryOperation.LessThanOrEqual => ApplyComparisonOperation(
+            BinaryOperation.LessThanOrEqual => ApplyOrderingOperator(
                 evaluateLeft,
                 evaluateRight,
                 (i1, i2) => i1 <= i2,
                 (s1, s2) => string.CompareOrdinal(s1, s2) <= 0
             ),
-            BinaryOperation.GreaterThanOrEqual => ApplyComparisonOperation(
+            BinaryOperation.GreaterThanOrEqual => ApplyOrderingOperator(
                 evaluateLeft,
                 evaluateRight,
                 (i1, i2) => i1 >= i2,
@@ -93,10 +91,26 @@ public static class EvaluationUtil
     }
 
     /// <summary>
-    /// Сравнивает два операнда, если они оба являются числами или строками.
+    /// Выполняет операцию сравнения значений на равенство / неравенство.
+    /// </summary>
+    private static Value ApplyEqualityOperator(
+        Func<Value> evaluateLeft,
+        Func<Value> evaluateRight,
+        Func<Value, Value, bool> compare
+    )
+    {
+        Value left = evaluateLeft();
+        Value right = evaluateRight();
+
+        bool result = compare(left, right);
+        return new Value(result ? 1 : 0);
+    }
+
+    /// <summary>
+    /// Сравнивает два операнда на относительный порядок, если они оба являются числами или строками.
     /// Иначе бросает исключение.
     /// </summary>
-    private static Value ApplyComparisonOperation(
+    private static Value ApplyOrderingOperator(
         Func<Value> evaluateLeft,
         Func<Value> evaluateRight,
         Func<int, int, bool> compareInts,

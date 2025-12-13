@@ -100,6 +100,71 @@ public class ArrayTest
                 """,
                 "8522"
             },
+
+            // Массив существует после завершения области видимости, в которой был создан
+            {
+                """
+                let
+                    type intArray = array of int
+                    var numsCount := 3
+                    function createArray(size: int): intArray = intArray[size] of 0
+                    var nums: intArray := createArray(numsCount)
+                in
+                    nums[0] := 2;
+                    nums[1] := 19;
+                    for i := 0 to numsCount - 1 do
+                        printi(nums[i])
+                end
+                """,
+                "2190"
+            },
+
+            // Сравнение массивов сравнивает их по ссылке, а не по значениям элементов
+            {
+                """
+                let
+                    type intArray = array of int
+                    var numsCount := 2
+                    var nums1: intArray := intArray[numsCount] of 3
+                    var nums2: intArray := intArray[numsCount] of 3
+                in
+                    printi(nums1 = nums2);
+                    printi(nums2 = nums1);
+                    printi(nums1 = nums1);
+                    printi(nums2 = nums2);
+                    print(" ");
+                    printi(nums1 <> nums2);
+                    printi(nums2 <> nums1);
+                    printi(nums1 <> nums1);
+                    printi(nums2 <> nums2)
+                end
+                """,
+                "0011 1100"
+            },
+
+            // Можно сравнивать массивы разных типов, если эти типы являются синонимами
+            {
+                """
+                let
+                    type intArray = array of int
+                    type numArray = intArray
+                    var numsCount := 2
+                    var nums1: intArray := intArray[numsCount] of 3
+                    var nums2: numArray := intArray[numsCount] of 3
+                in
+                    printi(nums1 = nums2);
+                    printi(nums2 = nums1);
+                    printi(nums1 = nums1);
+                    printi(nums2 = nums2);
+                    print(" ");
+                    printi(nums1 <> nums2);
+                    printi(nums2 <> nums1);
+                    printi(nums1 <> nums1);
+                    printi(nums2 <> nums2)
+                end
+                """,
+                "0011 1100"
+            },
         };
     }
 }

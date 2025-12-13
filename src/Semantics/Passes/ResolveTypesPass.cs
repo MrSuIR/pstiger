@@ -228,8 +228,6 @@ public sealed class ResolveTypesPass : AbstractPass
             case BinaryOperation.GreaterThan:
             case BinaryOperation.LessThanOrEqual:
             case BinaryOperation.GreaterThanOrEqual:
-            case BinaryOperation.Equal:
-            case BinaryOperation.NotEqual:
                 if (left == ValueType.Int && right == ValueType.Int)
                 {
                     return ValueType.Int;
@@ -237,7 +235,16 @@ public sealed class ResolveTypesPass : AbstractPass
 
                 if (left == ValueType.String && right == ValueType.String)
                 {
-                    return ValueType.String;
+                    return ValueType.Int;
+                }
+
+                return null;
+
+            case BinaryOperation.Equal:
+            case BinaryOperation.NotEqual:
+                if (left == right)
+                {
+                    return ValueType.Int;
                 }
 
                 return null;
