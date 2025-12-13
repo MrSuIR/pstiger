@@ -6,8 +6,8 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class InvalidSymbolException : Exception
 {
-    public InvalidSymbolException(string message)
-        : base(message)
+    public InvalidSymbolException(string name, string expectedCategory, string actualCategory)
+        : base($"Name {name} should refer to a {expectedCategory}, got {actualCategory}")
     {
     }
 }

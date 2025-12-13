@@ -4,10 +4,9 @@ namespace PsTiger.Ast.Declarations;
 
 public abstract class AbstractTypeDeclaration : Declaration
 {
-    protected AbstractTypeDeclaration(string name, ValueType type)
+    protected AbstractTypeDeclaration(string name)
     {
         Name = name;
-        ResultType = type;
     }
 
     public string Name { get; }

@@ -1,6 +1,5 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
-using PsTiger.Semantics.Exceptions;
 using PsTiger.Semantics.Symbols;
 
 namespace PsTiger.Semantics.Passes;
@@ -24,7 +23,7 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(e);
 
-        e.Function = ResolveFunction(e.Name);
+        e.Function = _symbols.GetFunctionDeclaration(e.Name);
     }
 
     public override void Visit(ScopeExpression e)
@@ -44,7 +43,7 @@ public sealed class ResolveNamesPass : AbstractPass
                 if (d is FunctionDeclaration f)
                 {
                     // Заранее объявляем эту функцию.
-                    _symbols.DefineSymbol(f.Name, d);
+                    _symbols.DeclareFunction(f);
                     visitQueue.Enqueue(d);
                 }
                 else
@@ -83,21 +82,21 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(e);
 
-        e.Variable = ResolveVariable(e.Name);
+        e.Variable = _symbols.GetVariableDeclaration(e.Name);
     }
 
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
 
-        d.DeclaredType = d.DeclaredTypeName != null ? ResolveType(d.DeclaredTypeName) : null;
-        _symbols.DefineSymbol(d.Name, d);
+        d.DeclaredType = d.DeclaredTypeName != null ? _symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
+        _symbols.DeclareVariable(d);
     }
 
     public override void Visit(FunctionDeclaration d)
     {
         // Находим заявленный тип результата.
-        d.DeclaredType = d.DeclaredTypeName != null ? ResolveType(d.DeclaredTypeName) : null;
+        d.DeclaredType = d.DeclaredTypeName != null ? _symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
 
         // Создаём дочернюю таблицу символов.
         _symbols = new SymbolsTable(_symbols);
@@ -116,8 +115,8 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(d);
 
-        d.Type = ResolveType(d.TypeName);
-        _symbols.DefineSymbol(d.Name, d);
+        d.Type = _symbols.GetTypeDeclaration(d.TypeName);
+        _symbols.DeclareVariable(d);
     }
 
     public override void Visit(ForLoopExpression e)
@@ -138,46 +137,24 @@ public sealed class ResolveNamesPass : AbstractPass
     public override void Visit(ForIteratorDeclaration d)
     {
         base.Visit(d);
-
-        _symbols.DefineSymbol(d.Name, d);
+        _symbols.DeclareVariable(d);
     }
 
-    private AbstractFunctionDeclaration ResolveFunction(string name)
+    public override void Visit(NamedTypeExpression e)
     {
-        Declaration symbol = _symbols.GetSymbol(name);
-        if (symbol is AbstractFunctionDeclaration function)
-        {
-            return function;
-        }
-
-        throw new InvalidSymbolException(
-            $"Name {name} does not refer to a function"
-        );
+        base.Visit(e);
+        e.Type = _symbols.GetTypeDeclaration(e.TypeName);
     }
 
-    private AbstractVariableDeclaration ResolveVariable(string name)
+    public override void Visit(ArrayTypeExpression e)
     {
-        Declaration symbol = _symbols.GetSymbol(name);
-        if (symbol is AbstractVariableDeclaration variable)
-        {
-            return variable;
-        }
-
-        throw new InvalidSymbolException(
-            $"Name {name} does not refer to a variable"
-        );
+        base.Visit(e);
+        e.ElementType = _symbols.GetTypeDeclaration(e.ElementTypeName);
     }
 
-    private AbstractTypeDeclaration ResolveType(string name)
+    public override void Visit(TypeDeclaration d)
     {
-        Declaration symbol = _symbols.GetSymbol(name);
-        if (symbol is AbstractTypeDeclaration type)
-        {
-            return type;
-        }
-
-        throw new InvalidSymbolException(
-            $"Name {name} does not refer to a type"
-        );
+        base.Visit(d);
+        _symbols.DeclareType(d);
     }
 }

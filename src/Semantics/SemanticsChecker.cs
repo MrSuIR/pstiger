@@ -15,19 +15,19 @@ public class SemanticsChecker
     private readonly AbstractPass[] _passes;
 
     public SemanticsChecker(
-        IReadOnlyDictionary<string, BuiltinFunction> builtinFunctions,
-        IReadOnlyDictionary<string, BuiltinType> builtinTypes
+        IReadOnlyList<BuiltinFunction> builtinFunctions,
+        IReadOnlyList<BuiltinType> builtinTypes
     )
     {
         SymbolsTable globalSymbols = new(parent: null);
-        foreach ((string name, BuiltinFunction function) in builtinFunctions)
+        foreach (BuiltinFunction function in builtinFunctions)
         {
-            globalSymbols.DefineSymbol(name, function);
+            globalSymbols.DeclareFunction(function);
         }
 
-        foreach ((string name, BuiltinType type) in builtinTypes)
+        foreach (BuiltinType type in builtinTypes)
         {
-            globalSymbols.DefineSymbol(name, type);
+            globalSymbols.DeclareType(type);
         }
 
         _passes =

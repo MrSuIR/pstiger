@@ -12,7 +12,7 @@ public class Builtins
 {
     public Builtins(IEnvironment environment)
     {
-        List<BuiltinFunction> functions =
+        Functions =
         [
             new(
                 "print", // print(s: string)` — выводит строку в стандартный поток вывода
@@ -173,24 +173,20 @@ public class Builtins
             ),
         ];
 
-        Functions = functions.ToDictionary(function => function.Name);
-
-        List<BuiltinType> types =
+        Types =
         [
             new("int", ValueType.Int),
             new("string", ValueType.String),
         ];
-
-        Types = types.ToDictionary(type => type.Name);
     }
 
     /// <summary>
     /// Список встроенных функций языка.
     /// </summary>
-    public IReadOnlyDictionary<string, BuiltinFunction> Functions { get; }
+    public IReadOnlyList<BuiltinFunction> Functions { get; }
 
     /// <summary>
     /// Список встроенных типов языка.
     /// </summary>
-    public IReadOnlyDictionary<string, BuiltinType> Types { get; }
+    public IReadOnlyList<BuiltinType> Types { get; }
 }

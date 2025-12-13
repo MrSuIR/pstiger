@@ -440,7 +440,8 @@ public class Parser
     /// Разбирает объявление символа.
     /// Правило:
     ///     declaration = variable_declaration
-    ///         | function_declaration ;
+    ///         | function_declaration
+    ///         | type_declaration;
     /// </summary>
     private Declaration ParseDeclaration()
     {
@@ -451,8 +452,10 @@ public class Parser
                 return ParseVariableDeclaration();
             case TokenType.Function:
                 return ParseFunctionDeclaration();
+            case TokenType.Type:
+                return ParseTypeDeclaration();
             default:
-                throw new UnexpectedLexemeException(t, [TokenType.Var, TokenType.Function]);
+                throw new UnexpectedLexemeException(t, [TokenType.Var, TokenType.Function, TokenType.Type]);
         }
     }
 
@@ -487,7 +490,7 @@ public class Parser
     ///         [ ":", identifier],
     ///         "=", "expression" ;
     /// </summary>
-    private Declaration ParseFunctionDeclaration()
+    private FunctionDeclaration ParseFunctionDeclaration()
     {
         Match(TokenType.Function);
         string name = Match(TokenType.Identifier).Value!.ToString();
@@ -513,6 +516,34 @@ public class Parser
         Expression expression = ParseExpression();
 
         return new FunctionDeclaration(name, parameters, resultTypeName, expression);
+    }
+
+    /// <summary>
+    /// Разбирает объявление типа.
+    /// Правила:
+    ///     type_declaration = "type", identifier, "=", type_expression ;
+    ///     type_expression := identifier
+    ///         | "array", "of", identifier ;
+    /// </summary>
+    private TypeDeclaration ParseTypeDeclaration()
+    {
+        Match(TokenType.Type);
+        string typeName = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Equal);
+
+        switch (_tokens.Peek().Type)
+        {
+            case TokenType.Identifier:
+                string otherTypeName = Match(TokenType.Identifier).Value!.ToString();
+                return new TypeDeclaration(typeName, new NamedTypeExpression(otherTypeName));
+            case TokenType.Array:
+                Match(TokenType.Array);
+                Match(TokenType.Of);
+                string elementTypeName = Match(TokenType.Identifier).Value!.ToString();
+                return new TypeDeclaration(typeName, new ArrayTypeExpression(elementTypeName));
+            default:
+                throw new UnexpectedLexemeException(_tokens.Peek(), [TokenType.Identifier, TokenType.Array]);
+        }
     }
 
     /// <summary>

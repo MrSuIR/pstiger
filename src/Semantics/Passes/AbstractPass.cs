@@ -110,4 +110,17 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(ParameterDeclaration d)
     {
     }
+
+    public virtual void Visit(TypeDeclaration d)
+    {
+        d.TypeExpression.Accept(this);
+    }
+
+    public virtual void Visit(NamedTypeExpression e)
+    {
+    }
+
+    public virtual void Visit(ArrayTypeExpression e)
+    {
+    }
 }

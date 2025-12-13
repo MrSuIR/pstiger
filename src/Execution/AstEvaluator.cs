@@ -288,6 +288,18 @@ public class AstEvaluator : IAstVisitor
         throw new BreakLoopException();
     }
 
+    public void Visit(TypeDeclaration d)
+    {
+    }
+
+    public void Visit(NamedTypeExpression e)
+    {
+    }
+
+    public void Visit(ArrayTypeExpression e)
+    {
+    }
+
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
     {
         // Вычисляем аргументы функции.

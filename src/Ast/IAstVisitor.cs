@@ -36,4 +36,10 @@ public interface IAstVisitor
     void Visit(ForIteratorDeclaration d);
 
     void Visit(BreakLoopExpression e);
+
+    void Visit(TypeDeclaration d);
+
+    void Visit(NamedTypeExpression e);
+
+    void Visit(ArrayTypeExpression e);
 }

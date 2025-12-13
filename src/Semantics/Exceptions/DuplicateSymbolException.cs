@@ -1,3 +1,5 @@
+using PsTiger.Semantics.Symbols;
+
 namespace PsTiger.Semantics.Exceptions;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
@@ -6,8 +8,8 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class DuplicateSymbolException : Exception
 {
-    public DuplicateSymbolException(string name)
-        : base($"The name {name} is already defined in the current scope")
+    public DuplicateSymbolException(string category, string name)
+        : base($"The {category} name {name} is already defined in the current scope")
     {
     }
 }

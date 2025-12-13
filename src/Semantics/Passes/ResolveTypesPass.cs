@@ -207,6 +207,16 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = ValueType.Void;
     }
 
+    public override void Visit(TypeDeclaration d)
+    {
+        base.Visit(d);
+
+        if (d.TypeExpression is NamedTypeExpression namedType)
+        {
+            d.ResultType = namedType.Type.ResultType;
+        }
+    }
+
     /// <summary>
     /// Вычисляет тип результата бинарной операции.
     /// Возвращает null, если бинарная операция не может быть выполнена с указанными типами.
