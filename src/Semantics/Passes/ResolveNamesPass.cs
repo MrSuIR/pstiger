@@ -1,5 +1,6 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Semantics.Exceptions;
 using PsTiger.Semantics.Symbols;
 
 namespace PsTiger.Semantics.Passes;
@@ -159,7 +160,10 @@ public sealed class ResolveNamesPass : AbstractPass
         Dictionary<string, AbstractTypeDeclaration> fields = [];
         foreach (FieldDeclaration declaration in e.FieldDeclarations)
         {
-            fields[declaration.Name] = declaration.Type;
+            if (!fields.TryAdd(declaration.Name, declaration.Type))
+            {
+                throw DuplicateSymbolException.DuplicateField(declaration.Name);
+            }
         }
 
         e.Fields = fields;

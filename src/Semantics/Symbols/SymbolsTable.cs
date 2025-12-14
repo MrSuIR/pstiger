@@ -10,16 +10,6 @@ namespace PsTiger.Semantics.Symbols;
 /// </summary>
 public sealed class SymbolsTable
 {
-    /// <summary>
-    /// В языке есть два пространства имён:
-    ///  1. Имена типов данных;
-    ///  2. Имена переменных и функций.
-    /// Категория — это человекочитаемое название пространства имён.
-    /// </summary>
-    private const string TypeCategory = "type";
-
-    private const string VariableOrFunctionCategory = "variable or function";
-
     private readonly SymbolsTable? _parent;
 
     private readonly Dictionary<string, Declaration> _variablesAndFunctions;
@@ -41,7 +31,7 @@ public sealed class SymbolsTable
         {
             AbstractVariableDeclaration variable => variable,
             AbstractFunctionDeclaration _ => throw new InvalidSymbolException(name, "function", "variable"),
-            null => throw new UnknownSymbolException(VariableOrFunctionCategory, name),
+            null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
             _ => throw new UnreachableException(),
         };
     }
@@ -53,7 +43,7 @@ public sealed class SymbolsTable
         {
             AbstractFunctionDeclaration function => function,
             AbstractVariableDeclaration _ => throw new InvalidSymbolException(name, "function", "variable"),
-            null => throw new UnknownSymbolException(VariableOrFunctionCategory, name),
+            null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
             _ => throw new UnreachableException(),
         };
     }
@@ -63,7 +53,7 @@ public sealed class SymbolsTable
         Declaration? declaration = FindDeclaration(table => table._types, name);
         if (declaration is null)
         {
-            throw new UnknownSymbolException(TypeCategory, name);
+            throw UnknownSymbolException.UndefinedType(name);
         }
 
         return (AbstractTypeDeclaration)declaration;
@@ -73,7 +63,7 @@ public sealed class SymbolsTable
     {
         if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
         {
-            throw new DuplicateSymbolException(VariableOrFunctionCategory, symbol.Name);
+            throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
     }
 
@@ -81,7 +71,7 @@ public sealed class SymbolsTable
     {
         if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
         {
-            throw new DuplicateSymbolException(VariableOrFunctionCategory, symbol.Name);
+            throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
     }
 
@@ -89,7 +79,7 @@ public sealed class SymbolsTable
     {
         if (!_types.TryAdd(symbol.Name, symbol))
         {
-            throw new DuplicateSymbolException(TypeCategory, symbol.Name);
+            throw DuplicateSymbolException.DuplicateType(symbol.Name);
         }
     }
 

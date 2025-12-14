@@ -8,9 +8,25 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class DuplicateSymbolException : Exception
 {
-    public DuplicateSymbolException(string category, string name)
-        : base($"The {category} name {name} is already defined in the current scope")
+    private DuplicateSymbolException(string message)
+        : base(message)
     {
+    }
+
+    public static DuplicateSymbolException DuplicateVariableOrFunction(string name)
+    {
+        return new DuplicateSymbolException(
+            $"The variable or function name {name} is already used in the current scope");
+    }
+
+    public static DuplicateSymbolException DuplicateType(string name)
+    {
+        return new DuplicateSymbolException($"The type name {name} is already used in the current scope");
+    }
+
+    public static DuplicateSymbolException DuplicateField(string name)
+    {
+        return new DuplicateSymbolException($"The field name {name} is already used in the record");
     }
 }
 #pragma warning restore RCS1194

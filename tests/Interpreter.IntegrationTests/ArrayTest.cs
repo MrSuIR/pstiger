@@ -171,7 +171,7 @@ public class ArrayTest
 
     [Theory]
     [MemberData(nameof(GetInvalidArrayUsageData))]
-    public void Rejects_invalid_array_usege(string code, Type exceptionType)
+    public void Rejects_invalid_array_usage(string code, Type exceptionType)
     {
         TigerGrammar.CheckProgramSyntax(code);
 

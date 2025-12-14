@@ -3,6 +3,7 @@ using Grammar;
 using Interpreter.IntegrationTests.TestDoubles;
 
 using PsTiger.Interpreter;
+using PsTiger.Semantics.Exceptions;
 
 namespace Interpreter.IntegrationTests;
 
@@ -250,6 +251,37 @@ public class RecordsTest
                 end
                 """,
                 "01"
+            },
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(GetInvalidRecordUsageData))]
+    public void Rejects_invalid_record_usage(string code, Type exceptionType)
+    {
+        TigerGrammar.CheckProgramSyntax(code);
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+
+        Assert.Throws(exceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetInvalidRecordUsageData()
+    {
+        return new TheoryData<string, Type>
+        {
+            // В объявлении структуры нельзя объявлять поля с одинаковым именем
+            {
+                """
+                let
+                    type Point = { x: int, x: int }
+                    var p : Point := Point{x = 10, x = 20}
+                in
+                    printi(p.x)
+                end
+                """,
+                typeof(DuplicateSymbolException)
             },
         };
     }

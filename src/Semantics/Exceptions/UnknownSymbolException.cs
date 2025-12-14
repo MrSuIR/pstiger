@@ -8,9 +8,19 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class UnknownSymbolException : Exception
 {
-    public UnknownSymbolException(string category, string name)
-        : base($"The {category} name {name} is not defined in the current context")
+    private UnknownSymbolException(string message)
+        : base(message)
     {
+    }
+
+    public static UnknownSymbolException UndefinedVariableOrFunction(string name)
+    {
+        return new UnknownSymbolException($"Nor variable neither function {name} is defined in the current scope");
+    }
+
+    public static UnknownSymbolException UndefinedType(string name)
+    {
+        return new UnknownSymbolException($"No type {name} is defined in the current scope");
     }
 }
 #pragma warning restore RCS1194
