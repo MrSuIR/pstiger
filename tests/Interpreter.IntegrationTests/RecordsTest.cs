@@ -141,6 +141,116 @@ public class RecordsTest
                 """,
                 "30, -16"
             },
+
+            // Присваивание переменных с типом структуры создаёт ссылку на неё, а не копию
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    var p2 := p1
+                    var p3 : Point := Point{x = 10, y = 20}
+                    function printPoint(p: Point) = (
+                        printi(p.x);
+                        print(", ");
+                        printi(p.y)
+                    )
+                in
+                    p1.x := 33;
+                    printPoint(p1);
+                    print("; ");
+                    printPoint(p2);
+                    print("; ");
+                    printPoint(p3)
+                end
+                """,
+                "33, 20; 33, 20; 10, 20"
+            },
+
+            // Структура передаётся в функцию по ссылке, а не по значению
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    function movePoint(p: Point, dx: int, dy: int) = (
+                       p.x := p.x + dx;
+                       p.y := p.y + dy
+                    )
+                    function printPoint(p: Point) = (
+                        printi(p.x);
+                        print(", ");
+                        printi(p.y)
+                    )
+                in
+                    movePoint(p1, -5, 17);
+                    printPoint(p1)
+                end
+                """,
+                "5, 37"
+            },
+
+            // Структура существует после завершения области видимости, в которой была создана
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    function printPoint(p: Point) = (
+                        printi(p.x);
+                        print(", ");
+                        printi(p.y)
+                    )
+                    var point := Point{ x = 0, y = 0 }
+                in
+                    let
+                        function makePoint(x: int, y: int): Point = Point{ x = x, y = y }
+                        var temp : Point := makePoint(-7, 14)
+                    in
+                        point := temp
+                    end;
+                    printPoint(point)
+                end
+                """,
+                "-7, 14"
+            },
+
+            // Сравнение структур сравнивает их по ссылке, а не по значениям полей
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    var p2 : Point := Point{x = 10, y = 20}
+                in
+                    printi(p1 = p2);
+                    printi(p2 = p1);
+                    printi(p1 = p1);
+                    printi(p2 = p2);
+                    print(" ");
+                    printi(p1 <> p2);
+                    printi(p2 <> p1);
+                    printi(p1 <> p1);
+                    printi(p2 <> p2)
+                end
+                """,
+                "0011 1100"
+            },
+
+            // Можно сравнивать структуры разных типов, если эти типы являются синонимами
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    type Vector = Point
+                    var p2 : Vector := Vector{x = 10, y = 20}
+                in
+                    printi(p1 = p2);
+                    printi(p1 <> p2)
+                end
+                """,
+                "01"
+            },
         };
     }
 }
