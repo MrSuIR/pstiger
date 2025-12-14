@@ -83,25 +83,46 @@ public sealed class ResolveTypesPass : AbstractPass
         // NOTE: Для поддержки взаимной рекурсии функций мы выполняем обход дочерних узлов необычным способом:
         // 1. Для подряд идущих объявлений функций мы обрабатываем их заранее (до посещения дочерних узлов)
         // 2. Как только подряд идущие функции заканчиваются — запускаем обход узлов этих функций.
-        Queue<Declaration> visitQueue = [];
+        DeclarationVisitQueue visitQueue = new(this);
 
         // Обходим объявления, при этом идущие подряд функции объявляем заранее.
         foreach (Declaration d in e.Declarations)
         {
-            if (d is FunctionDeclaration f)
+            switch (d)
             {
-                // Заранее сохраняем тип функции.
-                f.ResultType = f.DeclaredType?.ResultType ?? ValueType.Void;
-                visitQueue.Enqueue(d);
-            }
-            else
-            {
-                ProcessVisitQueue();
-                d.Accept(this);
+                case FunctionDeclaration f:
+                    // Заранее сохраняем тип функции.
+                    visitQueue.BeforeFunctionDeclaration();
+                    f.ResultType = f.DeclaredType?.ResultType ?? ValueType.Void;
+                    visitQueue.Enqueue(d);
+                    break;
+
+                case TypeDeclaration t:
+                    // 1. Для структур и массивов заранее заявляем тип
+                    // 2. Добавляем объявление типа в очередь обхода.
+                    visitQueue.BeforeTypeDeclaration();
+                    switch (t.TypeExpression)
+                    {
+                        case RecordTypeExpression:
+                            t.ResultType = new RecordType();
+                            break;
+
+                        case ArrayTypeExpression:
+                            t.ResultType = new ArrayType();
+                            break;
+                    }
+
+                    visitQueue.Enqueue(d);
+                    break;
+
+                default:
+                    visitQueue.Flush();
+                    d.Accept(this);
+                    break;
             }
         }
 
-        ProcessVisitQueue();
+        visitQueue.Flush();
 
         // Обходим последовательность выражений в данной области видимости.
         foreach (Expression nested in e.Expressions)
@@ -111,16 +132,6 @@ public sealed class ResolveTypesPass : AbstractPass
 
         // Выражение var...in...end не возвращает результата.
         e.ResultType = ValueType.Void;
-
-        return;
-
-        void ProcessVisitQueue()
-        {
-            while (visitQueue.TryDequeue(out Declaration? declaration))
-            {
-                declaration.Accept(this);
-            }
-        }
     }
 
     public override void Visit(ParameterDeclaration d)
@@ -181,13 +192,22 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(d);
 
-        d.ResultType = d.TypeExpression switch
+        switch (d.TypeExpression)
         {
-            NamedTypeExpression namedType => namedType.Type.ResultType,
-            ArrayTypeExpression arrayType => new ArrayType(arrayType.ElementType.ResultType),
-            RecordTypeExpression recordType => new RecordType(ResolveRecordFields(recordType.Fields)),
-            _ => throw new InvalidOperationException($"Unexpected type expression class {d.TypeExpression.GetType()}"),
-        };
+            case NamedTypeExpression namedTypeExpression:
+                d.ResultType = namedTypeExpression.Type.ResultType;
+                break;
+
+            case RecordTypeExpression recordTypeExpression:
+                RecordType recordType = (RecordType)d.ResultType;
+                recordType.Fields = ResolveRecordFields(recordTypeExpression.Fields);
+                break;
+
+            case ArrayTypeExpression arrayTypeExpression:
+                ArrayType arrayType = (ArrayType)d.ResultType;
+                arrayType.ElementType = arrayTypeExpression.ElementType.ResultType;
+                break;
+        }
     }
 
     public override void Visit(ArrayAccessExpression e)

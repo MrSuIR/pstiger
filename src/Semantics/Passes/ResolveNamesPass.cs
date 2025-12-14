@@ -1,6 +1,7 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Semantics.Exceptions;
+using PsTiger.Semantics.Helpers;
 using PsTiger.Semantics.Symbols;
 
 namespace PsTiger.Semantics.Passes;
@@ -29,10 +30,8 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(ScopeExpression e)
     {
-        // NOTE: Для поддержки взаимной рекурсии функций мы выполняем обход дочерних узлов необычным способом:
-        // 1. Для подряд идущих объявлений функций мы объявляем их заранее (до посещения дочерних узлов)
-        // 2. Как только подряд идущие функции заканчиваются — запускаем обход узлов этих функций.
-        Queue<Declaration> visitQueue = [];
+        // Выполняем отложенный обход узлов объявлений для реализации взаимной рекурсии объявлений.
+        DeclarationVisitQueue visitQueue = new(this);
 
         // Создаём дочернюю таблицу символов.
         _symbols = new SymbolsTable(_symbols);
@@ -41,20 +40,28 @@ public sealed class ResolveNamesPass : AbstractPass
             // Обходим объявления, при этом идущие подряд функции объявляем заранее.
             foreach (Declaration d in e.Declarations)
             {
-                if (d is FunctionDeclaration f)
+                switch (d)
                 {
-                    // Заранее объявляем эту функцию.
-                    _symbols.DeclareFunction(f);
-                    visitQueue.Enqueue(d);
-                }
-                else
-                {
-                    ProcessVisitQueue();
-                    d.Accept(this);
+                    case FunctionDeclaration f:
+                        // Заранее объявляем эту функцию и добавляем в очередь обхода.
+                        visitQueue.BeforeFunctionDeclaration();
+                        _symbols.DeclareFunction(f);
+                        visitQueue.Enqueue(d);
+                        break;
+                    case TypeDeclaration t:
+                        // Заранее объявляем этот тип и добавляем в очередь обхода.
+                        visitQueue.BeforeTypeDeclaration();
+                        _symbols.DeclareType(t);
+                        visitQueue.Enqueue(d);
+                        break;
+                    default:
+                        visitQueue.Flush();
+                        d.Accept(this);
+                        break;
                 }
             }
 
-            ProcessVisitQueue();
+            visitQueue.Flush();
 
             // Обходим последовательность выражений в данной области видимости.
             foreach (Expression nested in e.Expressions)
@@ -66,16 +73,6 @@ public sealed class ResolveNamesPass : AbstractPass
         {
             // Возвращаемся к прежней таблице символов.
             _symbols = _symbols.Parent!;
-        }
-
-        return;
-
-        void ProcessVisitQueue()
-        {
-            while (visitQueue.TryDequeue(out Declaration? declaration))
-            {
-                declaration.Accept(this);
-            }
         }
     }
 
@@ -173,12 +170,6 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(d);
         d.Type = _symbols.GetTypeDeclaration(d.TypeName);
-    }
-
-    public override void Visit(TypeDeclaration d)
-    {
-        base.Visit(d);
-        _symbols.DeclareType(d);
     }
 
     public override void Visit(ArrayLiteralExpression e)

@@ -3,13 +3,15 @@ namespace PsTiger.Runtime;
 /// <summary>
 /// Представляет тип, являющийся массивом элементом другого типа.
 /// </summary>
+/// <remarks>
+/// Тип элемента массива инициализируется после создания типа массива.
+/// </remarks>
 public sealed class ArrayType : ValueType
 {
-    public ArrayType(ValueType elementType)
-        : base($"array of {elementType}")
+    public ArrayType()
+        : base("array")
     {
-        ElementType = elementType;
     }
 
-    public ValueType ElementType { get; }
+    public ValueType ElementType { get; set; } = null!;
 }

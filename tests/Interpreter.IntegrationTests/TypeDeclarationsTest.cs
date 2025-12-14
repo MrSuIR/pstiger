@@ -47,18 +47,13 @@ public class TypeDeclarationsTest
             {
                 """
                 let
-                    type tmp = string
                     type string = int
-                    type int = tmp
                     var number: string := 10
-                    var text: int := "hello"
                 in
-                    printi(number);
-                    print(" ");
-                    print(text)
+                    printi(number)
                 end
                 """,
-                "10 hello"
+                "10"
             },
 
             // Можно использовать одно имя для типа и для переменной/функции в одной области видимости
