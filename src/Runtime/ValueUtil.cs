@@ -28,6 +28,33 @@ internal static class ValueUtil
     }
 
     /// <summary>
+    /// Форматирует поля структуры как строку.
+    /// </summary>
+    internal static string FormatRecord(Dictionary<string, Value> fields)
+    {
+        StringBuilder sb = new();
+        sb.Append('{');
+
+        bool addComma = false;
+        foreach ((string name, Value value) in fields)
+        {
+            if (addComma)
+            {
+                sb.Append(", ");
+            }
+
+            addComma = true;
+            sb.Append(name);
+            sb.Append(": ");
+            sb.Append(value);
+        }
+
+        sb.Append('}');
+
+        return sb.ToString();
+    }
+
+    /// <summary>
     /// Печатает строковое значение в кавычках с базовым экранированием.
     /// </summary>
     internal static string EscapeStringValue(string s)

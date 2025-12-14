@@ -102,7 +102,7 @@ exprSeq
     | expr SEMICOLON exprSeq
     ;
 
-// Список полей для создания записи
+// Список полей для создания структуры
 fieldListOpt
     : /* пустая цепочка */
     | fieldList

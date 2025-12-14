@@ -50,6 +50,15 @@ public class Value : IEquatable<Value>
     }
 
     /// <summary>
+    /// Создаёт изменяемую структуру без установленных полей. Структура реализуется хеш-таблицей.
+    /// </summary>
+    public static Value NewRecord()
+    {
+        Dictionary<string, Value> fields = [];
+        return new Value(fields);
+    }
+
+    /// <summary>
     /// Определяет, является ли значение строкой.
     /// </summary>
     public bool IsString()
@@ -111,6 +120,23 @@ public class Value : IEquatable<Value>
         values[index] = value;
     }
 
+    public Value GetField(string name)
+    {
+        Dictionary<string, Value> fields = AsRecord();
+        if (fields.TryGetValue(name, out Value? field))
+        {
+            return field;
+        }
+
+        throw new KeyNotFoundException($"Field '{name}' not found in record");
+    }
+
+    public void SetField(string name, Value value)
+    {
+        Dictionary<string, Value> fields = AsRecord();
+        fields[name] = value;
+    }
+
     /// <summary>
     /// Печатает значение для отладки.
     /// </summary>
@@ -119,6 +145,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             Value[] values => ValueUtil.FormatArray(values),
+            Dictionary<string, Value> fields => ValueUtil.FormatRecord(fields),
             string s => ValueUtil.EscapeStringValue(s),
             int i => i.ToString(CultureInfo.InvariantCulture),
             VoidValue v => v.ToString(),
@@ -145,6 +172,9 @@ public class Value : IEquatable<Value>
         {
             // Массивы равны, если указывают на один и тот же массив.
             Value[] => ReferenceEquals(other._value, _value),
+
+            // Структуры равны, если указывают на одну и ту же структуру.
+            Dictionary<string, Value> => ReferenceEquals(other._value, _value),
 
             // Строки сравниваются посимвольно.
             string s => other.AsString() == s,
@@ -174,20 +204,35 @@ public class Value : IEquatable<Value>
     /// </summary>
     private Value DeepCopy()
     {
-        if (_value is Value[] values)
+        return _value switch
         {
-            return new Value(values.Select(v => v.DeepCopy()).ToArray());
-        }
-
-        return this;
+            Value[] values => new Value(values.Select(v => v.DeepCopy()).ToArray()),
+            Dictionary<string, Value> record => new Value(new Dictionary<string, Value>(record)),
+            _ => this,
+        };
     }
 
+    /// <summary>
+    /// Возвращает значение как изменяемый массив.
+    /// </summary>
     private Value[] AsArray()
     {
         return _value switch
         {
             Value[] values => values,
             _ => throw new InvalidOperationException($"Value {_value} is not an array"),
+        };
+    }
+
+    /// <summary>
+    /// Возвращает значение как изменяемую структуру, реализованную с помощью хеш-таблицы.
+    /// </summary>
+    private Dictionary<string, Value> AsRecord()
+    {
+        return _value switch
+        {
+            Dictionary<string, Value> dictionary => dictionary,
+            _ => throw new InvalidOperationException($"Value {_value} is not a record"),
         };
     }
 

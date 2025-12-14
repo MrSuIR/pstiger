@@ -326,12 +326,23 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(RecordLiteralExpression e)
     {
-        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+        Value record = Value.NewRecord();
+        foreach (FieldInitializer initializer in e.Initializers)
+        {
+            initializer.Value.Accept(this);
+            Value value = _values.Pop();
+            record.SetField(initializer.Name, value);
+        }
+
+        _values.Push(record);
     }
 
     public void Visit(FieldAccessExpression e)
     {
-        throw new NotImplementedException($"Cannot evaluate {e.GetType()}");
+        e.Record.Accept(this);
+        Value record = _values.Pop();
+
+        _values.Push(record.GetField(e.FieldName));
     }
 
     private void InvokeBuiltinFunction(FunctionCallExpression e, BuiltinFunction function)
@@ -392,6 +403,12 @@ public class AstEvaluator : IAstVisitor
                     int index = _values.Pop().AsInt();
 
                     return new ArrayElementAccessor(array, index);
+                }
+
+            case FieldAccessExpression fieldAccess:
+                {
+                    IValueAccessor record = CreateValueAccessor(fieldAccess.Record);
+                    return new RecordFieldAccessor(record, fieldAccess.FieldName);
                 }
 
             default:
