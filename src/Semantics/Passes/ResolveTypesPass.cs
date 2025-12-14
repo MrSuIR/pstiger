@@ -184,6 +184,7 @@ public sealed class ResolveTypesPass : AbstractPass
         {
             NamedTypeExpression namedType => namedType.Type.ResultType,
             ArrayTypeExpression arrayType => new ArrayType(arrayType.ElementType.ResultType),
+            RecordTypeExpression recordType => new RecordType(ResolveRecordFields(recordType.Fields)),
             _ => throw new InvalidOperationException($"Unexpected type expression class {d.TypeExpression.GetType()}"),
         };
     }
@@ -198,10 +199,38 @@ public sealed class ResolveTypesPass : AbstractPass
         };
     }
 
+    public override void Visit(FieldAccessExpression e)
+    {
+        base.Visit(e);
+
+        // Определяем тип всего выражения по типу структуры и названию поля.
+        if (e.Record.ResultType is RecordType recordType)
+        {
+            if (recordType.Fields.TryGetValue(e.FieldName, out ValueType? fieldType))
+            {
+                e.ResultType = fieldType;
+            }
+            else
+            {
+                throw new TypeErrorException($"Field \"{e.FieldName}\" does not exist in {e.Record}");
+            }
+        }
+        else
+        {
+            throw new TypeErrorException($"Cannot use type {e.Record.ResultType} as record");
+        }
+    }
+
     public override void Visit(ArrayLiteralExpression e)
     {
         base.Visit(e);
         e.ResultType = e.ArrayType.ResultType;
+    }
+
+    public override void Visit(RecordLiteralExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = e.RecordType.ResultType;
     }
 
     /// <summary>
@@ -252,5 +281,18 @@ public sealed class ResolveTypesPass : AbstractPass
             default:
                 throw new InvalidOperationException($"Unknown binary operation {operation}");
         }
+    }
+
+    private static Dictionary<string, ValueType> ResolveRecordFields(
+        Dictionary<string, AbstractTypeDeclaration> fieldTypeDeclarations
+    )
+    {
+        Dictionary<string, ValueType> fields = [];
+        foreach ((string name, AbstractTypeDeclaration declaration) in fieldTypeDeclarations)
+        {
+            fields[name] = declaration.ResultType;
+        }
+
+        return fields;
     }
 }

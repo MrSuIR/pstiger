@@ -136,7 +136,7 @@ public abstract class AbstractPass : IAstVisitor
         e.InitialValue.Accept(this);
     }
 
-    public void Visit(RecordTypeExpression e)
+    public virtual void Visit(RecordTypeExpression e)
     {
         foreach (FieldDeclaration field in e.FieldDeclarations)
         {
@@ -144,15 +144,15 @@ public abstract class AbstractPass : IAstVisitor
         }
     }
 
-    public void Visit(FieldDeclaration d)
+    public virtual void Visit(FieldDeclaration d)
     {
     }
 
-    public void Visit(RecordLiteralExpression e)
+    public virtual void Visit(RecordLiteralExpression e)
     {
     }
 
-    public void Visit(FieldAccessExpression e)
+    public virtual void Visit(FieldAccessExpression e)
     {
         e.Record.Accept(this);
     }

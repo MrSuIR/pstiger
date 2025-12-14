@@ -5,7 +5,7 @@ namespace PsTiger.Ast.Expressions;
 
 public sealed class RecordTypeExpression : AbstractTypeExpression
 {
-    private AstAttribute<IReadOnlyDictionary<string, AbstractTypeDeclaration>> _fields;
+    private AstAttribute<Dictionary<string, AbstractTypeDeclaration>> _fields;
 
     public RecordTypeExpression(List<FieldDeclaration> fieldDeclarations)
     {
@@ -17,7 +17,7 @@ public sealed class RecordTypeExpression : AbstractTypeExpression
     /// <summary>
     /// Названия и типы полей структуры.
     /// </summary>
-    public IReadOnlyDictionary<string, AbstractTypeDeclaration> Fields
+    public Dictionary<string, AbstractTypeDeclaration> Fields
     {
         get => _fields.Get();
         set => _fields.Set(value);

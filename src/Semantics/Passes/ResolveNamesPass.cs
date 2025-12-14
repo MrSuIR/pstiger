@@ -152,6 +152,25 @@ public sealed class ResolveNamesPass : AbstractPass
         e.ElementType = _symbols.GetTypeDeclaration(e.ElementTypeName);
     }
 
+    public override void Visit(RecordTypeExpression e)
+    {
+        base.Visit(e);
+
+        Dictionary<string, AbstractTypeDeclaration> fields = [];
+        foreach (FieldDeclaration declaration in e.FieldDeclarations)
+        {
+            fields[declaration.Name] = declaration.Type;
+        }
+
+        e.Fields = fields;
+    }
+
+    public override void Visit(FieldDeclaration d)
+    {
+        base.Visit(d);
+        d.Type = _symbols.GetTypeDeclaration(d.TypeName);
+    }
+
     public override void Visit(TypeDeclaration d)
     {
         base.Visit(d);
@@ -163,5 +182,12 @@ public sealed class ResolveNamesPass : AbstractPass
         base.Visit(e);
 
         e.ArrayType = _symbols.GetTypeDeclaration(e.ArrayTypeName);
+    }
+
+    public override void Visit(RecordLiteralExpression e)
+    {
+        base.Visit(e);
+
+        e.RecordType = _symbols.GetTypeDeclaration(e.RecordTypeName);
     }
 }

@@ -6,7 +6,7 @@ namespace PsTiger.Ast.Declarations;
 
 public class FieldDeclaration : Declaration
 {
-    private AstAttribute<ValueType> _type;
+    private AstAttribute<AbstractTypeDeclaration> _type;
 
     public FieldDeclaration(string name, string typeName)
     {
@@ -18,7 +18,7 @@ public class FieldDeclaration : Declaration
 
     public string TypeName { get; set; }
 
-    public ValueType Type
+    public AbstractTypeDeclaration Type
     {
         get => _type.Get();
         set => _type.Set(value);
