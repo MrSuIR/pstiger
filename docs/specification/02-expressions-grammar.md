@@ -101,7 +101,9 @@ multiplicative_expression = unary_expression,
 unary_expression = { "-" }, primary_expression ;
 
 (* Элементарное выражение *)
-primary_expression = literal
+primary_expression = string_literal
+    | int_literal
+    | "nil"
     | name_expression
     | expression_sequence
     | scope_expression
