@@ -204,7 +204,9 @@ public class Parser
     /// <summary>
     /// Разбирает элементарные выражения.
     /// Правило:
-    ///     primary_expression = literal
+    ///     primary_expression = string_literal
+    ///         | int_literal
+    ///         | "nil"
     ///         | name_expression
     ///         | expression_sequence
     ///         | if_expression
@@ -223,6 +225,9 @@ public class Parser
             case TokenType.StringLiteral:
                 _tokens.Advance();
                 return new LiteralExpression(ValueType.String, new Value(t.Value!.ToString()));
+            case TokenType.Nil:
+                _tokens.Advance();
+                return new LiteralExpression(ValueType.Nil, Value.Nil);
             case TokenType.OpenParenthesis:
                 return ParseExpressionSequence();
             case TokenType.Identifier:

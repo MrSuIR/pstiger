@@ -2,6 +2,7 @@ using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
+using PsTiger.Semantics.Helpers;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
@@ -25,7 +26,7 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(FunctionDeclaration d)
     {
         base.Visit(d);
-        CheckResultType("function body", d.Body, d.ResultType);
+        CheckAreSameTypes("function body", d.Body, d.ResultType);
     }
 
     /// <summary>
@@ -41,10 +42,17 @@ public class CheckTypesPass : AbstractPass
             throw new TypeErrorException("Cannot initialize variable from expression without value");
         }
 
-        if (d.DeclaredType != null && d.DeclaredType.ResultType != inferredType)
+        if (d.DeclaredType != null && !ValueTypeUtil.AreCompatibleTypes(d.DeclaredType.ResultType, inferredType))
         {
             throw new TypeErrorException(
                 $"Cannot initialize variable of type {d.DeclaredTypeName} with value of type {inferredType}"
+            );
+        }
+
+        if (d.DeclaredType == null && inferredType == ValueType.Nil)
+        {
+            throw new TypeErrorException(
+                $"Variable {d.Name} type cannot be inferred from nil"
             );
         }
     }
@@ -52,7 +60,7 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(AssignmentExpression e)
     {
         base.Visit(e);
-        if (e.Left.ResultType != e.Right.ResultType)
+        if (!ValueTypeUtil.AreCompatibleTypes(e.Left.ResultType, e.Right.ResultType))
         {
             throw new TypeErrorException(
                 $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
@@ -64,12 +72,12 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(e);
 
-        CheckResultType("if-else condition", e.Condition, ValueType.Int);
+        CheckAreSameTypes("if-else condition", e.Condition, ValueType.Int);
 
         ValueType thenType = e.ThenBranch.ResultType;
         if (e.ElseBranch != null)
         {
-            CheckResultType("else branch", e.ElseBranch, thenType);
+            CheckAreCompatibleTypes("else branch", e.ElseBranch, thenType);
         }
         else if (thenType != ValueType.Void)
         {
@@ -81,24 +89,24 @@ public class CheckTypesPass : AbstractPass
     {
         base.Visit(e);
 
-        CheckResultType("while loop condition", e.Condition, ValueType.Int);
-        CheckResultType("while loop body", e.LoopBody, ValueType.Void);
+        CheckAreSameTypes("while loop condition", e.Condition, ValueType.Int);
+        CheckAreSameTypes("while loop body", e.LoopBody, ValueType.Void);
     }
 
     public override void Visit(ForLoopExpression e)
     {
         base.Visit(e);
 
-        CheckResultType("for loop start value", e.StartValue, ValueType.Int);
-        CheckResultType("for loop end value", e.EndValue, ValueType.Int);
-        CheckResultType("for loop body", e.LoopBody, ValueType.Void);
+        CheckAreSameTypes("for loop start value", e.StartValue, ValueType.Int);
+        CheckAreSameTypes("for loop end value", e.EndValue, ValueType.Int);
+        CheckAreSameTypes("for loop body", e.LoopBody, ValueType.Void);
     }
 
     public override void Visit(ArrayAccessExpression e)
     {
         base.Visit(e);
 
-        CheckResultType("array index", e.Index, ValueType.Int);
+        CheckAreSameTypes("array index", e.Index, ValueType.Int);
     }
 
     public override void Visit(ArrayLiteralExpression e)
@@ -111,7 +119,7 @@ public class CheckTypesPass : AbstractPass
             _ => throw new InvalidOperationException($"Unexpected non-array value type {e.ResultType}"),
         };
 
-        CheckResultType("array initialization value", e.InitialValue, elementType);
+        CheckAreCompatibleTypes("array initialization value", e.InitialValue, elementType);
     }
 
     public override void Visit(RecordLiteralExpression e)
@@ -133,7 +141,7 @@ public class CheckTypesPass : AbstractPass
                 throw InvalidRecordLiteralException.UnexpectedFieldName(initializer.Name, recordType);
             }
 
-            CheckResultType("field initializer", initializer.Value, fieldType);
+            CheckAreCompatibleTypes("field initializer", initializer.Value, fieldType);
 
             int fieldIndex = fieldIndexes[initializer.Name];
             if (initializerIndex != fieldIndex)
@@ -176,7 +184,7 @@ public class CheckTypesPass : AbstractPass
         {
             Expression argument = e.Arguments[i];
             AbstractParameterDeclaration parameter = function.Parameters[i];
-            if (argument.ResultType != parameter.ResultType)
+            if (!ValueTypeUtil.AreCompatibleTypes(argument.ResultType, parameter.ResultType))
             {
                 throw new TypeErrorException(
                     $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"
@@ -185,9 +193,17 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
-    private static void CheckResultType(string category, Expression expression, ValueType expectedType)
+    private static void CheckAreSameTypes(string category, Expression expression, ValueType expectedType)
     {
-        if (expression.ResultType != expectedType)
+        if (!ValueTypeUtil.AreCompatibleTypes(expression.ResultType, expectedType))
+        {
+            throw new TypeErrorException(category, expectedType, expression.ResultType);
+        }
+    }
+
+    private static void CheckAreCompatibleTypes(string category, Expression expression, ValueType expectedType)
+    {
+        if (!ValueTypeUtil.AreCompatibleTypes(expression.ResultType, expectedType))
         {
             throw new TypeErrorException(category, expectedType, expression.ResultType);
         }

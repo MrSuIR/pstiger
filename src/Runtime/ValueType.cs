@@ -19,6 +19,11 @@ public class ValueType
     /// </summary>
     public static readonly ValueType String = new("string");
 
+    /// <summary>
+    /// Несуществующая структура.
+    /// </summary>
+    public static readonly ValueType Nil = new("nil");
+
     private readonly string _name;
 
     protected ValueType(string name)

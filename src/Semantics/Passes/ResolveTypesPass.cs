@@ -2,6 +2,7 @@ using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Runtime;
 using PsTiger.Semantics.Exceptions;
+using PsTiger.Semantics.Helpers;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
@@ -271,7 +272,7 @@ public sealed class ResolveTypesPass : AbstractPass
 
             case BinaryOperation.Equal:
             case BinaryOperation.NotEqual:
-                if (left == right)
+                if (ValueTypeUtil.AreCompatibleTypes(left, right) && !(left == ValueType.Nil && right == ValueType.Nil))
                 {
                     return ValueType.Int;
                 }

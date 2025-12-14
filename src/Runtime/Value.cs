@@ -12,6 +12,7 @@ namespace PsTiger.Runtime;
 public class Value : IEquatable<Value>
 {
     public static readonly Value Void = new(VoidValue.Value);
+    public static readonly Value Nil = new(NilValue.Value);
     private readonly object _value;
 
     /// <summary>
@@ -149,6 +150,7 @@ public class Value : IEquatable<Value>
             string s => ValueUtil.EscapeStringValue(s),
             int i => i.ToString(CultureInfo.InvariantCulture),
             VoidValue v => v.ToString(),
+            NilValue v => v.ToString(),
             _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
         };
     }
@@ -159,11 +161,6 @@ public class Value : IEquatable<Value>
     public bool Equals(Value? other)
     {
         if (other is null)
-        {
-            return false;
-        }
-
-        if (_value.GetType() != other._value.GetType())
         {
             return false;
         }
@@ -184,6 +181,9 @@ public class Value : IEquatable<Value>
 
             // Пустые значения всегда равны.
             VoidValue => true,
+
+            // Несуществующая структура равна сама себе и не равна никаким другим.
+            NilValue => other._value is NilValue,
 
             _ => throw new NotImplementedException(),
         };
