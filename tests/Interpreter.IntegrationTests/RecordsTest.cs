@@ -283,6 +283,113 @@ public class RecordsTest
                 """,
                 typeof(DuplicateSymbolException)
             },
+
+            // В литерале структуры нельзя инициализировать поля, которых нет в объявлении
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p : Point := Point{x = 10, y = 20, z = 10}
+                in
+                    printi(p.x)
+                end
+                """,
+                typeof(InvalidRecordLiteralException)
+            },
+
+            // В литерале структуры нельзя инициализировать поле значением другого типа
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p : Point := Point{x = 10, y = "0" }
+                in
+                    printi(p.x)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // В литерале структуры нельзя инициализировать поля в другом порядке
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p : Point := Point{y = 20, x = 10}
+                in
+                    printi(p.x)
+                end
+                """,
+                typeof(InvalidRecordLiteralException)
+            },
+
+            // В литерале структуры нельзя пропускать инициализацию полей
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p : Point := Point{x = 10}
+                in
+                    printi(p.x)
+                end
+                """,
+                typeof(InvalidRecordLiteralException)
+            },
+
+            // Для структур не действует оператор сравнения `<`
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    var p2 : Point := Point{x = 10, y = 20}
+                in
+                    printi(p1 < p2)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Нельзя сравнивать структуры разных типов, если эти типы не являются синонимами
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    type Vector = { x: int, y: int }
+                    var p1 : Point := Point{x = 10, y = 20}
+                    var p2 : Vector := Vector{x = 10, y = 20}
+                in
+                    printi(p1 = p2)
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Нельзя записать поле структуры, если его нет в объявлении типа структуры
+            {
+                """
+                let
+                    type Point = { x: int, y: int }
+                    var p : Point := Point{x = 10, y = 20}
+                in
+                    p.z := 10
+                end
+                """,
+                typeof(TypeErrorException)
+            },
+
+            // Нельзя запрашивать поле у переменной, не являющейся структурой
+            {
+                """
+                let
+                    type Point = array of int
+                    var p : Point := Point[2] of 0
+                in
+                    p.x := 10
+                end
+                """,
+                typeof(TypeErrorException)
+            },
         };
     }
 }

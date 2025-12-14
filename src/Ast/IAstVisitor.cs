@@ -53,5 +53,7 @@ public interface IAstVisitor
 
     void Visit(RecordLiteralExpression e);
 
+    void Visit(FieldInitializer e);
+
     void Visit(FieldAccessExpression e);
 }

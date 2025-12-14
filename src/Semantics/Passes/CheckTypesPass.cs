@@ -114,6 +114,58 @@ public class CheckTypesPass : AbstractPass
         CheckResultType("array initialization value", e.InitialValue, elementType);
     }
 
+    public override void Visit(RecordLiteralExpression e)
+    {
+        base.Visit(e);
+
+        if (e.RecordType.ResultType is not RecordType recordType)
+        {
+            throw InvalidRecordLiteralException.ExpectedRecordType(e.RecordTypeName, e.RecordType.ResultType);
+        }
+
+        Dictionary<string, int> fieldIndexes = GetRecordFieldIndexes(recordType);
+
+        int initializerIndex = 0;
+        foreach (FieldInitializer initializer in e.Initializers)
+        {
+            if (!recordType.Fields.TryGetValue(initializer.Name, out ValueType? fieldType))
+            {
+                throw InvalidRecordLiteralException.UnexpectedFieldName(initializer.Name, recordType);
+            }
+
+            CheckResultType("field initializer", initializer.Value, fieldType);
+
+            int fieldIndex = fieldIndexes[initializer.Name];
+            if (initializerIndex != fieldIndex)
+            {
+                throw InvalidRecordLiteralException.WrongFieldInitializerIndex(
+                    initializer.Name, fieldIndex, initializerIndex
+                );
+            }
+
+            ++initializerIndex;
+        }
+
+        if (e.Initializers.Count < recordType.Fields.Count)
+        {
+            string missingField = recordType.Fields.Keys.Except(e.Initializers.Select(f => f.Name)).First();
+            throw InvalidRecordLiteralException.MissingFieldInitializer(missingField, e.RecordTypeName);
+        }
+    }
+
+    private static Dictionary<string, int> GetRecordFieldIndexes(RecordType recordType)
+    {
+        Dictionary<string, int> fieldIndexes = [];
+        int index = 0;
+        foreach (string name in recordType.Fields.Keys)
+        {
+            fieldIndexes[name] = index;
+            ++index;
+        }
+
+        return fieldIndexes;
+    }
+
     /// <summary>
     /// Проверяет соответствие типов формальных параметров и фактических параметров (аргументов) при вызове функции.
     /// </summary>

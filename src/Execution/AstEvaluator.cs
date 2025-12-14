@@ -337,6 +337,10 @@ public class AstEvaluator : IAstVisitor
         _values.Push(record);
     }
 
+    public void Visit(FieldInitializer e)
+    {
+    }
+
     public void Visit(FieldAccessExpression e)
     {
         e.Record.Accept(this);

@@ -150,6 +150,15 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(RecordLiteralExpression e)
     {
+        foreach (FieldInitializer initializer in e.Initializers)
+        {
+            initializer.Accept(this);
+        }
+    }
+
+    public virtual void Visit(FieldInitializer e)
+    {
+        e.Value.Accept(this);
     }
 
     public virtual void Visit(FieldAccessExpression e)

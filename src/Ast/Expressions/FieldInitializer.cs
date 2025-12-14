@@ -1,6 +1,6 @@
 namespace PsTiger.Ast.Expressions;
 
-public class FieldInitializer
+public class FieldInitializer : AstNode
 {
     public FieldInitializer(string name, Expression value)
     {
@@ -11,4 +11,9 @@ public class FieldInitializer
     public string Name { get; init; }
 
     public Expression Value { get; init; }
+
+    public override void Accept(IAstVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
 }
