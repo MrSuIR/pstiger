@@ -412,15 +412,16 @@ public class Parser
     /// </summary>
     private List<FieldInitializer> ParseFieldInitializerList()
     {
-        List<FieldInitializer> initializers =
-        [
-            ParseFieldInitializer(),
-        ];
-
-        while (_tokens.Peek().Type == TokenType.Comma)
+        List<FieldInitializer> initializers = [];
+        if (_tokens.Peek().Type != TokenType.CloseBrace)
         {
-            _tokens.Advance();
             initializers.Add(ParseFieldInitializer());
+
+            while (_tokens.Peek().Type == TokenType.Comma)
+            {
+                _tokens.Advance();
+                initializers.Add(ParseFieldInitializer());
+            }
         }
 
         return initializers;
@@ -697,15 +698,16 @@ public class Parser
     /// </summary>
     private List<FieldDeclaration> ParseFieldDeclarationList()
     {
-        List<FieldDeclaration> fields =
-        [
-            ParseFieldDeclaration(),
-        ];
-
-        while (_tokens.Peek().Type == TokenType.Comma)
+        List<FieldDeclaration> fields = [];
+        if (_tokens.Peek().Type != TokenType.CloseBrace)
         {
-            _tokens.Advance();
             fields.Add(ParseFieldDeclaration());
+
+            while (_tokens.Peek().Type == TokenType.Comma)
+            {
+                _tokens.Advance();
+                fields.Add(ParseFieldDeclaration());
+            }
         }
 
         return fields;

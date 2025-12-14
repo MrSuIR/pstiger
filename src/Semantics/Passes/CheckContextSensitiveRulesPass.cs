@@ -132,6 +132,11 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
             return IsLvalue(arrayAccess.Array);
         }
 
+        if (e is FieldAccessExpression fieldAccess)
+        {
+            return IsLvalue(fieldAccess.Record);
+        }
+
         return false;
     }
 }
