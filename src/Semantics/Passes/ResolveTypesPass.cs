@@ -84,12 +84,19 @@ public sealed class ResolveTypesPass : AbstractPass
     }
 
     /// <summary>
-    /// Выражение var...in...end не возвращает результата.
+    /// Выражение var...in...end возвращает результат последнего из последовательности вложенных выражений.
     /// </summary>
     public override void Visit(ScopeExpression e)
     {
         base.Visit(e);
-        e.ResultType = ValueType.Void;
+        if (e.Expressions.Count > 0)
+        {
+            e.ResultType = e.Expressions[^1].ResultType;
+        }
+        else
+        {
+            e.ResultType = ValueType.Void;
+        }
     }
 
     public override void Visit(VariableAccessExpression e)
