@@ -108,8 +108,15 @@ public sealed class ResolveTypesPass : AbstractPass
             nested.Accept(this);
         }
 
-        // Выражение var...in...end не возвращает результата.
-        e.ResultType = ValueType.Void;
+        // Выражение var...in...end возвращает результат последнего из последовательности вложенных выражений.
+        if (e.Expressions.Count > 0)
+        {
+            e.ResultType = e.Expressions[^1].ResultType;
+        }
+        else
+        {
+            e.ResultType = ValueType.Void;
+        }
 
         return;
 
