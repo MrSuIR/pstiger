@@ -21,7 +21,7 @@ public sealed class InterpreterStepDefinitions
         _interpreter = new TigerInterpreter(_fakeEnvironment);
     }
 
-    [Given(@"я загрузил программу (.*)")]
+    [Given(@"я загрузил программу ""(.*)""")]
     public void ПустьЯЗагрузилПрограмму(string program)
     {
         _program = Samples.GetSampleProgram(program);
