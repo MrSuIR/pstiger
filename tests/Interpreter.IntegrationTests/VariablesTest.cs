@@ -1,10 +1,9 @@
 using Grammar;
 
-using Interpreter.IntegrationTests.TestDoubles;
-
 using PsTiger.Interpreter;
 using PsTiger.Parsing;
 using PsTiger.Semantics.Exceptions;
+using PsTiger.Tests.TestLibrary.TestDoubles;
 
 namespace Interpreter.IntegrationTests;
 
