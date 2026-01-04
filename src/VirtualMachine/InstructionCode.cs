@@ -8,6 +8,16 @@ public enum InstructionCode
     Push,
 
     /// <summary>
+    /// Складывает два числа на стеке вычислений.
+    /// </summary>
+    Add,
+
+    /// <summary>
+    /// Вычитает два числа на стеке вычислений.
+    /// </summary>
+    Subtract,
+
+    /// <summary>
     /// Останавливает выполнение программы.
     /// </summary>
     Halt,

@@ -31,6 +31,19 @@ public class EvaluationTest
                 ],
                 new Value(67)
             },
+
+            // Сложение и вычитание с помощью стека
+            {
+                [
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Push, 50),
+                    new Instruction(InstructionCode.Add),
+                    new Instruction(InstructionCode.Push, 3),
+                    new Instruction(InstructionCode.Subtract),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(67)
+            },
         };
     }
 }

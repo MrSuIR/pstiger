@@ -32,13 +32,31 @@ public class TigerVM
             Instruction instruction = _instructions[_instructionPointer++];
             switch (instruction.Code)
             {
-                case InstructionCode.Halt:
-                    _exitCode = instruction.Operand.AsInt();
-                    return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
-
                 case InstructionCode.Push:
                     _evaluationStack.Push(instruction.Operand);
                     break;
+
+                case InstructionCode.Add:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.AsInt() + right.AsInt()));
+                    }
+
+                    break;
+
+                case InstructionCode.Subtract:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.AsInt() - right.AsInt()));
+                    }
+
+                    break;
+
+                case InstructionCode.Halt:
+                    _exitCode = instruction.Operand.AsInt();
+                    return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");
