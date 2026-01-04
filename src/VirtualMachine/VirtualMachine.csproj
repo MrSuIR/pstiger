@@ -8,4 +8,8 @@
     <AssemblyName>PsTiger.VirtualMachine</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Execution\Execution.csproj" />
+  </ItemGroup>
+
 </Project>

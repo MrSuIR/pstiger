@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\VirtualMachine\VirtualMachine.csproj" />
+    <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
 </Project>
