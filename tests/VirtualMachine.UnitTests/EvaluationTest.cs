@@ -10,7 +10,7 @@ public class EvaluationTest
     public void Can_evaluate_expression(List<Instruction> instructions, Value expected)
     {
         FakeEnvironment environment = new();
-        TigerVM vm = new(environment, instructions);
+        TigerVm vm = new(environment, instructions);
         Value result = vm.RunProgram();
 
         Assert.Equal(0, vm.ExitCode);

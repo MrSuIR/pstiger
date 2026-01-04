@@ -3,7 +3,7 @@ using PsTiger.Runtime;
 
 namespace PsTiger.VirtualMachine;
 
-public class TigerVM
+public class TigerVm
 {
     private readonly IEnvironment _environment;
     private readonly IReadOnlyList<Instruction> _instructions;
@@ -12,7 +12,7 @@ public class TigerVM
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
 
-    public TigerVM(IEnvironment environment, IReadOnlyList<Instruction> instructions)
+    public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
 

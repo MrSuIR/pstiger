@@ -10,7 +10,7 @@ public class HaltTest
     public void Can_halt_VM(int exitCode)
     {
         FakeEnvironment environment = new();
-        TigerVM vm = new(environment, [
+        TigerVm vm = new(environment, [
             new Instruction(InstructionCode.Halt, exitCode),
         ]);
         Value result = vm.RunProgram();
