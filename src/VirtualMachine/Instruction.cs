@@ -29,7 +29,7 @@ public class Instruction
     {
         StringBuilder sb = new();
         sb.Append(Code);
-        if (!Operand.Equals(Value.Void))
+        if (!Operand.IsVoid())
         {
             sb.Append(' ');
             sb.Append(Operand);

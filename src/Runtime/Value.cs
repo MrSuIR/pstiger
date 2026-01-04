@@ -60,6 +60,18 @@ public class Value : IEquatable<Value>
     }
 
     /// <summary>
+    /// Определяет, является ли значение пустым (неопределённым).
+    /// </summary>
+    public bool IsVoid()
+    {
+        return _value switch
+        {
+            VoidValue => true,
+            _ => false,
+        };
+    }
+
+    /// <summary>
     /// Определяет, является ли значение строкой.
     /// </summary>
     public bool IsString()
