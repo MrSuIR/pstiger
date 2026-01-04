@@ -54,6 +54,24 @@ public class TigerVM
 
                     break;
 
+                case InstructionCode.Multiply:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.AsInt() * right.AsInt()));
+                    }
+
+                    break;
+
+                case InstructionCode.Divide:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.AsInt() / right.AsInt()));
+                    }
+
+                    break;
+
                 case InstructionCode.Halt:
                     _exitCode = instruction.Operand.AsInt();
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;

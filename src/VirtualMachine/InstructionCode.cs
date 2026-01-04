@@ -18,6 +18,16 @@ public enum InstructionCode
     Subtract,
 
     /// <summary>
+    /// Умножает два числа на стеке вычислений.
+    /// </summary>
+    Multiply,
+
+    /// <summary>
+    /// Делит два числа на стеке вычислений.
+    /// </summary>
+    Divide,
+
+    /// <summary>
     /// Останавливает выполнение программы.
     /// </summary>
     Halt,

@@ -44,6 +44,19 @@ public class EvaluationTest
                 ],
                 new Value(67)
             },
+
+            // Умножение и деление с помощью стека
+            {
+                [
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Push, 50),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.Push, -5),
+                    new Instruction(InstructionCode.Divide),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(-200)
+            },
         };
     }
 }
