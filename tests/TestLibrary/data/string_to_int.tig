@@ -1,0 +1,71 @@
+/* Программа переводит строку в целое число и зачем печатает его  */
+let
+  /*
+   Преобразует строку к 32-битному целому числу:
+     1) Преобразование выполняется с учётом возможного знака "-" или "+"
+     2) Преобразование выполняется до первого символа, не являющегося цифрой
+     3) Если число выходит за пределы диапазона 32-битных целых чисел, то,
+        в зависимости от знака, будет возвращено максимальное либо минимальное целое число
+   */
+  function stringToInt(input: string): int =
+    let
+      var length := size(input)
+      var index := 0
+      var sign := 1
+      var modulo := 0
+      var digit := 0
+      var zero := ord("0")
+      var nine := ord("9")
+      var maxInt := 2147483647
+      var minInt := (-2147483647 - 1)
+      var result := 0
+    in
+      if length = 0
+      then
+        0
+      else (
+        if substring(input, 0, 1) = "-"
+        then (
+          sign := -1;
+          index := 1
+        )
+        else if substring(input, 0, 1) = "+"
+        then
+          index := 1;
+        while (index < length) do (
+          digit := ord(substring(input, index, 1));
+          index := index + 1;
+          if digit < zero | digit > nine
+          then
+            break;
+          if modulo > maxInt / 10 | modulo = maxInt / 10 & (digit - zero) > 7
+          then (
+            result := if sign = 1 then maxInt else minInt;
+            break
+          );
+          modulo := 10 * modulo + (digit - zero);
+          result := sign * modulo
+        );
+        result
+      )
+    end
+
+  /*
+   Читает одну строку, пока не встретится символ "\n" либо конец файла
+   */
+  function readLine(): string =
+    let
+      var result := ""
+      var char := ""
+    in
+      while 1 do (
+        char := getchar();
+        if char = "" | char = "\n" then
+          break;
+        result := concat(result, char)
+      );
+      result
+    end
+in
+  printi(stringToInt(readLine()))
+end

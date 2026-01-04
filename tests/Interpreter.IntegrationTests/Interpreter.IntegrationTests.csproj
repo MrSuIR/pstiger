@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Interpreter\Interpreter.csproj" />
     <ProjectReference Include="..\..\src\Grammar\Grammar.csproj" />
+    <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using System.Text;
 
 using PsTiger.Execution;
 
-namespace Interpreter.IntegrationTests.TestDoubles;
+namespace PsTiger.Tests.TestLibrary.TestDoubles;
 
 /// <summary>
 /// Имитирует средства ввода-вывода для тестов.

@@ -67,6 +67,40 @@ dotnet build
 
 # Запуск тестов.
 dotnet test
+
+# Запуск бенчмарка
+dotnet run -c Release --project tests/Interpreter.Benchmarks
+```
+
+## Результаты бенчмарка
+
+Бенчмарки используют библиотеку [BenchmarkDotNet](https://benchmarkdotnet.org).
+
+Ветка `10_benchmarks`, коммит `ccbf9210fcd494b7f861e299663ae04f66ebf305`, интерпретатор вычисляет программу путём обхода AST:
+
+```js
+BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.2 LTS (Noble Numbat)
+AMD Ryzen 7 4800H with Radeon Graphics 1.40GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 8.0.409
+  [Host]     : .NET 8.0.16 (8.0.16, 8.0.1625.21506), X64 RyuJIT x86-64-v3
+  Job-UNGBHD : .NET 8.0.16 (8.0.16, 8.0.1625.21506), X64 RyuJIT x86-64-v3
+
+InvocationCount=1  IterationCount=10  LaunchCount=1  
+UnrollFactor=1  WarmupCount=2  
+
+| Method         | N     | Mean      | Error     | StdDev    |
+|--------------- |------ |----------:|----------:|----------:|
+| ListPrimesUpTo | 1000  |  4.901 ms | 0.1087 ms | 0.0569 ms |
+| ListPrimesUpTo | 10000 | 43.953 ms | 9.9267 ms | 5.1919 ms |
+```
+
+Аналогичный алгоритм, реализованный на C#, на той же машине работает примерно в 500 раз быстрее при N=10000:
+
+```
+| Method         | N     | Mean      | Error     | StdDev    |
+|--------------- |------ |----------:|----------:|----------:|
+| ListPrimesUpTo | 1000  |  5.911 us | 0.1403 us | 0.0835 us |
+| ListPrimesUpTo | 10000 | 95.027 us | 5.8080 us | 3.8416 us |
 ```
 
 ## Архитектура

@@ -1,10 +1,9 @@
 using Grammar;
 
-using Interpreter.IntegrationTests.TestDoubles;
-
 using PsTiger.Interpreter;
 using PsTiger.Parsing;
 using PsTiger.Semantics.Exceptions;
+using PsTiger.Tests.TestLibrary.TestDoubles;
 
 namespace Interpreter.IntegrationTests;
 
@@ -84,6 +83,7 @@ public class VariablesTest
         Assert.Equal("10", environment.BufferedOutput);
     }
 
+    // Допускается `let ... in end` без выражения между `in` и `end`
     [Fact]
     public void Allows_scope_without_expression()
     {
@@ -101,6 +101,29 @@ public class VariablesTest
         interpreter.Execute(code);
 
         Assert.Equal("", environment.BufferedOutput);
+    }
+
+    // Конструкция `let ... in ... end` возвращает результат последнего выражения
+    [Fact]
+    public void Let_in_returns_last_expression_result()
+    {
+        const string code =
+            """
+            printi(
+              let
+                var x: int := 10
+              in
+                x + x;
+                x * x
+              end
+            )
+            """;
+
+        FakeEnvironment environment = new();
+        TigerInterpreter interpreter = new(environment);
+        interpreter.Execute(code);
+
+        Assert.Equal("100", environment.BufferedOutput);
     }
 
     [Theory]

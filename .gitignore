@@ -16,6 +16,9 @@ gen/
 /.idea/
 *.sln.DotSettings.user
 
+# Артефакты бенчмарков
+/BenchmarkDotNet.Artifacts/
+
 # Песочница для заметок
 sandbox/
 
