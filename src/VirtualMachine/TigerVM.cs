@@ -72,6 +72,32 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.And:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value((left.AsInt() != 0 && right.AsInt() != 0) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Or:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value((left.AsInt() != 0 || right.AsInt() != 0) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Not:
+                    {
+                        Value operand = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(operand.AsInt() == 0 ? 1 : 0));
+                    }
+
+                    break;
+
                 case InstructionCode.Halt:
                     _exitCode = instruction.Operand.AsInt();
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;

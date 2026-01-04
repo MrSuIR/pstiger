@@ -57,6 +57,66 @@ public class EvaluationTest
                 ],
                 new Value(-200)
             },
+
+            // Вычисление логических выражений
+            {
+                // 1 & 0 | 1 = 1
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Or),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // 1 & (0 | 1) = 1
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Or),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // 1 & (0 & 1) = 0
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // 1 & not(0) = 1
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Not),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // 1 & not(1) = 0
+                [
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Not),
+                    new Instruction(InstructionCode.And),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
         };
     }
 }
