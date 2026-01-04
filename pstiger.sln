@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLibrary", "tests\TestLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter.Specs", "tests\Interpreter.Specs\Interpreter.Specs.csproj", "{28655CF4-1AA4-425F-B62B-384786DBC688}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter.Benchmarks", "tests\Interpreter.Benchmarks\Interpreter.Benchmarks.csproj", "{99BB476B-AB03-4743-9FF4-9F4816CB4AA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{28655CF4-1AA4-425F-B62B-384786DBC688}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28655CF4-1AA4-425F-B62B-384786DBC688}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28655CF4-1AA4-425F-B62B-384786DBC688}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99BB476B-AB03-4743-9FF4-9F4816CB4AA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99BB476B-AB03-4743-9FF4-9F4816CB4AA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99BB476B-AB03-4743-9FF4-9F4816CB4AA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99BB476B-AB03-4743-9FF4-9F4816CB4AA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{35AC45F3-543B-4FC9-87C2-12B247013389} = {7AB19CBC-43AD-42DD-9917-A29842502089}
@@ -109,5 +115,6 @@ Global
 		{048AB931-48A5-4C20-8531-045387D22D40} = {7AB19CBC-43AD-42DD-9917-A29842502089}
 		{3C4F6D01-F3B8-4E20-8AD0-C62310039DDC} = {175793D4-0319-4462-895F-3AF05CB47049}
 		{28655CF4-1AA4-425F-B62B-384786DBC688} = {175793D4-0319-4462-895F-3AF05CB47049}
+		{99BB476B-AB03-4743-9FF4-9F4816CB4AA7} = {175793D4-0319-4462-895F-3AF05CB47049}
 	EndGlobalSection
 EndGlobal
