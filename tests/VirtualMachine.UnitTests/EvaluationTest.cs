@@ -117,6 +117,90 @@ public class EvaluationTest
                 ],
                 new Value(0)
             },
+
+            // Сравнение чисел на равенство
+            {
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.Push, 7),
+                    new Instruction(InstructionCode.Add),
+                    new Instruction(InstructionCode.Equal),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.Push, 7),
+                    new Instruction(InstructionCode.Add),
+                    new Instruction(InstructionCode.NotEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.Push, 7),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.Equal),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.Push, 7),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.NotEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+
+            // Сравнение строк на равенство
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.Equal),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.NotEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.Push, "Bye"),
+                    new Instruction(InstructionCode.Equal),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                [
+                    new Instruction(InstructionCode.Push, "Hello"),
+                    new Instruction(InstructionCode.Push, "Bye"),
+                    new Instruction(InstructionCode.NotEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
         };
     }
 }
