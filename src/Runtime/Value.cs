@@ -168,6 +168,32 @@ public class Value : IEquatable<Value>
     }
 
     /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThan(Value other)
+    {
+        return _value switch
+        {
+            int i => i < other.AsInt(),
+            string s => string.CompareOrdinal(s, other.AsString()) < 0,
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThanOrEqual(Value other)
+    {
+        return _value switch
+        {
+            int i => i <= other.AsInt(),
+            string s => string.CompareOrdinal(s, other.AsString()) <= 0,
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
+        };
+    }
+
+    /// <summary>
     /// Сравнивает на равенство два значения.
     /// </summary>
     public bool Equals(Value? other)

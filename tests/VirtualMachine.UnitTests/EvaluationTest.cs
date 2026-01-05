@@ -166,6 +166,7 @@ public class EvaluationTest
 
             // Сравнение строк на равенство
             {
+                // ("Hello" = "Hello") = 1
                 [
                     new Instruction(InstructionCode.Push, "Hello"),
                     new Instruction(InstructionCode.Push, "Hello"),
@@ -175,6 +176,7 @@ public class EvaluationTest
                 new Value(1)
             },
             {
+                // ("Hello" <> "Hello") = 0
                 [
                     new Instruction(InstructionCode.Push, "Hello"),
                     new Instruction(InstructionCode.Push, "Hello"),
@@ -184,6 +186,7 @@ public class EvaluationTest
                 new Value(0)
             },
             {
+                // ("Hello" = "Bye") = 1
                 [
                     new Instruction(InstructionCode.Push, "Hello"),
                     new Instruction(InstructionCode.Push, "Bye"),
@@ -193,6 +196,7 @@ public class EvaluationTest
                 new Value(0)
             },
             {
+                // ("Hello" <> "Bye") = 1
                 [
                     new Instruction(InstructionCode.Push, "Hello"),
                     new Instruction(InstructionCode.Push, "Bye"),
@@ -200,6 +204,162 @@ public class EvaluationTest
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 new Value(1)
+            },
+
+            // Сравнение чисел на "меньше" и "меньше или равно"
+            {
+                // (17 < 20) = 1
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // (17 < 17) = 0
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // (17 < 14) = 0
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 14),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // (17 <= 20) = 1
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 20),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // (17 <= 17) = 1
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // (17 <= 14) = 0
+                [
+                    new Instruction(InstructionCode.Push, 17),
+                    new Instruction(InstructionCode.Push, 14),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+
+            // Сравнение строк на "меньше" и "меньше или равно"
+            {
+                // ("abc" < "abc") = 0
+                [
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // ("abc" <= "abc") = 1
+                [
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // ("abc" < "abd") = 1
+                [
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Push, "abd"),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // ("abc" <= "abd") = 1
+                [
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Push, "abd"),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(1)
+            },
+            {
+                // ("abd" < "abc") = 0
+                [
+                    new Instruction(InstructionCode.Push, "abd"),
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Less),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // ("abd" <= "abc") = 0
+                [
+                    new Instruction(InstructionCode.Push, "abd"),
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+            {
+                // ("abc" <= "ABC") = 0
+                [
+                    new Instruction(InstructionCode.Push, "abc"),
+                    new Instruction(InstructionCode.Push, "ABC"),
+                    new Instruction(InstructionCode.LessOrEqual),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(0)
+            },
+
+            // Унарный минус в арифметическом выражении
+            {
+                [
+                    new Instruction(InstructionCode.Push, 1024),
+                    new Instruction(InstructionCode.Negate),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(-1024)
+            },
+
+            // Удаление значения с вершины стека
+            {
+                [
+                    new Instruction(InstructionCode.Push, 1024),
+                    new Instruction(InstructionCode.Push, 702),
+                    new Instruction(InstructionCode.Pop),
+                    new Instruction(InstructionCode.Negate),
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                new Value(-1024)
             },
         };
     }

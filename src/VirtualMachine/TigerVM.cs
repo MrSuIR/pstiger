@@ -36,6 +36,10 @@ public class TigerVm
                     _evaluationStack.Push(instruction.Operand);
                     break;
 
+                case InstructionCode.Pop:
+                    _evaluationStack.Pop();
+                    break;
+
                 case InstructionCode.Add:
                     {
                         Value right = _evaluationStack.Pop();
@@ -112,6 +116,32 @@ public class TigerVm
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
                         _evaluationStack.Push(new Value(left.Equals(right) ? 0 : 1));
+                    }
+
+                    break;
+
+                case InstructionCode.Less:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.LessThan(right) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.LessOrEqual:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.LessThanOrEqual(right) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Negate:
+                    {
+                        Value operand = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(-operand.AsInt()));
                     }
 
                     break;
