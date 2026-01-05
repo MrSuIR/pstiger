@@ -1,3 +1,4 @@
+using PsTiger.Ast.Declarations;
 using PsTiger.Execution;
 using PsTiger.Runtime;
 
@@ -11,6 +12,7 @@ public class TigerVm
     private int _instructionPointer;
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
+    private readonly Dictionary<string, BuiltinFunction> _builtinFunctionsMap;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -21,6 +23,8 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
+        Builtins builtins = new(environment);
+        _builtinFunctionsMap = builtins.Functions.ToDictionary(x => x.Name);
     }
 
     public int ExitCode => _exitCode;
@@ -146,6 +150,10 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.CallBuiltin:
+                    CallBuiltin(instruction.Operand.AsString());
+                    break;
+
                 case InstructionCode.Halt:
                     _exitCode = instruction.Operand.AsInt();
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
@@ -153,6 +161,37 @@ public class TigerVm
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");
             }
+        }
+    }
+
+    /// <summary>
+    /// Выполняет вызов встроенной функции.
+    /// </summary>
+    private void CallBuiltin(string name)
+    {
+        if (!_builtinFunctionsMap.TryGetValue(name, out BuiltinFunction? function))
+        {
+            throw new ArgumentException($"Unknown builtin function: {name}");
+        }
+
+        // Извлекаем из стека список аргументов встроенной функции.
+        int parametersCount = function.Parameters.Count;
+        List<Value> arguments = new(parametersCount);
+        for (int i = 0; i < parametersCount; i++)
+        {
+            arguments.Add(_evaluationStack.Pop());
+        }
+
+        // Переворачиваем список аргументов, так как они были извлечены из стека в обратном порядке.
+        arguments.Reverse();
+
+        // Вызываем встроенную функцию.
+        Value value = function.Invoke(arguments);
+
+        // Добавляем результат в стек, если функция возвращает что-либо.
+        if (!value.IsVoid())
+        {
+            _evaluationStack.Push(value);
         }
     }
 

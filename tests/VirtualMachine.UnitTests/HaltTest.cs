@@ -16,7 +16,7 @@ public class HaltTest
         Value result = vm.RunProgram();
 
         Assert.Equal(exitCode, vm.ExitCode);
-        Assert.Equal(result, Value.Void);
+        Assert.Equal(Value.Void, result);
         Assert.Empty(environment.BufferedOutput);
         Assert.Empty(environment.FlushedOutput);
     }
