@@ -150,6 +150,35 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.Jump:
+                    {
+                        _instructionPointer = instruction.Operand.AsInt();
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfTrue:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsInt() != 0)
+                        {
+                            _instructionPointer = instruction.Operand.AsInt();
+                        }
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfFalse:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsInt() == 0)
+                        {
+                            _instructionPointer = instruction.Operand.AsInt();
+                        }
+                    }
+
+                    break;
+
                 case InstructionCode.CallBuiltin:
                     CallBuiltin(instruction.Operand.AsString());
                     break;

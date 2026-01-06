@@ -94,7 +94,7 @@ public class JumpTest
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
-                "68"
+                "Should be printed"
             },
             {
                 [
@@ -111,7 +111,7 @@ public class JumpTest
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
-                "Should be printed"
+                "68"
             },
         };
     }
