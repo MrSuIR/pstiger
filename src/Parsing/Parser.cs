@@ -149,7 +149,7 @@ public class Parser
                 case TokenType.Minus:
                     _tokens.Advance();
                     expr = new BinaryOperationExpression(
-                        expr, BinaryOperation.Substract, ParseMultiplicativeExpression()
+                        expr, BinaryOperation.Subtract, ParseMultiplicativeExpression()
                     );
                     break;
                 default:

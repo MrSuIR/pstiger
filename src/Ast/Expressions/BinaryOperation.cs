@@ -10,7 +10,7 @@ public enum BinaryOperation
     /// <summary>
     /// Вычитание чисел.
     /// </summary>
-    Substract,
+    Subtract,
 
     /// <summary>
     /// Умножение чисел.

@@ -16,7 +16,7 @@ public static class EvaluationUtil
                 evaluateRight,
                 (i1, i2) => i1 + i2
             ),
-            BinaryOperation.Substract => ApplyArithmeticOperation(
+            BinaryOperation.Subtract => ApplyArithmeticOperation(
                 evaluateLeft,
                 evaluateRight,
                 (i1, i2) => i1 - i2

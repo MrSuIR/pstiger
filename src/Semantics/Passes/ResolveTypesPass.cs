@@ -270,7 +270,7 @@ public sealed class ResolveTypesPass : AbstractPass
         switch (operation)
         {
             case BinaryOperation.Add:
-            case BinaryOperation.Substract:
+            case BinaryOperation.Subtract:
             case BinaryOperation.Multiply:
             case BinaryOperation.Divide:
             case BinaryOperation.Or:
