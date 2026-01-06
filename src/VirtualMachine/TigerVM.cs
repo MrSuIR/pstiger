@@ -9,11 +9,35 @@ public class TigerVm
     private readonly IEnvironment _environment;
     private readonly IReadOnlyList<Instruction> _instructions;
 
+    /// <summary>
+    /// Указатель на текущую инструкцию.
+    /// </summary>
     private int _instructionPointer;
+
+    /// <summary>
+    /// Код завершения программы.
+    /// </summary>
     private int _exitCode;
+
+    /// <summary>
+    /// Стек для вычисления выражений и передачи аргументов функций.
+    /// </summary>
     private readonly Stack<Value> _evaluationStack;
+
+    /// <summary>
+    /// Словарь для хранения переменных.
+    /// </summary>
     private readonly Dictionary<string, Value> _variables;
-    private readonly Dictionary<string, BuiltinFunction> _builtinFunctionsMap;
+
+    /// <summary>
+    /// Словарь встроенных функций.
+    /// </summary>
+    private readonly IReadOnlyDictionary<string, BuiltinFunction> _builtinFunctionsMap;
+
+    /// <summary>
+    /// Стек с номерами инструкций, сохранённых перед вызовами незавершённых функций.
+    /// </summary>
+    private Stack<int> _functionReturnStack;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -26,6 +50,7 @@ public class TigerVm
         _evaluationStack = new Stack<Value>();
         _variables = [];
         _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
+        _functionReturnStack = [];
     }
 
     public int ExitCode => _exitCode;
@@ -202,6 +227,21 @@ public class TigerVm
                     CallBuiltin(instruction.Operand.AsString());
                     break;
 
+                case InstructionCode.Call:
+                    {
+                        _functionReturnStack.Push(_instructionPointer);
+                        _instructionPointer = instruction.Operand.AsInt();
+                    }
+
+                    break;
+
+                case InstructionCode.Return:
+                    {
+                        _instructionPointer = _functionReturnStack.Pop();
+                    }
+
+                    break;
+
                 case InstructionCode.Halt:
                     _exitCode = instruction.Operand.AsInt();
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
@@ -250,9 +290,15 @@ public class TigerVm
             throw new InvalidOperationException("Invalid empty VM program");
         }
 
-        if (instructions[^1].Code != InstructionCode.Halt)
+        InstructionCode lastInstructionCode = instructions[^1].Code;
+        if (lastInstructionCode != InstructionCode.Halt
+            && lastInstructionCode != InstructionCode.Return
+            && lastInstructionCode != InstructionCode.Jump)
         {
-            throw new InvalidOperationException($"Last instruction must be Halt, got {instructions[^1]}");
+            throw new InvalidOperationException(
+                $"Last instruction must be {InstructionCode.Halt}," +
+                $" {InstructionCode.Return} or {InstructionCode.Jump}, got {lastInstructionCode}"
+            );
         }
     }
 }
