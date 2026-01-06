@@ -12,6 +12,7 @@ public class TigerVm
     private int _instructionPointer;
     private int _exitCode;
     private readonly Stack<Value> _evaluationStack;
+    private readonly Dictionary<string, Value> _variables;
     private readonly Dictionary<string, BuiltinFunction> _builtinFunctionsMap;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
@@ -23,8 +24,8 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        Builtins builtins = new(environment);
-        _builtinFunctionsMap = builtins.Functions.ToDictionary(x => x.Name);
+        _variables = [];
+        _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
     }
 
     public int ExitCode => _exitCode;
@@ -42,6 +43,24 @@ public class TigerVm
 
                 case InstructionCode.Pop:
                     _evaluationStack.Pop();
+                    break;
+
+                case InstructionCode.StoreVar:
+                    {
+                        Value value = _evaluationStack.Pop();
+                        string variableName = instruction.Operand.AsString();
+                        _variables[variableName] = value;
+                    }
+
+                    break;
+
+                case InstructionCode.LoadVar:
+                    {
+                        string variableName = instruction.Operand.AsString();
+                        Value value = _variables[variableName];
+                        _evaluationStack.Push(value);
+                    }
+
                     break;
 
                 case InstructionCode.Add:
