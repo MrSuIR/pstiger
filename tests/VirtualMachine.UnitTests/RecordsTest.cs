@@ -65,6 +65,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printPoint(p: Point).
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.StoreVar, "p"),
 
                     // printi(p.x):
@@ -80,9 +81,10 @@ public class RecordsTest
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "y"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
-                    new Instruction(InstructionCode.Return),
 
                     // Конец функции printPoint(p: Point).
+                    new Instruction(InstructionCode.PopVars),
+                    new Instruction(InstructionCode.Return),
                 ],
                 "30, 20"
             },
@@ -122,6 +124,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printPoint(p: Point).
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.StoreVar, "p"),
 
                     // printi(p.x):
@@ -137,6 +140,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "y"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
 
                     // Конец функции printPoint(p: Point).

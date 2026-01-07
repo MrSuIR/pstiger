@@ -36,11 +36,13 @@ public class FunctionsTest
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.Halt, 0),
 
-                    // Начало функции square
+                    // Функция square(x: int)
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.StoreVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
                 ],
                 "121"
@@ -56,11 +58,13 @@ public class FunctionsTest
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printLine
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.StoreVar, "text"),
                     new Instruction(InstructionCode.LoadVar, "text"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
                     new Instruction(InstructionCode.Push, "\n"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
                 ],
                 "Hello, world!\n"
@@ -79,6 +83,7 @@ public class FunctionsTest
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции concat3
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.StoreVar, "c"),
                     new Instruction(InstructionCode.StoreVar, "b"),
                     new Instruction(InstructionCode.StoreVar, "a"),
@@ -87,9 +92,63 @@ public class FunctionsTest
                     new Instruction(InstructionCode.LoadVar, "c"),
                     new Instruction(InstructionCode.CallBuiltin, "concat"),
                     new Instruction(InstructionCode.CallBuiltin, "concat"),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
                 ],
                 "potato"
+            },
+
+            // Функция создаёт новую область видимости
+            {
+                /*
+                   Код ниже эквивалентен следующей программе:
+                    let
+                        var x : int := 10
+                        function square(x: int) = (
+                            x := x * x;
+                            x
+                        )
+                    in
+                        printi(square(x));
+                        print(", ");
+                        printi(x)
+                    end
+                 */ [
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.StoreVar, "x"),
+
+                    // printi(square(x));
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.Call, 10),
+                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    // print(", ");
+                    new Instruction(InstructionCode.Push, ", "),
+                    new Instruction(InstructionCode.CallBuiltin, "print"),
+
+                    // printi(x)
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    new Instruction(InstructionCode.Halt, 0),
+
+                    // Начало функции function square(x: int)
+                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.StoreVar, "x"),
+
+                    // x := x * x;
+                    // x
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.StoreVar, "x"),
+                    new Instruction(InstructionCode.LoadVar, "x"),
+
+                    // Конец функции function square(x: int)
+                    new Instruction(InstructionCode.PopVars),
+                    new Instruction(InstructionCode.Return),
+                ],
+                "100, 10"
             },
         };
     }
