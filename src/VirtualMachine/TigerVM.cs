@@ -38,7 +38,7 @@ public class TigerVm
     /// <summary>
     /// Стек с номерами инструкций, сохранённых перед вызовами незавершённых функций.
     /// </summary>
-    private readonly Stack<int> _functionReturnStack;
+    private readonly Stack<ReturnContext> _returnStack;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -51,7 +51,7 @@ public class TigerVm
         _evaluationStack = new Stack<Value>();
         _variables = new VariablesTable();
         _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
-        _functionReturnStack = [];
+        _returnStack = [];
     }
 
     public int ExitCode => _exitCode;
@@ -296,7 +296,10 @@ public class TigerVm
 
                 case InstructionCode.Call:
                     {
-                        _functionReturnStack.Push(_instructionPointer);
+                        _returnStack.Push(new ReturnContext(
+                            _instructionPointer,
+                            _variables
+                        ));
                         _instructionPointer = instruction.Operand.AsInt();
                     }
 
@@ -304,7 +307,9 @@ public class TigerVm
 
                 case InstructionCode.Return:
                     {
-                        _instructionPointer = _functionReturnStack.Pop();
+                        ReturnContext context = _returnStack.Pop();
+                        _instructionPointer = context.InstructionPointer;
+                        _variables = context.Variables;
                     }
 
                     break;
@@ -314,7 +319,15 @@ public class TigerVm
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
 
                 case InstructionCode.PushVars:
-                    _variables = new VariablesTable(parent: _variables);
+                    {
+                        // Выполняем поиск родительской таблицы переменных.
+                        int variableTableDepth = instruction.Operand.AsInt();
+                        VariablesTable? parentTable = (variableTableDepth != 0)
+                            ? _variables!.GetAncestor(variableTableDepth)
+                            : null;
+                        _variables = new VariablesTable(parentTable);
+                    }
+
                     break;
 
                 case InstructionCode.PopVars:
@@ -376,4 +389,9 @@ public class TigerVm
             );
         }
     }
+
+    private record struct ReturnContext(
+        int InstructionPointer,
+        VariablesTable? Variables
+    );
 }

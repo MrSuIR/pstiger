@@ -42,7 +42,7 @@ public class ArrayTest
                    )
                  end
                  */ [
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, 4),
                     new Instruction(InstructionCode.Push, 7),
                     new Instruction(InstructionCode.CreateArray),

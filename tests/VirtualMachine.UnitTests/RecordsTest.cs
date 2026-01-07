@@ -43,6 +43,7 @@ public class RecordsTest
                         printPoint(point)
                     end
                  */ [
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, Value.NewRecord()),
                     new Instruction(InstructionCode.Push, 10),
                     new Instruction(InstructionCode.InitField, "x"),
@@ -60,12 +61,13 @@ public class RecordsTest
 
                     // printPoint(p);
                     new Instruction(InstructionCode.LoadVar, "point"),
-                    new Instruction(InstructionCode.Call, 15),
+                    new Instruction(InstructionCode.Call, 17),
 
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printPoint(p: Point).
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 1),
                     new Instruction(InstructionCode.DefineVar, "p"),
 
                     // printi(p.x):
@@ -106,7 +108,7 @@ public class RecordsTest
                         printPoint(point)
                     end
                  */ [
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, Value.Nil),
                     new Instruction(InstructionCode.DefineVar, "point"),
 
@@ -126,7 +128,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printPoint(p: Point).
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 1),
                     new Instruction(InstructionCode.DefineVar, "p"),
 
                     // printi(p.x):
@@ -161,7 +163,7 @@ public class RecordsTest
                         printi(point = nil)
                     end
                  */ [
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, Value.Nil),
                     new Instruction(InstructionCode.DefineVar, "point"),
 

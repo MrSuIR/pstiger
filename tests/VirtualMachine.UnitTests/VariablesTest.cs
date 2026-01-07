@@ -30,7 +30,7 @@ public class VariablesTest
             {
                 // (x := 10; y := 14; printi(x * x))
                 [
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, 10),
                     new Instruction(InstructionCode.DefineVar, "x"),
                     new Instruction(InstructionCode.Push, 14),
@@ -61,14 +61,14 @@ public class VariablesTest
                         printi(x)
                     end
                  */ [
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, 10),
                     new Instruction(InstructionCode.DefineVar, "x"),
 
                     // let
                     //   var x : int := 12
                     // in
-                    new Instruction(InstructionCode.PushVars),
+                    new Instruction(InstructionCode.PushVars, 1),
 
                     new Instruction(InstructionCode.Push, 12),
                     new Instruction(InstructionCode.DefineVar, "x"),
