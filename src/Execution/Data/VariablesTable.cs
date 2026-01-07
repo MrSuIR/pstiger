@@ -40,17 +40,25 @@ public sealed class VariablesTable
 
     public void AssignVariable(string name, Value value)
     {
-        if (_variables.ContainsKey(name))
-        {
-            _variables[name] = value;
-        }
-        else if (_parent != null)
-        {
-            _parent.AssignVariable(name, value);
-        }
-        else
+        if (!TryAssignVariable(name, value))
         {
             throw new InvalidOperationException($"No variable with name {name}");
         }
+    }
+
+    private bool TryAssignVariable(string name, Value value)
+    {
+        if (_variables.ContainsKey(name))
+        {
+            _variables[name] = value;
+            return true;
+        }
+
+        if (_parent != null)
+        {
+            return _parent.TryAssignVariable(name, value);
+        }
+
+        return false;
     }
 }

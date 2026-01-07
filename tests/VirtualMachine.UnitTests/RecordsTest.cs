@@ -48,7 +48,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.InitField, "x"),
                     new Instruction(InstructionCode.Push, 20),
                     new Instruction(InstructionCode.InitField, "y"),
-                    new Instruction(InstructionCode.StoreVar, "point"),
+                    new Instruction(InstructionCode.DefineVar, "point"),
 
                     // p.x = p.x * 3;
                     new Instruction(InstructionCode.LoadVar, "point"),
@@ -66,7 +66,7 @@ public class RecordsTest
 
                     // Начало функции printPoint(p: Point).
                     new Instruction(InstructionCode.PushVars),
-                    new Instruction(InstructionCode.StoreVar, "p"),
+                    new Instruction(InstructionCode.DefineVar, "p"),
 
                     // printi(p.x):
                     new Instruction(InstructionCode.LoadVar, "p"),
@@ -106,8 +106,9 @@ public class RecordsTest
                         printPoint(point)
                     end
                  */ [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, Value.Nil),
-                    new Instruction(InstructionCode.StoreVar, "point"),
+                    new Instruction(InstructionCode.DefineVar, "point"),
 
                     // point := Point{ x = 10, y = 12 };
                     new Instruction(InstructionCode.Push, Value.NewRecord()),
@@ -119,13 +120,14 @@ public class RecordsTest
 
                     // printPoint(p);
                     new Instruction(InstructionCode.LoadVar, "point"),
-                    new Instruction(InstructionCode.Call, 11),
+                    new Instruction(InstructionCode.Call, 13),
 
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
 
                     // Начало функции printPoint(p: Point).
                     new Instruction(InstructionCode.PushVars),
-                    new Instruction(InstructionCode.StoreVar, "p"),
+                    new Instruction(InstructionCode.DefineVar, "p"),
 
                     // printi(p.x):
                     new Instruction(InstructionCode.LoadVar, "p"),
@@ -159,8 +161,9 @@ public class RecordsTest
                         printi(point = nil)
                     end
                  */ [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, Value.Nil),
-                    new Instruction(InstructionCode.StoreVar, "point"),
+                    new Instruction(InstructionCode.DefineVar, "point"),
 
                     // printi(point = nil)
                     new Instruction(InstructionCode.LoadVar, "point"),
@@ -168,6 +171,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.Equal),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 "1"

@@ -30,14 +30,16 @@ public class VariablesTest
             {
                 // (x := 10; y := 14; printi(x * x))
                 [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, 10),
-                    new Instruction(InstructionCode.StoreVar, "x"),
+                    new Instruction(InstructionCode.DefineVar, "x"),
                     new Instruction(InstructionCode.Push, 14),
-                    new Instruction(InstructionCode.StoreVar, "y"),
+                    new Instruction(InstructionCode.DefineVar, "y"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Multiply),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 "100"
@@ -59,8 +61,9 @@ public class VariablesTest
                         printi(x)
                     end
                  */ [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, 10),
-                    new Instruction(InstructionCode.StoreVar, "x"),
+                    new Instruction(InstructionCode.DefineVar, "x"),
 
                     // let
                     //   var x : int := 12
@@ -68,7 +71,7 @@ public class VariablesTest
                     new Instruction(InstructionCode.PushVars),
 
                     new Instruction(InstructionCode.Push, 12),
-                    new Instruction(InstructionCode.StoreVar, "x"),
+                    new Instruction(InstructionCode.DefineVar, "x"),
 
                     // printi(x)
                     new Instruction(InstructionCode.LoadVar, "x"),
@@ -85,6 +88,7 @@ public class VariablesTest
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 "12, 10"

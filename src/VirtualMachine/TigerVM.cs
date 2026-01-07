@@ -1,5 +1,6 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Execution;
+using PsTiger.Execution.Data;
 using PsTiger.Runtime;
 
 namespace PsTiger.VirtualMachine;
@@ -25,9 +26,9 @@ public class TigerVm
     private readonly Stack<Value> _evaluationStack;
 
     /// <summary>
-    /// Стек словарей для хранения переменных.
+    /// Текущая таблица переменных.
     /// </summary>
-    private readonly Stack<Dictionary<string, Value>> _variableScopes;
+    private VariablesTable? _variables;
 
     /// <summary>
     /// Словарь встроенных функций.
@@ -37,7 +38,7 @@ public class TigerVm
     /// <summary>
     /// Стек с номерами инструкций, сохранённых перед вызовами незавершённых функций.
     /// </summary>
-    private Stack<int> _functionReturnStack;
+    private readonly Stack<int> _functionReturnStack;
 
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
@@ -48,11 +49,9 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _variableScopes = new Stack<Dictionary<string, Value>>();
+        _variables = new VariablesTable();
         _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
         _functionReturnStack = [];
-
-        _variableScopes.Push(new Dictionary<string, Value>());
     }
 
     public int ExitCode => _exitCode;
@@ -76,7 +75,16 @@ public class TigerVm
                     {
                         Value value = _evaluationStack.Pop();
                         string variableName = instruction.Operand.AsString();
-                        _variableScopes.Peek()[variableName] = value;
+                        _variables!.AssignVariable(variableName, value);
+                    }
+
+                    break;
+
+                case InstructionCode.DefineVar:
+                    {
+                        Value value = _evaluationStack.Pop();
+                        string variableName = instruction.Operand.AsString();
+                        _variables!.DefineVariable(variableName, value);
                     }
 
                     break;
@@ -84,7 +92,7 @@ public class TigerVm
                 case InstructionCode.LoadVar:
                     {
                         string variableName = instruction.Operand.AsString();
-                        Value value = _variableScopes.Peek()[variableName];
+                        Value value = _variables!.GetVariable(variableName);
                         _evaluationStack.Push(value);
                     }
 
@@ -306,11 +314,11 @@ public class TigerVm
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
 
                 case InstructionCode.PushVars:
-                    _variableScopes.Push(new Dictionary<string, Value>());
+                    _variables = new VariablesTable(parent: _variables);
                     break;
 
                 case InstructionCode.PopVars:
-                    _variableScopes.Pop();
+                    _variables = _variables!.Parent;
                     break;
 
                 default:

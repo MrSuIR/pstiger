@@ -42,10 +42,11 @@ public class ArrayTest
                    )
                  end
                  */ [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, 4),
                     new Instruction(InstructionCode.Push, 7),
                     new Instruction(InstructionCode.CreateArray),
-                    new Instruction(InstructionCode.StoreVar, "x"),
+                    new Instruction(InstructionCode.DefineVar, "x"),
 
                     // x[2] := 3
                     new Instruction(InstructionCode.LoadVar, "x"),
@@ -61,13 +62,13 @@ public class ArrayTest
 
                     // Инициализация итератора цикла for: i := 1
                     new Instruction(InstructionCode.Push, 1),
-                    new Instruction(InstructionCode.StoreVar, "i"),
+                    new Instruction(InstructionCode.DefineVar, "i"),
 
                     // Проверка условия цикла for и переход на инструкцию после цикла, если условие не выполняется.
                     new Instruction(InstructionCode.LoadVar, "i"),
                     new Instruction(InstructionCode.Push, 4),
                     new Instruction(InstructionCode.Less),
-                    new Instruction(InstructionCode.JumpIfFalse, 29),
+                    new Instruction(InstructionCode.JumpIfFalse, 30),
 
                     // Тело цикла: print(", "); printi(x[i])
                     new Instruction(InstructionCode.Push, ", "),
@@ -84,9 +85,10 @@ public class ArrayTest
                     new Instruction(InstructionCode.StoreVar, "i"),
 
                     // Переход к условию цикла for.
-                    new Instruction(InstructionCode.Jump, 14),
+                    new Instruction(InstructionCode.Jump, 15),
 
                     // Конец программы.
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 "7, 7, 3, 7"
