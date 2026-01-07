@@ -24,6 +24,12 @@ public class Instruction
         Operand = new Value(value);
     }
 
+    public Instruction(InstructionCode code, Value value)
+    {
+        Code = code;
+        Operand = value;
+    }
+
     public InstructionCode Code { get; set; }
 
     public Value Operand { get; set; }
