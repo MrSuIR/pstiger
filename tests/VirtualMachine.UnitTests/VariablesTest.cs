@@ -42,6 +42,53 @@ public class VariablesTest
                 ],
                 "100"
             },
+
+            // Переменная внутренней области видимости может перекрыть переменную внешней области видимости
+            {
+                /*
+                   Код ниже эквивалентен следующей программе:
+                    let
+                        var x : int := 10
+                    in
+                        let
+                            var x : int := 12
+                        in
+                            printi(x)
+                        end;
+                        print(", ")
+                        printi(x)
+                    end
+                 */ [
+                    new Instruction(InstructionCode.Push, 10),
+                    new Instruction(InstructionCode.StoreVar, "x"),
+
+                    // let
+                    //   var x : int := 12
+                    // in
+                    new Instruction(InstructionCode.PushVars),
+
+                    new Instruction(InstructionCode.Push, 12),
+                    new Instruction(InstructionCode.StoreVar, "x"),
+
+                    // printi(x)
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    // end;
+                    new Instruction(InstructionCode.PopVars),
+
+                    // print(", ")
+                    new Instruction(InstructionCode.Push, ", "),
+                    new Instruction(InstructionCode.CallBuiltin, "print"),
+
+                    // printi(x)
+                    new Instruction(InstructionCode.LoadVar, "x"),
+                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                "12, 10"
+            },
         };
     }
 }
