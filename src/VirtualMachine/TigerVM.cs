@@ -88,6 +88,34 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.CreateArray:
+                    {
+                        Value initialValue = _evaluationStack.Pop();
+                        int size = _evaluationStack.Pop().AsInt();
+                        _evaluationStack.Push(Value.NewArray(size, initialValue));
+                    }
+
+                    break;
+
+                case InstructionCode.LoadArray:
+                    {
+                        int index = _evaluationStack.Pop().AsInt();
+                        Value array = _evaluationStack.Pop();
+                        _evaluationStack.Push(array.GetElement(index));
+                    }
+
+                    break;
+
+                case InstructionCode.StoreArray:
+                    {
+                        Value value = _evaluationStack.Pop();
+                        int index = _evaluationStack.Pop().AsInt();
+                        Value array = _evaluationStack.Pop();
+                        array.SetElement(index, value);
+                    }
+
+                    break;
+
                 case InstructionCode.Add:
                     {
                         Value right = _evaluationStack.Pop();

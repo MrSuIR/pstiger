@@ -37,7 +37,7 @@ public class ArrayTest
                    x[2] := 3
                    printi(x[0])
                    for i := 1 to 4 do (
-                     print(",");
+                     print(", ");
                      printi(x[i])
                    )
                  end
@@ -51,6 +51,7 @@ public class ArrayTest
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Push, 2),
                     new Instruction(InstructionCode.Push, 3),
+                    new Instruction(InstructionCode.StoreArray),
 
                     // printi(x[0])
                     new Instruction(InstructionCode.LoadVar, "x"),
@@ -58,23 +59,34 @@ public class ArrayTest
                     new Instruction(InstructionCode.LoadArray),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
-                    // for i := 1 to 4 do ...
+                    // Инициализация итератора цикла for: i := 1
                     new Instruction(InstructionCode.Push, 1),
                     new Instruction(InstructionCode.StoreVar, "i"),
+
+                    // Проверка условия цикла for и переход на инструкцию после цикла, если условие не выполняется.
                     new Instruction(InstructionCode.LoadVar, "i"),
                     new Instruction(InstructionCode.Push, 4),
                     new Instruction(InstructionCode.Less),
-                    new Instruction(InstructionCode.JumpIfFalse, 23),
+                    new Instruction(InstructionCode.JumpIfFalse, 29),
 
-                    // print(",");
-                    // printi(x[i])
-                    new Instruction(InstructionCode.Push, ","),
+                    // Тело цикла: print(", "); printi(x[i])
+                    new Instruction(InstructionCode.Push, ", "),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "i"),
                     new Instruction(InstructionCode.LoadArray),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
+                    // Инкремент итератора цикла.
+                    new Instruction(InstructionCode.LoadVar, "i"),
+                    new Instruction(InstructionCode.Push, 1),
+                    new Instruction(InstructionCode.Add),
+                    new Instruction(InstructionCode.StoreVar, "i"),
+
+                    // Переход к условию цикла for.
+                    new Instruction(InstructionCode.Jump, 14),
+
+                    // Конец программы.
                     new Instruction(InstructionCode.Halt, 0),
                 ],
                 "7, 7, 3, 7"
