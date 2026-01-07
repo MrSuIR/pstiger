@@ -143,6 +143,31 @@ public class RecordsTest
                 ],
                 "10, 12"
             },
+
+            // Сравнение структуры с nil
+            {
+                /*
+                 Код ниже эквивалентен следующей программе:
+                    let
+                        type Point = { x: int, y: int }
+                        var point: Point := nil
+                    in
+                        printi(point = nil)
+                    end
+                 */ [
+                    new Instruction(InstructionCode.Push, Value.Nil),
+                    new Instruction(InstructionCode.StoreVar, "point"),
+
+                    // printi(point = nil)
+                    new Instruction(InstructionCode.LoadVar, "point"),
+                    new Instruction(InstructionCode.Push, Value.Nil),
+                    new Instruction(InstructionCode.Equal),
+                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    new Instruction(InstructionCode.Halt, 0),
+                ],
+                "1"
+            },
         };
     }
 }
