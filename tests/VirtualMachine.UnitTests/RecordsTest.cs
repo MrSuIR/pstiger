@@ -26,7 +26,7 @@ public class RecordsTest
     {
         return new TheoryData<List<Instruction>, string>
         {
-            // Создание структуры, запись и чтение полей структуры
+            // Создание структуры, запись и чтение её полей
             {
                 /*
                  Код ниже эквивалентен следующей программе:
@@ -34,6 +34,7 @@ public class RecordsTest
                         type Point = { x: int, y: int }
                         var p : Point := Point{x = 10, y = 20}
                     in
+                        p.x = p.x * 3;
                         printi(p.x);
                         print(", ");
                         printi(p.y)
@@ -45,6 +46,14 @@ public class RecordsTest
                     new Instruction(InstructionCode.Push, 20),
                     new Instruction(InstructionCode.InitField, "y"),
                     new Instruction(InstructionCode.StoreVar, "p"),
+
+                    // p.x = p.x * 3;
+                    new Instruction(InstructionCode.LoadVar, "p"),
+                    new Instruction(InstructionCode.LoadVar, "p"),
+                    new Instruction(InstructionCode.LoadField, "x"),
+                    new Instruction(InstructionCode.Push, 3),
+                    new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.StoreField, "x"),
 
                     // printi(p.x):
                     new Instruction(InstructionCode.LoadVar, "p"),
@@ -59,8 +68,10 @@ public class RecordsTest
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "y"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
+
+                    new Instruction(InstructionCode.Halt, 0),
                 ],
-                "10, 20"
+                "30, 20"
             },
         };
     }

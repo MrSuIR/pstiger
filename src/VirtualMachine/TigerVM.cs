@@ -116,6 +116,35 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.InitField:
+                    {
+                        string fieldName = instruction.Operand.AsString();
+                        Value value = _evaluationStack.Pop();
+                        Value record = _evaluationStack.Peek();
+                        record.SetField(fieldName, value);
+                    }
+
+                    break;
+
+                case InstructionCode.StoreField:
+                    {
+                        string fieldName = instruction.Operand.AsString();
+                        Value value = _evaluationStack.Pop();
+                        Value record = _evaluationStack.Pop();
+                        record.SetField(fieldName, value);
+                    }
+
+                    break;
+
+                case InstructionCode.LoadField:
+                    {
+                        string fieldName = instruction.Operand.AsString();
+                        Value record = _evaluationStack.Pop();
+                        _evaluationStack.Push(record.GetField(fieldName));
+                    }
+
+                    break;
+
                 case InstructionCode.Add:
                     {
                         Value right = _evaluationStack.Pop();
