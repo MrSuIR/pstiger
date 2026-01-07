@@ -25,9 +25,9 @@ public class TigerVm
     private readonly Stack<Value> _evaluationStack;
 
     /// <summary>
-    /// Словарь для хранения переменных.
+    /// Стек словарей для хранения переменных.
     /// </summary>
-    private readonly Dictionary<string, Value> _variables;
+    private readonly Stack<Dictionary<string, Value>> _variableScopes;
 
     /// <summary>
     /// Словарь встроенных функций.
@@ -48,9 +48,11 @@ public class TigerVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _variables = [];
+        _variableScopes = new Stack<Dictionary<string, Value>>();
         _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
         _functionReturnStack = [];
+
+        _variableScopes.Push(new Dictionary<string, Value>());
     }
 
     public int ExitCode => _exitCode;
@@ -74,7 +76,7 @@ public class TigerVm
                     {
                         Value value = _evaluationStack.Pop();
                         string variableName = instruction.Operand.AsString();
-                        _variables[variableName] = value;
+                        _variableScopes.Peek()[variableName] = value;
                     }
 
                     break;
@@ -82,7 +84,7 @@ public class TigerVm
                 case InstructionCode.LoadVar:
                     {
                         string variableName = instruction.Operand.AsString();
-                        Value value = _variables[variableName];
+                        Value value = _variableScopes.Peek()[variableName];
                         _evaluationStack.Push(value);
                     }
 
@@ -302,6 +304,14 @@ public class TigerVm
                 case InstructionCode.Halt:
                     _exitCode = instruction.Operand.AsInt();
                     return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
+
+                case InstructionCode.PushVars:
+                    _variableScopes.Push(new Dictionary<string, Value>());
+                    break;
+
+                case InstructionCode.PopVars:
+                    _variableScopes.Pop();
+                    break;
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");
