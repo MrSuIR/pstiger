@@ -13,28 +13,27 @@ namespace Codegen;
 /// </summary>
 public class TigerVmCodegen : IAstVisitor
 {
-    private List<Instruction> _instructions = [];
+    private readonly InstructionsBuilder _builder = new();
     private int _scopeDepth;
 
     public List<Instruction> GenerateCode(Expression program)
     {
-        _instructions = [];
         program.Accept(this);
 
         if (program.ResultType != ValueType.Void)
         {
-            _instructions.Add(new Instruction(InstructionCode.StoreResult));
+            _builder.Append(new Instruction(InstructionCode.StoreResult));
         }
 
-        _instructions.Add(new Instruction(InstructionCode.Push, 0));
-        _instructions.Add(new Instruction(InstructionCode.Halt));
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.Halt));
 
-        return _instructions;
+        return _builder.Finish();
     }
 
     public void Visit(LiteralExpression e)
     {
-        _instructions.Add(new Instruction(InstructionCode.Push, e.Value));
+        _builder.Append(new Instruction(InstructionCode.Push, e.Value));
     }
 
     public void Visit(BinaryOperationExpression e)
@@ -57,7 +56,7 @@ public class TigerVmCodegen : IAstVisitor
 
         e.Left.Accept(this);
         e.Right.Accept(this);
-        _instructions.Add(new Instruction(code));
+        _builder.Append(new Instruction(code));
     }
 
     public void Visit(SequenceExpression e)
@@ -68,7 +67,7 @@ public class TigerVmCodegen : IAstVisitor
     public void Visit(UnaryMinusExpression e)
     {
         e.Operand.Accept(this);
-        _instructions.Add(new Instruction(InstructionCode.Negate));
+        _builder.Append(new Instruction(InstructionCode.Negate));
     }
 
     public void Visit(FunctionCallExpression e)
@@ -87,7 +86,7 @@ public class TigerVmCodegen : IAstVisitor
                     Builtins.Exit => new Instruction(InstructionCode.Halt),
                     _ => new Instruction(InstructionCode.CallBuiltin, builtin.Name),
                 };
-                _instructions.Add(instruction);
+                _builder.Append(instruction);
                 break;
 
             case FunctionDeclaration function:
@@ -101,7 +100,7 @@ public class TigerVmCodegen : IAstVisitor
     public void Visit(ScopeExpression e)
     {
         ++_scopeDepth;
-        _instructions.Add(new Instruction(InstructionCode.PushVars, _scopeDepth));
+        _builder.Append(new Instruction(InstructionCode.PushVars, _scopeDepth));
 
         foreach (Declaration declaration in e.Declarations)
         {
@@ -110,13 +109,13 @@ public class TigerVmCodegen : IAstVisitor
 
         GenerateExpressionsSequenceCode(e.Expressions);
 
-        _instructions.Add(new Instruction(InstructionCode.PopVars));
+        _builder.Append(new Instruction(InstructionCode.PopVars));
         --_scopeDepth;
     }
 
     public void Visit(VariableAccessExpression e)
     {
-        _instructions.Add(new Instruction(InstructionCode.LoadVar, e.Variable.Name));
+        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Variable.Name));
     }
 
     public void Visit(AssignmentExpression e)
@@ -124,7 +123,7 @@ public class TigerVmCodegen : IAstVisitor
         if (e.Left is VariableAccessExpression variableAccess)
         {
             e.Right.Accept(this);
-            _instructions.Add(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
+            _builder.Append(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
         }
         else
         {
@@ -134,13 +133,48 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(IfElseExpression e)
     {
-        throw new NotImplementedException();
+        if (e.ElseBranch != null)
+        {
+            // Конструкция if ... then ... else ... выполняется так:
+            // 1) Вычисляется условие
+            // 2) Если результат равен нулю, то прыгаем на ветку else
+            // 3) Иначе выполняем ветку then и затем перепрыгиваем через ветку else
+            BasicBlock elseBlock = _builder.CreateBasicBlock();
+            BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+            e.Condition.Accept(this);
+            _builder.AppendJump(InstructionCode.JumpIfFalse, elseBlock);
+
+            e.ThenBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.SetInsertPoint(elseBlock);
+            e.ElseBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.SetInsertPoint(finalBlock);
+        }
+        else
+        {
+            // Конструкция if ... then выполняется так:
+            // 1) Вычисляется условие
+            // 2) Если результат равен нулю, то перепрыгиваем через ветку then
+            BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+            e.Condition.Accept(this);
+            _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+            e.ThenBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.SetInsertPoint(finalBlock);
+        }
     }
 
     public void Visit(VariableDeclaration d)
     {
         d.InitialValue.Accept(this);
-        _instructions.Add(new Instruction(InstructionCode.DefineVar, d.Name));
+        _builder.Append(new Instruction(InstructionCode.DefineVar, d.Name));
     }
 
     public void Visit(FunctionDeclaration d)
@@ -233,7 +267,7 @@ public class TigerVmCodegen : IAstVisitor
             // Отбрасываем результат всех выражений, кроме последнего.
             if (i != iMax && expression.ResultType != ValueType.Void)
             {
-                _instructions.Add(new Instruction(InstructionCode.Pop));
+                _builder.Append(new Instruction(InstructionCode.Pop));
             }
         }
     }
