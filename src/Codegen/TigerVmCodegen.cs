@@ -38,25 +38,51 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(BinaryOperationExpression e)
     {
-        InstructionCode code = e.Operation switch
+        switch (e.Operation)
         {
-            BinaryOperation.Add => InstructionCode.Add,
-            BinaryOperation.Subtract => InstructionCode.Subtract,
-            BinaryOperation.Multiply => InstructionCode.Multiply,
-            BinaryOperation.Divide => InstructionCode.Divide,
-            BinaryOperation.Equal => InstructionCode.Equal,
-            BinaryOperation.NotEqual => InstructionCode.NotEqual,
-            BinaryOperation.LessThan => InstructionCode.Less,
-            BinaryOperation.LessThanOrEqual => InstructionCode.LessOrEqual,
+            case BinaryOperation.Add:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Add);
+                break;
+            case BinaryOperation.Subtract:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Subtract);
+                break;
+            case BinaryOperation.Multiply:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Multiply);
+                break;
+            case BinaryOperation.Divide:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Divide);
+                break;
+            case BinaryOperation.And:
+                GenerateLogicalAndCode(e);
+                break;
 
-            _ => throw new NotImplementedException(
-                $"Code generation for binary operation {e.Operation} not implemented"
-            ),
-        };
+            case BinaryOperation.Or:
+                GenerateLogicalOrCode(e);
+                break;
 
-        e.Left.Accept(this);
-        e.Right.Accept(this);
-        _builder.Append(new Instruction(code));
+            case BinaryOperation.Equal:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Equal);
+                break;
+            case BinaryOperation.NotEqual:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.NotEqual);
+                break;
+            case BinaryOperation.LessThan:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Less);
+                break;
+            case BinaryOperation.LessThanOrEqual:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.LessOrEqual);
+                break;
+            case BinaryOperation.GreaterThan:
+                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции Greater.
+                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.Less);
+                break;
+            case BinaryOperation.GreaterThanOrEqual:
+                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции GreaterOrEqual.
+                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.LessOrEqual);
+                break;
+            default:
+                throw new NotImplementedException($"Unsupported binary operation type {e.Operation}");
+        }
     }
 
     public void Visit(SequenceExpression e)
@@ -270,5 +296,68 @@ public class TigerVmCodegen : IAstVisitor
                 _builder.Append(new Instruction(InstructionCode.Pop));
             }
         }
+    }
+
+    private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)
+    {
+        left.Accept(this);
+        right.Accept(this);
+        _builder.Append(new Instruction(code));
+    }
+
+    private void GenerateLogicalAndCode(BinaryOperationExpression e)
+    {
+        // Логическое "И" вычисляется по короткой схеме: если первый операнд обращается в "ЛОЖЬ",
+        //  то второй операнд не вычисляется.
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Вычисляем первый операнд.
+        e.Left.Accept(this);
+
+        // Переходим к короткой схеме, если первый операнд обращается в "ЛОЖЬ".
+        _builder.AppendJump(InstructionCode.JumpIfFalse, shortCircuitBlock);
+
+        // Иначе вычисляем второй операнд.
+        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
+        e.Right.Accept(this);
+        _builder.Append(InstructionCode.Push, 0);
+        _builder.Append(InstructionCode.NotEqual);
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        // Выполняем короткую схему вычислений: левый операнд обратился в "ЛОЖЬ", и результат будет "ЛОЖЬ".
+        _builder.SetInsertPoint(shortCircuitBlock);
+        _builder.Append(InstructionCode.Push, 0);
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.SetInsertPoint(finalBlock);
+    }
+
+    private void GenerateLogicalOrCode(BinaryOperationExpression e)
+    {
+        // Логическое "ИЛИ" вычисляется по короткой схеме: если первый операнд обращается в "ИСТИНУ",
+        //  то второй операнд не вычисляется.
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Вычисляем первый операнд.
+        e.Left.Accept(this);
+
+        // Переходим к короткой схеме, если первый операнд в "ИСТИНУ".
+        _builder.AppendJump(InstructionCode.JumpIfTrue, shortCircuitBlock);
+
+        // Иначе вычисляем второй операнд.
+        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
+        e.Right.Accept(this);
+        _builder.Append(InstructionCode.Push, 0);
+        _builder.Append(InstructionCode.NotEqual);
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        // Выполняем короткую схему вычислений: левый операнд обратился в "ИСТИНУ", и результат будет "ИСТИНА".
+        _builder.SetInsertPoint(shortCircuitBlock);
+        _builder.Append(InstructionCode.Push, 1);
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.SetInsertPoint(finalBlock);
     }
 }
