@@ -1,6 +1,6 @@
 using PsTiger.VirtualMachine;
 
-namespace Codegen;
+namespace PsTiger.Codegen;
 
 /// <summary>
 /// Базовый блок инструкций — это линейная последовательность инструкций виртуальной машины,
@@ -12,14 +12,13 @@ namespace Codegen;
 public class BasicBlock
 {
     private readonly int _id;
-    private readonly List<Instruction> _instructions = [];
+    private readonly List<Instruction> _instructions;
 
     public BasicBlock(int id)
     {
         _id = id;
+        _instructions = [];
     }
-
-    public List<Instruction> Instructions => _instructions;
 
     /// <summary>
     /// Идентификатор (номер) базового блока.
@@ -27,6 +26,11 @@ public class BasicBlock
     ///  как будет создан финальный список инструкций.
     /// </summary>
     public int Id => _id;
+
+    /// <summary>
+    /// Последовательность инструкций базового блока.
+    /// </summary>
+    public List<Instruction> Instructions => _instructions;
 
     /// <summary>
     /// Добавляет инструкцию в конец базового блока.

@@ -6,7 +6,7 @@ using PsTiger.VirtualMachine;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
-namespace Codegen;
+namespace PsTiger.Codegen;
 
 /// <summary>
 /// Генерирует инструкции виртуальной машины TigerVm путём обхода абстрактного синтаксического дерева (AST) программы.
@@ -14,7 +14,7 @@ namespace Codegen;
 public class TigerVmCodegen : IAstVisitor
 {
     private readonly InstructionsBuilder _builder = new();
-    private int _scopeDepth;
+    private CodegenSymbolsTable? _symbolsTable;
 
     public List<Instruction> GenerateCode(Expression program)
     {
@@ -115,28 +115,40 @@ public class TigerVmCodegen : IAstVisitor
                 _builder.Append(instruction);
                 break;
 
-            case FunctionDeclaration function:
-                throw new NotImplementedException();
+            case FunctionDeclaration functionDeclaration:
+                {
+                    Function function = _symbolsTable!.GetFunction(functionDeclaration.Name);
+                    _builder.AppendJump(InstructionCode.Call, function.Entry);
+                }
+
+                break;
 
             default:
-                throw new NotImplementedException();
+                throw new NotImplementedException($"Unsupported AST subclass {e.Function.GetType()}");
         }
     }
 
     public void Visit(ScopeExpression e)
     {
-        ++_scopeDepth;
-        _builder.Append(new Instruction(InstructionCode.PushVars, _scopeDepth));
-
-        foreach (Declaration declaration in e.Declarations)
+        int parentScopeDepth = _symbolsTable?.Depth ?? 0;
+        _symbolsTable = new CodegenSymbolsTable(_symbolsTable);
+        try
         {
-            declaration.Accept(this);
+            _builder.Append(new Instruction(InstructionCode.PushVars, parentScopeDepth));
+
+            foreach (Declaration declaration in e.Declarations)
+            {
+                declaration.Accept(this);
+            }
+
+            GenerateExpressionsSequenceCode(e.Expressions);
+
+            _builder.Append(new Instruction(InstructionCode.PopVars));
         }
-
-        GenerateExpressionsSequenceCode(e.Expressions);
-
-        _builder.Append(new Instruction(InstructionCode.PopVars));
-        --_scopeDepth;
+        finally
+        {
+            _symbolsTable = _symbolsTable.Parent;
+        }
     }
 
     public void Visit(VariableAccessExpression e)
@@ -174,11 +186,11 @@ public class TigerVmCodegen : IAstVisitor
             e.ThenBranch.Accept(this);
             _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
-            _builder.SetInsertPoint(elseBlock);
+            _builder.InsertPoint = elseBlock;
             e.ElseBranch.Accept(this);
             _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
-            _builder.SetInsertPoint(finalBlock);
+            _builder.InsertPoint = finalBlock;
         }
         else
         {
@@ -193,7 +205,7 @@ public class TigerVmCodegen : IAstVisitor
             e.ThenBranch.Accept(this);
             _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
-            _builder.SetInsertPoint(finalBlock);
+            _builder.InsertPoint = finalBlock;
         }
     }
 
@@ -205,12 +217,37 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
-        throw new NotImplementedException();
+        BasicBlock functionBlock = _builder.CreateBasicBlock();
+        Function function = _symbolsTable!.DefineFunction(d.Name, functionBlock);
+
+        BasicBlock previousBlock = _builder.InsertPoint;
+        _builder.InsertPoint = functionBlock;
+        try
+        {
+            // Создание области видимости, дочерней от области, в которой находилось объявление функции.
+            _builder.Append(new Instruction(InstructionCode.PushVars, function.ParentScopeDepth));
+
+            // Сохранение параметров со стека в переменные (в обратном порядке).
+            foreach (AbstractParameterDeclaration declaration in d.Parameters.Reverse())
+            {
+                _builder.Append(new Instruction(InstructionCode.DefineVar, declaration.Name));
+            }
+
+            // Генерация кода для тела функции.
+            d.Body.Accept(this);
+
+            // Возврат из функции.
+            _builder.Append(new Instruction(InstructionCode.PopVars));
+            _builder.Append(new Instruction(InstructionCode.Return));
+        }
+        finally
+        {
+            _builder.InsertPoint = previousBlock;
+        }
     }
 
     public void Visit(ParameterDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(WhileLoopExpression e)
@@ -321,16 +358,16 @@ public class TigerVmCodegen : IAstVisitor
         // Иначе вычисляем второй операнд.
         // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
         e.Right.Accept(this);
-        _builder.Append(InstructionCode.Push, 0);
-        _builder.Append(InstructionCode.NotEqual);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         // Выполняем короткую схему вычислений: левый операнд обратился в "ЛОЖЬ", и результат будет "ЛОЖЬ".
-        _builder.SetInsertPoint(shortCircuitBlock);
-        _builder.Append(InstructionCode.Push, 0);
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
-        _builder.SetInsertPoint(finalBlock);
+        _builder.InsertPoint = finalBlock;
     }
 
     private void GenerateLogicalOrCode(BinaryOperationExpression e)
@@ -349,15 +386,15 @@ public class TigerVmCodegen : IAstVisitor
         // Иначе вычисляем второй операнд.
         // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
         e.Right.Accept(this);
-        _builder.Append(InstructionCode.Push, 0);
-        _builder.Append(InstructionCode.NotEqual);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         // Выполняем короткую схему вычислений: левый операнд обратился в "ИСТИНУ", и результат будет "ИСТИНА".
-        _builder.SetInsertPoint(shortCircuitBlock);
-        _builder.Append(InstructionCode.Push, 1);
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 1));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
-        _builder.SetInsertPoint(finalBlock);
+        _builder.InsertPoint = finalBlock;
     }
 }

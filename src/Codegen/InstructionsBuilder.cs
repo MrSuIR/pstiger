@@ -1,6 +1,6 @@
 using PsTiger.VirtualMachine;
 
-namespace Codegen;
+namespace PsTiger.Codegen;
 
 public class InstructionsBuilder
 {
@@ -11,6 +11,25 @@ public class InstructionsBuilder
     {
         _basicBlocks = [];
         _insertPoint = CreateBasicBlock();
+    }
+
+    /// <summary>
+    /// Базовый блок, в который выполняется вставка инструкций
+    /// </summary>
+    public BasicBlock InsertPoint
+    {
+        get => _insertPoint;
+
+        set
+        {
+            if (!ReferenceEquals(_basicBlocks[value.Id], value))
+            {
+                // Такого не должно быть по логике кодогенерации.
+                throw new InvalidOperationException("Basic block does not belong to the current instructions builder");
+            }
+
+            _insertPoint = value;
+        }
     }
 
     /// <summary>
@@ -44,22 +63,7 @@ public class InstructionsBuilder
 
     /// <summary>
     /// Добавляет инструкцию в текущий базовый блок.
-    /// </summary>
-    public void Append(InstructionCode code)
-    {
-        Append(new Instruction(code));
-    }
-
-    /// <summary>
-    /// Добавляет инструкцию в текущий базовый блок.
-    /// </summary>
-    public void Append(InstructionCode code, int operand)
-    {
-        Append(new Instruction(code, operand));
-    }
-
-    /// <summary>
-    /// Добавляет инструкцию в текущий базовый блок.
+    /// Инструкции перехода добавляются другим методом.
     /// </summary>
     public void Append(Instruction instruction)
     {
@@ -85,20 +89,6 @@ public class InstructionsBuilder
     }
 
     /// <summary>
-    /// Меняет базовый блок, в который выполняется вставка инструкций.
-    /// </summary>
-    public void SetInsertPoint(BasicBlock block)
-    {
-        if (!ReferenceEquals(_basicBlocks[block.Id], block))
-        {
-            // Такого не должно быть по логике кодогенерации.
-            throw new InvalidOperationException("Basic block does not belong to the current instructions builder");
-        }
-
-        _insertPoint = block;
-    }
-
-    /// <summary>
     /// Создаёт базовый блок инструкций и возвращает ссылку на него.
     /// </summary>
     public BasicBlock CreateBasicBlock()
@@ -116,6 +106,7 @@ public class InstructionsBuilder
     {
         return code switch
         {
+            InstructionCode.Call => true,
             InstructionCode.Jump => true,
             InstructionCode.JumpIfFalse => true,
             InstructionCode.JumpIfTrue => true,

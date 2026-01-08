@@ -12,7 +12,7 @@ public class FunctionsTests
 {
     [Theory]
     [MemberData(nameof(GetEvaluateFunctionsData))]
-    public void Can_evaluate_if_else(string code, string expectedOutput)
+    public void Can_evaluate_functions(string code, string expectedOutput)
     {
         TigerGrammar.CheckProgramSyntax(code);
 
