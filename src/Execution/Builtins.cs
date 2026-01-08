@@ -10,12 +10,24 @@ namespace PsTiger.Execution;
 /// </summary>
 public class Builtins
 {
+    public const string Print = "print";
+    public const string PrintInt = "printi";
+    public const string Flush = "flush";
+    public const string GetChar = "getchar";
+    public const string Ord = "ord";
+    public const string Chr = "chr";
+    public const string Size = "size";
+    public const string Substring = "substring";
+    public const string Concat = "concat";
+    public const string Not = "not";
+    public const string Exit = "exit";
+
     public Builtins(IEnvironment environment)
     {
         Functions =
         [
-            new(
-                "print", // print(s: string)` — выводит строку в стандартный поток вывода
+            new BuiltinFunction(
+                Print, // print(s: string)` — выводит строку в стандартный поток вывода
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
                 ],
@@ -27,8 +39,8 @@ public class Builtins
                 }
             ),
 
-            new(
-                "printi", // `printi(i: int)` — выводит целое число в стандартный поток вывода
+            new BuiltinFunction(
+                PrintInt, // `printi(i: int)` — выводит целое число в стандартный поток вывода
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
@@ -41,7 +53,7 @@ public class Builtins
             ),
 
             new(
-                "flush", // `flush()` — записывает данные в буфере стандартного потока вывода
+                Flush, // `flush()` — записывает данные в буфере стандартного потока вывода
                 [],
                 ValueType.Void,
                 _ =>
@@ -52,7 +64,7 @@ public class Builtins
             ),
 
             new(
-                "getchar", // `getchar(): string` — читает один символ из stdin
+                GetChar, // `getchar(): string` — читает один символ из stdin
                 [],
                 ValueType.String,
                 _ =>
@@ -69,7 +81,7 @@ public class Builtins
             ),
 
             new(
-                "ord", // `ord(s: string): int` — возвращает ASCII-код первого символа `s`
+                Ord, // `ord(s: string): int` — возвращает ASCII-код первого символа `s`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
                 ],
@@ -83,7 +95,7 @@ public class Builtins
             ),
 
             new(
-                "chr", // `chr(i: int): string` — возвращает строку из одного символа для ASCII-значения `i`
+                Chr, // `chr(i: int): string` — возвращает строку из одного символа для ASCII-значения `i`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
@@ -102,7 +114,7 @@ public class Builtins
             ),
 
             new(
-                "size", // `size(s: string): int` — возвращает количество символов в строке `s`
+                Size, // `size(s: string): int` — возвращает количество символов в строке `s`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
                 ],
@@ -115,7 +127,7 @@ public class Builtins
             ),
 
             new(
-                "substring", // `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
+                Substring, // `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
                     new BuiltinFunctionParameter("f", ValueType.Int),
@@ -136,7 +148,7 @@ public class Builtins
             ),
 
             new(
-                "concat", // `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
+                Concat, // `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
                 [
                     new BuiltinFunctionParameter("s1", ValueType.String),
                     new BuiltinFunctionParameter("s2", ValueType.String),
@@ -151,7 +163,7 @@ public class Builtins
             ),
 
             new(
-                "not", // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
+                Not, // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
@@ -160,7 +172,7 @@ public class Builtins
             ),
 
             new(
-                "exit", // `exit(i: int)` — завершает программу с кодом выхода `i`
+                Exit, // `exit(i: int)` — завершает программу с кодом выхода `i`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
                 ],
