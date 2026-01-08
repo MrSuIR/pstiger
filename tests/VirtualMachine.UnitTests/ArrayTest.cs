@@ -89,7 +89,8 @@ public class ArrayTest
 
                     // Конец программы.
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "7, 7, 3, 7"
             },

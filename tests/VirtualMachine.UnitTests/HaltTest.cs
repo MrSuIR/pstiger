@@ -11,7 +11,8 @@ public class HaltTest
     {
         FakeEnvironment environment = new();
         TigerVm vm = new(environment, [
-            new Instruction(InstructionCode.Halt, exitCode),
+            new Instruction(InstructionCode.Push, exitCode),
+            new Instruction(InstructionCode.Halt),
         ]);
         Value result = vm.RunProgram();
 

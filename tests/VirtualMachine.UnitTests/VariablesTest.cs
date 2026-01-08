@@ -40,7 +40,8 @@ public class VariablesTest
                     new Instruction(InstructionCode.Multiply),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "100"
             },
@@ -89,7 +90,8 @@ public class VariablesTest
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "12, 10"
             },

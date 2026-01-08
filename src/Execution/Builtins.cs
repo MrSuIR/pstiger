@@ -52,7 +52,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Flush, // `flush()` — записывает данные в буфере стандартного потока вывода
                 [],
                 ValueType.Void,
@@ -63,7 +63,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 GetChar, // `getchar(): string` — читает один символ из stdin
                 [],
                 ValueType.String,
@@ -80,7 +80,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Ord, // `ord(s: string): int` — возвращает ASCII-код первого символа `s`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
@@ -94,7 +94,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Chr, // `chr(i: int): string` — возвращает строку из одного символа для ASCII-значения `i`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
@@ -113,7 +113,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Size, // `size(s: string): int` — возвращает количество символов в строке `s`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
@@ -126,7 +126,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Substring, // `substring(s: string, f: int, n: int): string` — возвращает подстроку `s`, начинающуюся с индекса `f`, длиной `n`
                 [
                     new BuiltinFunctionParameter("s", ValueType.String),
@@ -147,7 +147,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Concat, // `concat(s1: string, s2: string): string` — возвращает результат конкатенации строк `s1` и `s2`
                 [
                     new BuiltinFunctionParameter("s1", ValueType.String),
@@ -162,7 +162,7 @@ public class Builtins
                 }
             ),
 
-            new(
+            new BuiltinFunction(
                 Not, // `not(i: int): int` — если `i = 0`, то возвращает `1`, иначе возвращает `0`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),
@@ -171,7 +171,7 @@ public class Builtins
                 arguments => (arguments[0].AsInt() == 0) ? new Value(1) : new Value(0)
             ),
 
-            new(
+            new BuiltinFunction(
                 Exit, // `exit(i: int)` — завершает программу с кодом выхода `i`
                 [
                     new BuiltinFunctionParameter("i", ValueType.Int),

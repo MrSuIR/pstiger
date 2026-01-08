@@ -33,10 +33,11 @@ public class FunctionsTest
                 [
                     new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, 11),
-                    new Instruction(InstructionCode.Call, 6),
+                    new Instruction(InstructionCode.Call, 7),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
 
                     // Функция square(x: int): int
                     new Instruction(InstructionCode.PushVars, 1),
@@ -57,9 +58,10 @@ public class FunctionsTest
                 [
                     new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.Call, 5),
+                    new Instruction(InstructionCode.Call, 6),
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
 
                     // Начало функции printLine
                     new Instruction(InstructionCode.PushVars, 1),
@@ -83,10 +85,11 @@ public class FunctionsTest
                     new Instruction(InstructionCode.Push, "po"),
                     new Instruction(InstructionCode.Push, "ta"),
                     new Instruction(InstructionCode.Push, "to"),
-                    new Instruction(InstructionCode.Call, 8),
+                    new Instruction(InstructionCode.Call, 9),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
 
                     // Начало функции concat3
                     new Instruction(InstructionCode.PushVars, 1),
@@ -126,7 +129,7 @@ public class FunctionsTest
 
                     // printi(square(x));
                     new Instruction(InstructionCode.LoadVar, "x"),
-                    new Instruction(InstructionCode.Call, 12),
+                    new Instruction(InstructionCode.Call, 13),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
                     // print(", ");
@@ -138,7 +141,8 @@ public class FunctionsTest
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
 
                     // Начало функции function square(x: int): int
                     new Instruction(InstructionCode.PushVars, 1),
@@ -189,7 +193,7 @@ public class FunctionsTest
                     new Instruction(InstructionCode.DefineVar, "x"),
 
                     // printi(squareX())
-                    new Instruction(InstructionCode.Call, 15),
+                    new Instruction(InstructionCode.Call, 16),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
 
                     new Instruction(InstructionCode.Push, ", "),
@@ -200,7 +204,8 @@ public class FunctionsTest
 
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.PopVars),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
 
                     // Начало функции function squareX(): int
                     new Instruction(InstructionCode.PushVars, 1),

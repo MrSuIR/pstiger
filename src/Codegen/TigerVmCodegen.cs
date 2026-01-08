@@ -20,7 +20,14 @@ public class TigerVmCodegen : IAstVisitor
     {
         _instructions = [];
         program.Accept(this);
-        _instructions.Add(new Instruction(InstructionCode.Halt, 0));
+
+        if (program.ResultType != ValueType.Void)
+        {
+            _instructions.Add(new Instruction(InstructionCode.StoreResult));
+        }
+
+        _instructions.Add(new Instruction(InstructionCode.Push, 0));
+        _instructions.Add(new Instruction(InstructionCode.Halt));
 
         return _instructions;
     }
@@ -77,7 +84,7 @@ public class TigerVmCodegen : IAstVisitor
                 Instruction instruction = builtin.Name switch
                 {
                     Builtins.Not => new Instruction(InstructionCode.Not),
-                    Builtins.Exit => throw new NotImplementedException(),
+                    Builtins.Exit => new Instruction(InstructionCode.Halt),
                     _ => new Instruction(InstructionCode.CallBuiltin, builtin.Name),
                 };
                 _instructions.Add(instruction);

@@ -35,7 +35,8 @@ public class CallBuiltinTest
                 [
                     new Instruction(InstructionCode.Push, "Hello, world!"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 string.Empty, "Hello, world!", string.Empty
             },
@@ -45,7 +46,8 @@ public class CallBuiltinTest
                 [
                     new Instruction(InstructionCode.Push, 762),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 string.Empty, "762", string.Empty
             },
@@ -58,7 +60,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 111),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
                     new Instruction(InstructionCode.CallBuiltin, "flush"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 string.Empty, string.Empty, "Hello, world!111"
             },
@@ -70,7 +73,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.CallBuiltin, "print"),
                     new Instruction(InstructionCode.CallBuiltin, "getchar"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "Input", "In", string.Empty
             },
@@ -104,7 +108,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, "ABCD"),
                     new Instruction(InstructionCode.CallBuiltin, "ord"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "65"
             },
@@ -118,7 +123,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 41),
                     new Instruction(InstructionCode.CallBuiltin, "chr"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "()"
             },
@@ -129,7 +135,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, "Hello, world!"),
                     new Instruction(InstructionCode.CallBuiltin, "size"),
                     new Instruction(InstructionCode.CallBuiltin, "printi"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "13"
             },
@@ -142,7 +149,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 6),
                     new Instruction(InstructionCode.CallBuiltin, "substring"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "Cogito"
             },
@@ -154,7 +162,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, " ergo sum"),
                     new Instruction(InstructionCode.CallBuiltin, "concat"),
                     new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.Halt, 0),
+                    new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.Halt),
                 ],
                 "Cogito ergo sum"
             },

@@ -40,6 +40,11 @@ public class TigerVm
     /// </summary>
     private readonly Stack<ReturnContext> _returnStack;
 
+    /// <summary>
+    /// Результат работы программы (произвольное значение либо отсутствие значения).
+    /// </summary>
+    private Value _result;
+
     public TigerVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
@@ -52,6 +57,7 @@ public class TigerVm
         _variables = new VariablesTable();
         _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
         _returnStack = [];
+        _result = Value.Void;
     }
 
     public int ExitCode => _exitCode;
@@ -314,9 +320,15 @@ public class TigerVm
 
                     break;
 
+                case InstructionCode.StoreResult:
+                    // Сохраняем результат работы всей программы.
+                    _result = _evaluationStack.Pop();
+                    break;
+
                 case InstructionCode.Halt:
-                    _exitCode = instruction.Operand.AsInt();
-                    return _evaluationStack.TryPop(out Value? result) ? result : Value.Void;
+                    // Получаем код возврата программы.
+                    _exitCode = _evaluationStack.Pop().AsInt();
+                    return _result;
 
                 case InstructionCode.PushVars:
                     {
