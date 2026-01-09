@@ -124,8 +124,8 @@ public class TigerVmCodegen : IAstVisitor
 
             case FunctionDeclaration functionDeclaration:
                 {
-                    Function function = _symbolsTable!.GetFunction(functionDeclaration.Name);
-                    _builder.AppendJump(InstructionCode.Call, function.Entry);
+                    BasicBlock functionBlock = _symbolsTable!.GetFunctionEntry(functionDeclaration.Name);
+                    _builder.AppendJump(InstructionCode.Call, functionBlock);
                 }
 
                 break;
@@ -138,6 +138,17 @@ public class TigerVmCodegen : IAstVisitor
     public void Visit(ScopeExpression e)
     {
         PushLexicalScope();
+
+        // Заранее резервируем базовые блоки для функций в текущей области видимости,
+        //  чтобы поддержать взаимную рекурсию функций.
+        foreach (Declaration declaration in e.Declarations)
+        {
+            if (declaration is FunctionDeclaration functionDeclaration)
+            {
+                BasicBlock functionBlock = _builder.CreateBasicBlock();
+                _symbolsTable!.AddFunctionEntry(functionDeclaration.Name, functionBlock);
+            }
+        }
 
         foreach (Declaration declaration in e.Declarations)
         {
@@ -240,8 +251,7 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
-        BasicBlock functionBlock = _builder.CreateBasicBlock();
-        _symbolsTable!.DefineFunction(d.Name, functionBlock);
+        BasicBlock functionBlock = _symbolsTable!.GetFunctionEntry(d.Name);
 
         BasicBlock previousBlock = _builder.InsertPoint;
         _builder.InsertPoint = functionBlock;

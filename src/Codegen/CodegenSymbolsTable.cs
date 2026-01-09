@@ -8,7 +8,7 @@ public sealed class CodegenSymbolsTable
     private readonly CodegenSymbolsTable? _parent;
     private readonly int _depth;
 
-    private readonly Dictionary<string, Function> _functions = [];
+    private readonly Dictionary<string, BasicBlock> _functions = [];
 
     public CodegenSymbolsTable(CodegenSymbolsTable? parent)
     {
@@ -20,22 +20,27 @@ public sealed class CodegenSymbolsTable
 
     public CodegenSymbolsTable? Parent => _parent;
 
-    public void DefineFunction(string name, BasicBlock block)
+    /// <summary>
+    /// Добавляет ссылку на базовый блок, с которого начинается указанная функция.
+    /// </summary>
+    public void AddFunctionEntry(string name, BasicBlock block)
     {
-        Function function = new(block, _depth);
-        _functions[name] = function;
+        _functions.Add(name, block);
     }
 
-    public Function GetFunction(string name)
+    /// <summary>
+    /// Получает ссылку на базовый блок, с которого начинается указанная функция.
+    /// </summary>
+    public BasicBlock GetFunctionEntry(string name)
     {
-        if (_functions.TryGetValue(name, out Function? function))
+        if (_functions.TryGetValue(name, out BasicBlock? block))
         {
-            return function;
+            return block;
         }
 
         if (_parent != null)
         {
-            return _parent.GetFunction(name);
+            return _parent.GetFunctionEntry(name);
         }
 
         throw new InvalidOperationException($"No basic block for function {name}");
