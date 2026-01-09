@@ -16,6 +16,12 @@ public class TigerVmCodegen : IAstVisitor
     private readonly InstructionsBuilder _builder = new();
     private CodegenSymbolsTable? _symbolsTable;
 
+    /// <summary>
+    /// Стек со ссылками на блоки после текущих циклов (while и for).
+    /// Используется для генерации прерывания цикла (break).
+    /// </summary>
+    private readonly Stack<BasicBlock> _currentLoopFinalBlockStack = new();
+
     public List<Instruction> GenerateCode(Expression program)
     {
         program.Accept(this);
@@ -245,6 +251,7 @@ public class TigerVmCodegen : IAstVisitor
     {
         BasicBlock loopBlock = _builder.CreateBasicBlock();
         BasicBlock finalBlock = _builder.CreateBasicBlock();
+        _currentLoopFinalBlockStack.Push(finalBlock);
 
         // Переход в начало цикла.
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
@@ -258,16 +265,18 @@ public class TigerVmCodegen : IAstVisitor
         e.LoopBody.Accept(this);
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
 
+        _currentLoopFinalBlockStack.Pop();
         _builder.InsertPoint = finalBlock;
     }
 
     public void Visit(ForLoopExpression e)
     {
-        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
-        PushLexicalScope();
-
         BasicBlock loopBlock = _builder.CreateBasicBlock();
         BasicBlock finalBlock = _builder.CreateBasicBlock();
+        _currentLoopFinalBlockStack.Push(finalBlock);
+
+        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
+        PushLexicalScope();
 
         // Инициализация итератора цикла
         e.StartValue.Accept(this);
@@ -291,8 +300,8 @@ public class TigerVmCodegen : IAstVisitor
         _builder.Append(new Instruction(InstructionCode.StoreVar, e.Iterator.Name));
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
 
+        _currentLoopFinalBlockStack.Pop();
         _builder.InsertPoint = finalBlock;
-
         PopLexicalScope();
     }
 
@@ -302,7 +311,8 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(BreakLoopExpression e)
     {
-        throw new NotImplementedException();
+        BasicBlock loopFinalBlock = _currentLoopFinalBlockStack.Peek();
+        _builder.AppendJump(InstructionCode.Jump, loopFinalBlock);
     }
 
     public void Visit(TypeDeclaration d)
