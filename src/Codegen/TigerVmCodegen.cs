@@ -155,14 +155,32 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(AssignmentExpression e)
     {
-        if (e.Left is VariableAccessExpression variableAccess)
+        /*
+         Пример кода, генерируемого для выражения `arr[x][y] := 10`:
+           Push 10
+           LoadVar "arr"
+           LoadVar "x"
+           LoadArray
+           LoadVar "y"
+           StoreArray
+         */
+
+        e.Right.Accept(this);
+
+        switch (e.Left)
         {
-            e.Right.Accept(this);
-            _builder.Append(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
-        }
-        else
-        {
-            throw new NotImplementedException();
+            case VariableAccessExpression variableAccess:
+                _builder.Append(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
+                break;
+
+            case ArrayAccessExpression arrayAccess:
+                arrayAccess.Array.Accept(this);
+                arrayAccess.Index.Accept(this);
+                _builder.Append(new Instruction(InstructionCode.StoreArray));
+                break;
+
+            default:
+                throw new NotImplementedException();
         }
     }
 
@@ -317,27 +335,28 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(TypeDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(NamedTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(ArrayTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(ArrayAccessExpression e)
     {
-        throw new NotImplementedException();
+        e.Array.Accept(this);
+        e.Index.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.LoadArray));
     }
 
     public void Visit(ArrayLiteralExpression e)
     {
-        throw new NotImplementedException();
+        e.Size.Accept(this);
+        e.InitialValue.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.CreateArray));
     }
 
     public void Visit(RecordTypeExpression e)

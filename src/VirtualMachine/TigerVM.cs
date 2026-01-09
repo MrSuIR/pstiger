@@ -128,9 +128,9 @@ public class TigerVm
 
                 case InstructionCode.StoreArray:
                     {
-                        Value value = _evaluationStack.Pop();
                         int index = _evaluationStack.Pop().AsInt();
                         Value array = _evaluationStack.Pop();
+                        Value value = _evaluationStack.Pop();
                         array.SetElement(index, value);
                     }
 

@@ -49,9 +49,9 @@ public class ArrayTest
                     new Instruction(InstructionCode.DefineVar, "x"),
 
                     // x[2] := 3
+                    new Instruction(InstructionCode.Push, 3),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Push, 2),
-                    new Instruction(InstructionCode.Push, 3),
                     new Instruction(InstructionCode.StoreArray),
 
                     // printi(x[0])
