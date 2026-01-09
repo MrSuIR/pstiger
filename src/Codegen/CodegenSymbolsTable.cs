@@ -20,12 +20,10 @@ public sealed class CodegenSymbolsTable
 
     public CodegenSymbolsTable? Parent => _parent;
 
-    public Function DefineFunction(string name, BasicBlock block)
+    public void DefineFunction(string name, BasicBlock block)
     {
         Function function = new(block, _depth);
         _functions[name] = function;
-
-        return function;
     }
 
     public Function GetFunction(string name)

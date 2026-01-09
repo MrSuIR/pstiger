@@ -241,14 +241,14 @@ public class TigerVmCodegen : IAstVisitor
     public void Visit(FunctionDeclaration d)
     {
         BasicBlock functionBlock = _builder.CreateBasicBlock();
-        Function function = _symbolsTable!.DefineFunction(d.Name, functionBlock);
+        _symbolsTable!.DefineFunction(d.Name, functionBlock);
 
         BasicBlock previousBlock = _builder.InsertPoint;
         _builder.InsertPoint = functionBlock;
         try
         {
             // Создание области видимости, дочерней от области, в которой находилось объявление функции.
-            _builder.Append(new Instruction(InstructionCode.PushVars, function.ParentScopeDepth));
+            PushLexicalScope();
 
             // Сохранение параметров со стека в переменные (в обратном порядке).
             foreach (AbstractParameterDeclaration declaration in d.Parameters.Reverse())
@@ -259,8 +259,9 @@ public class TigerVmCodegen : IAstVisitor
             // Генерация кода для тела функции.
             d.Body.Accept(this);
 
+            PopLexicalScope();
+
             // Возврат из функции.
-            _builder.Append(new Instruction(InstructionCode.PopVars));
             _builder.Append(new Instruction(InstructionCode.Return));
         }
         finally
