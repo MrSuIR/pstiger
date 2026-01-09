@@ -124,15 +124,17 @@ UnrollFactor=1  WarmupCount=2
 ```mermaid
 graph TD
     Ast["Ast"]
-    Execution["Execution"]
+    Codegen["Codegen"]
     Interpreter["Interpreter"]
     Lexemes["Lexemes"]
     Parsing["Parsing"]
     Runtime["Runtime"]
     Semantics["Semantics"]
+    VirtualMachine["VirtualMachine"]
     Ast --> Runtime
-    Execution --> Ast
-    Interpreter --> Execution
+    Codegen --> Ast
+    Codegen --> VirtualMachine
+    Interpreter --> Codegen
     Interpreter --> Parsing
     Interpreter --> Runtime
     Interpreter --> Semantics
@@ -140,29 +142,18 @@ graph TD
     Parsing --> Lexemes
     Semantics --> Ast
     Semantics --> Runtime
+    VirtualMachine --> Runtime
 ```
 
 ## Покрытие тестами
 
 В проекте есть:
 
-1. Приёмочные интеграционные тесты: `Interpreter.IntegrationTests`
-2. Тесты модуля Grammar, содержащего валидатор синтаксиса на ANTLR4: `Grammar.UnitTests`
-3. Тесты модуля Lexer, содержащего лексический анализатор: `Lexemes.UnitTests`
-
-```mermaid
-graph TD
-    Grammar["Grammar"]
-    Grammar.UnitTests["Grammar.UnitTests"]
-    Interpreter["Interpreter"]
-    Interpreter.IntegrationTests["Interpreter.IntegrationTests"]
-    Lexemes["Lexemes"]
-    Lexemes.UnitTests["Lexemes.UnitTests"]
-    Grammar.UnitTests --> Grammar
-    Interpreter.IntegrationTests --> Grammar
-    Interpreter.IntegrationTests --> Interpreter
-    Lexemes.UnitTests --> Lexemes
-```
+1. Приёмочные тесты реалистичных программ: `Interpreter.Specs`
+2. Приёмочные интеграционные тесты возможностей языка: `Interpreter.IntegrationTests`
+3. Тесты модуля Grammar, содержащего валидатор синтаксиса на ANTLR4: `Grammar.UnitTests`
+4. Тесты модуля Lexer, содержащего лексический анализатор: `Lexemes.UnitTests`
+5. Тесты модуля VirtualMachine, содержащего виртуальную машину для программ на Tiger: `VirtualMachine.UnitTests`
 
 ## Лицензия
 
