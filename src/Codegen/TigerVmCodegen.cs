@@ -130,25 +130,16 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(ScopeExpression e)
     {
-        int parentScopeDepth = _symbolsTable?.Depth ?? 0;
-        _symbolsTable = new CodegenSymbolsTable(_symbolsTable);
-        try
+        PushLexicalScope();
+
+        foreach (Declaration declaration in e.Declarations)
         {
-            _builder.Append(new Instruction(InstructionCode.PushVars, parentScopeDepth));
-
-            foreach (Declaration declaration in e.Declarations)
-            {
-                declaration.Accept(this);
-            }
-
-            GenerateExpressionsSequenceCode(e.Expressions);
-
-            _builder.Append(new Instruction(InstructionCode.PopVars));
+            declaration.Accept(this);
         }
-        finally
-        {
-            _symbolsTable = _symbolsTable.Parent;
-        }
+
+        GenerateExpressionsSequenceCode(e.Expressions);
+
+        PopLexicalScope();
     }
 
     public void Visit(VariableAccessExpression e)
@@ -252,17 +243,61 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(WhileLoopExpression e)
     {
-        throw new NotImplementedException();
+        BasicBlock loopBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Переход в начало цикла.
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+        _builder.InsertPoint = loopBlock;
+
+        // Проверяем условие и завершаем цикл, если оно ложно.
+        e.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+        // Генерируем тело цикла и переход к началу цикла.
+        e.LoopBody.Accept(this);
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+
+        _builder.InsertPoint = finalBlock;
     }
 
     public void Visit(ForLoopExpression e)
     {
-        throw new NotImplementedException();
+        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
+        PushLexicalScope();
+
+        BasicBlock loopBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Инициализация итератора цикла
+        e.StartValue.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.DefineVar, e.Iterator.Name));
+
+        // Переход в начало цикла
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+        _builder.InsertPoint = loopBlock;
+
+        // Проверяем значение итератора и завершаем цикл, если итератор больше своего финального значения.
+        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Iterator.Name));
+        e.EndValue.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.LessOrEqual));
+        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+        // Генерируем тело цикла, инкремент итератора и переход к началу цикла
+        e.LoopBody.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Iterator.Name));
+        _builder.Append(new Instruction(InstructionCode.Push, 1));
+        _builder.Append(new Instruction(InstructionCode.Add));
+        _builder.Append(new Instruction(InstructionCode.StoreVar, e.Iterator.Name));
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+
+        _builder.InsertPoint = finalBlock;
+
+        PopLexicalScope();
     }
 
     public void Visit(ForIteratorDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(BreakLoopExpression e)
@@ -396,5 +431,24 @@ public class TigerVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;
+    }
+
+    /// <summary>
+    /// Добавляет лексическую область видимости в стек.
+    /// </summary>
+    private void PushLexicalScope()
+    {
+        int parentScopeDepth = _symbolsTable?.Depth ?? 0;
+        _symbolsTable = new CodegenSymbolsTable(_symbolsTable);
+        _builder.Append(new Instruction(InstructionCode.PushVars, parentScopeDepth));
+    }
+
+    /// <summary>
+    /// Убирает лексическую область видимости из стека.
+    /// </summary>
+    private void PopLexicalScope()
+    {
+        _builder.Append(new Instruction(InstructionCode.PopVars));
+        _symbolsTable = _symbolsTable!.Parent;
     }
 }
