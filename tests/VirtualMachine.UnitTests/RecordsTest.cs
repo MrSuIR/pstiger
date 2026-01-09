@@ -53,10 +53,10 @@ public class RecordsTest
 
                     // p.x = p.x * 3;
                     new Instruction(InstructionCode.LoadVar, "point"),
-                    new Instruction(InstructionCode.LoadVar, "point"),
                     new Instruction(InstructionCode.LoadField, "x"),
                     new Instruction(InstructionCode.Push, 3),
                     new Instruction(InstructionCode.Multiply),
+                    new Instruction(InstructionCode.LoadVar, "point"),
                     new Instruction(InstructionCode.StoreField, "x"),
 
                     // printPoint(p);

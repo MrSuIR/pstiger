@@ -149,8 +149,8 @@ public class TigerVm
                 case InstructionCode.StoreField:
                     {
                         string fieldName = instruction.Operand.AsString();
-                        Value value = _evaluationStack.Pop();
                         Value record = _evaluationStack.Pop();
+                        Value value = _evaluationStack.Pop();
                         record.SetField(fieldName, value);
                     }
 

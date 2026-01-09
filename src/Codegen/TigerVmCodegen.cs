@@ -2,6 +2,7 @@
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
 using PsTiger.Execution;
+using PsTiger.Runtime;
 using PsTiger.VirtualMachine;
 
 using ValueType = PsTiger.Runtime.ValueType;
@@ -163,6 +164,8 @@ public class TigerVmCodegen : IAstVisitor
            LoadArray
            LoadVar "y"
            StoreArray
+
+        Здесь StoreArray используется только один раз, чтобы сохранить значение 10 по индексу `y` в массив `arr[x]`.
          */
 
         e.Right.Accept(this);
@@ -177,6 +180,11 @@ public class TigerVmCodegen : IAstVisitor
                 arrayAccess.Array.Accept(this);
                 arrayAccess.Index.Accept(this);
                 _builder.Append(new Instruction(InstructionCode.StoreArray));
+                break;
+
+            case FieldAccessExpression fieldAccess:
+                fieldAccess.Record.Accept(this);
+                _builder.Append(new Instruction(InstructionCode.StoreField, fieldAccess.FieldName));
                 break;
 
             default:
@@ -361,27 +369,31 @@ public class TigerVmCodegen : IAstVisitor
 
     public void Visit(RecordTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(FieldDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(RecordLiteralExpression e)
     {
-        throw new NotImplementedException();
+        _builder.Append(new Instruction(InstructionCode.Push, Value.NewRecord()));
+        foreach (FieldInitializer initializer in e.Initializers)
+        {
+            initializer.Accept(this);
+        }
     }
 
     public void Visit(FieldInitializer e)
     {
-        throw new NotImplementedException();
+        e.Value.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.InitField, e.Name));
     }
 
     public void Visit(FieldAccessExpression e)
     {
-        throw new NotImplementedException();
+        e.Record.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.LoadField, e.FieldName));
     }
 
     private void GenerateExpressionsSequenceCode(IReadOnlyList<Expression> sequence)
