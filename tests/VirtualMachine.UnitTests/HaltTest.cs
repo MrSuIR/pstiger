@@ -1,5 +1,6 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 

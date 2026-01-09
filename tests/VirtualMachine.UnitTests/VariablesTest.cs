@@ -1,5 +1,7 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
@@ -38,7 +40,7 @@ public class VariablesTest
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Multiply),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
@@ -76,18 +78,18 @@ public class VariablesTest
 
                     // printi(x)
                     new Instruction(InstructionCode.LoadVar, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // end;
                     new Instruction(InstructionCode.PopVars),
 
                     // print(", ")
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
 
                     // printi(x)
                     new Instruction(InstructionCode.LoadVar, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),

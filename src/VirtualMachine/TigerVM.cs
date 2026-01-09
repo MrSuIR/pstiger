@@ -1,13 +1,12 @@
-using PsTiger.Ast.Declarations;
-using PsTiger.Execution;
-using PsTiger.Execution.Data;
 using PsTiger.Runtime;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine;
 
 public class TigerVm
 {
-    private readonly IEnvironment _environment;
+    private readonly BuiltinFunctions _builtinFunctions;
     private readonly IReadOnlyList<Instruction> _instructions;
 
     /// <summary>
@@ -31,11 +30,6 @@ public class TigerVm
     private VariablesTable? _variables;
 
     /// <summary>
-    /// Словарь встроенных функций.
-    /// </summary>
-    private readonly IReadOnlyDictionary<string, BuiltinFunction> _builtinFunctionsMap;
-
-    /// <summary>
     /// Стек с номерами инструкций, сохранённых перед вызовами незавершённых функций.
     /// </summary>
     private readonly Stack<ReturnContext> _returnStack;
@@ -49,13 +43,12 @@ public class TigerVm
     {
         ValidateInstructions(instructions);
 
-        _environment = environment;
+        _builtinFunctions = new BuiltinFunctions(environment);
         _instructions = instructions;
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
         _variables = new VariablesTable();
-        _builtinFunctionsMap = new Builtins(environment).Functions.ToDictionary(x => x.Name);
         _returnStack = [];
         _result = Value.Void;
     }
@@ -301,7 +294,7 @@ public class TigerVm
                     break;
 
                 case InstructionCode.CallBuiltin:
-                    CallBuiltin(instruction.Operand.AsString());
+                    CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsInt());
                     break;
 
                 case InstructionCode.Call:
@@ -359,31 +352,50 @@ public class TigerVm
     /// <summary>
     /// Выполняет вызов встроенной функции.
     /// </summary>
-    private void CallBuiltin(string name)
+    private void CallBuiltin(BuiltinFunctionCode code)
     {
-        if (!_builtinFunctionsMap.TryGetValue(name, out BuiltinFunction? function))
+        switch (code)
         {
-            throw new ArgumentException($"Unknown builtin function: {name}");
-        }
+            case BuiltinFunctionCode.Print:
+                _builtinFunctions.Print(_evaluationStack.Pop());
+                break;
+            case BuiltinFunctionCode.PrintI:
+                _builtinFunctions.PrintI(_evaluationStack.Pop());
+                break;
+            case BuiltinFunctionCode.Flush:
+                _builtinFunctions.Flush();
+                break;
+            case BuiltinFunctionCode.GetChar:
+                _evaluationStack.Push(_builtinFunctions.GetChar());
+                break;
+            case BuiltinFunctionCode.Ord:
+                _evaluationStack.Push(_builtinFunctions.Ord(_evaluationStack.Pop()));
+                break;
+            case BuiltinFunctionCode.Chr:
+                _evaluationStack.Push(_builtinFunctions.Chr(_evaluationStack.Pop()));
+                break;
+            case BuiltinFunctionCode.Size:
+                _evaluationStack.Push(_builtinFunctions.Size(_evaluationStack.Pop()));
+                break;
+            case BuiltinFunctionCode.Substring:
+                {
+                    Value length = _evaluationStack.Pop();
+                    Value fromIndex = _evaluationStack.Pop();
+                    Value value = _evaluationStack.Pop();
+                    _evaluationStack.Push(_builtinFunctions.Substring(value, fromIndex, length));
+                }
 
-        // Извлекаем из стека список аргументов встроенной функции.
-        int parametersCount = function.Parameters.Count;
-        List<Value> arguments = new(parametersCount);
-        for (int i = 0; i < parametersCount; i++)
-        {
-            arguments.Add(_evaluationStack.Pop());
-        }
+                break;
+            case BuiltinFunctionCode.Concat:
+                {
+                    Value s2 = _evaluationStack.Pop();
+                    Value s1 = _evaluationStack.Pop();
+                    _evaluationStack.Push(_builtinFunctions.Concat(s1, s2));
+                }
 
-        // Переворачиваем список аргументов, так как они были извлечены из стека в обратном порядке.
-        arguments.Reverse();
-
-        // Вызываем встроенную функцию.
-        Value value = function.Invoke(arguments);
-
-        // Добавляем результат в стек, если функция возвращает что-либо.
-        if (!value.IsVoid())
-        {
-            _evaluationStack.Push(value);
+                break;
+            default:
+                throw new ArgumentException($"Unknown builtin function: {code}");
         }
     }
 

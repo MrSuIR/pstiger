@@ -1,5 +1,7 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
@@ -34,7 +36,7 @@ public class FunctionsTest
                     new Instruction(InstructionCode.PushVars, 0),
                     new Instruction(InstructionCode.Push, 11),
                     new Instruction(InstructionCode.Call, 7),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
@@ -67,9 +69,9 @@ public class FunctionsTest
                     new Instruction(InstructionCode.PushVars, 1),
                     new Instruction(InstructionCode.DefineVar, "text"),
                     new Instruction(InstructionCode.LoadVar, "text"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, "\n"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
                 ],
@@ -86,7 +88,7 @@ public class FunctionsTest
                     new Instruction(InstructionCode.Push, "ta"),
                     new Instruction(InstructionCode.Push, "to"),
                     new Instruction(InstructionCode.Call, 9),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
@@ -99,8 +101,8 @@ public class FunctionsTest
                     new Instruction(InstructionCode.LoadVar, "a"),
                     new Instruction(InstructionCode.LoadVar, "b"),
                     new Instruction(InstructionCode.LoadVar, "c"),
-                    new Instruction(InstructionCode.CallBuiltin, "concat"),
-                    new Instruction(InstructionCode.CallBuiltin, "concat"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
                 ],
@@ -130,15 +132,15 @@ public class FunctionsTest
                     // printi(square(x));
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Call, 13),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // print(", ");
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
 
                     // printi(x)
                     new Instruction(InstructionCode.LoadVar, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),
@@ -194,13 +196,13 @@ public class FunctionsTest
 
                     // printi(squareX())
                     new Instruction(InstructionCode.Call, 16),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
 
                     new Instruction(InstructionCode.LoadVar, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.PopVars),

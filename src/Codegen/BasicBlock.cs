@@ -1,4 +1,5 @@
 using PsTiger.VirtualMachine;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.Codegen;
 

@@ -1,5 +1,7 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
@@ -58,7 +60,7 @@ public class ArrayTest
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.LoadArray),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // Инициализация итератора цикла for: i := 1
                     new Instruction(InstructionCode.Push, 1),
@@ -72,11 +74,11 @@ public class ArrayTest
 
                     // Тело цикла: print(", "); printi(x[i])
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.LoadVar, "x"),
                     new Instruction(InstructionCode.LoadVar, "i"),
                     new Instruction(InstructionCode.LoadArray),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // Инкремент итератора цикла.
                     new Instruction(InstructionCode.LoadVar, "i"),

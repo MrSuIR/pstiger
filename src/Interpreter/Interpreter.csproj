@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Execution\Execution.csproj" />
     <ProjectReference Include="..\Parsing\Parsing.csproj" />
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
     <ProjectReference Include="..\Semantics\Semantics.csproj" />

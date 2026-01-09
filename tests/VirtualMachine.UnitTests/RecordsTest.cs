@@ -1,5 +1,7 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
@@ -74,16 +76,16 @@ public class RecordsTest
                     // printi(p.x):
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // print(", "):
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
 
                     // printi(p.y):
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "y"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // Конец функции printPoint(p: Point).
                     new Instruction(InstructionCode.PopVars),
@@ -136,16 +138,16 @@ public class RecordsTest
                     // printi(p.x):
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "x"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     // print(", "):
                     new Instruction(InstructionCode.Push, ", "),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
 
                     // printi(p.y):
                     new Instruction(InstructionCode.LoadVar, "p"),
                     new Instruction(InstructionCode.LoadField, "y"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Return),
 
@@ -173,7 +175,7 @@ public class RecordsTest
                     new Instruction(InstructionCode.LoadVar, "point"),
                     new Instruction(InstructionCode.Push, Value.Nil),
                     new Instruction(InstructionCode.Equal),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
 
                     new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Push, 0),

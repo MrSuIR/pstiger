@@ -1,6 +1,6 @@
 using System.Globalization;
 
-using PsTiger.Execution;
+using PsTiger.VirtualMachine;
 
 namespace PsTiger.Interpreter;
 

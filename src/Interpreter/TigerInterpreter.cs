@@ -1,23 +1,21 @@
 using PsTiger.Ast.Expressions;
 using PsTiger.Codegen;
-using PsTiger.Execution;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
 using PsTiger.Semantics;
 using PsTiger.VirtualMachine;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.Interpreter;
 
 public class TigerInterpreter
 {
     private readonly IEnvironment _environment;
-    private readonly Builtins _builtins;
     private int _exitCode;
 
     public TigerInterpreter(IEnvironment environment)
     {
         _environment = environment;
-        _builtins = new Builtins(environment);
     }
 
     public int ExitCode => _exitCode;
@@ -29,7 +27,7 @@ public class TigerInterpreter
         Expression program = parser.ParseProgram();
 
         // 2. Проверка соответствия типов в программе.
-        SemanticsChecker checker = new(_builtins.Functions, _builtins.Types);
+        SemanticsChecker checker = new();
         checker.Check(program);
 
         // 3. Генерация кода для виртуальной машины.

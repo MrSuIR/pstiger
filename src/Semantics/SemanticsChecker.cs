@@ -14,18 +14,15 @@ public class SemanticsChecker
 {
     private readonly AbstractPass[] _passes;
 
-    public SemanticsChecker(
-        IReadOnlyList<BuiltinFunction> builtinFunctions,
-        IReadOnlyList<BuiltinType> builtinTypes
-    )
+    public SemanticsChecker()
     {
         SymbolsTable globalSymbols = new(parent: null);
-        foreach (BuiltinFunction function in builtinFunctions)
+        foreach (BuiltinFunction function in Builtins.Functions)
         {
             globalSymbols.DeclareFunction(function);
         }
 
-        foreach (BuiltinType type in builtinTypes)
+        foreach (BuiltinType type in Builtins.Types)
         {
             globalSymbols.DeclareType(type);
         }

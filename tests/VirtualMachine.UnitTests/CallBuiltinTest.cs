@@ -1,5 +1,7 @@
 using PsTiger.Runtime;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 namespace PsTiger.VirtualMachine.UnitTests;
 
@@ -34,7 +36,7 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -45,7 +47,7 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, 762),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -56,10 +58,10 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 111),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
-                    new Instruction(InstructionCode.CallBuiltin, "flush"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Flush),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -69,10 +71,10 @@ public class CallBuiltinTest
             // Функция getchar
             {
                 [
-                    new Instruction(InstructionCode.CallBuiltin, "getchar"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
-                    new Instruction(InstructionCode.CallBuiltin, "getchar"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.GetChar),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -106,8 +108,8 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, "ABCD"),
-                    new Instruction(InstructionCode.CallBuiltin, "ord"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Ord),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -118,11 +120,11 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, 40),
-                    new Instruction(InstructionCode.CallBuiltin, "chr"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 41),
-                    new Instruction(InstructionCode.CallBuiltin, "chr"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Chr),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -133,8 +135,8 @@ public class CallBuiltinTest
             {
                 [
                     new Instruction(InstructionCode.Push, "Hello, world!"),
-                    new Instruction(InstructionCode.CallBuiltin, "size"),
-                    new Instruction(InstructionCode.CallBuiltin, "printi"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Size),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.PrintI),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -147,8 +149,8 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, "Cogito, ergo sum"),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Push, 6),
-                    new Instruction(InstructionCode.CallBuiltin, "substring"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Substring),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
@@ -160,8 +162,8 @@ public class CallBuiltinTest
                 [
                     new Instruction(InstructionCode.Push, "Cogito"),
                     new Instruction(InstructionCode.Push, " ergo sum"),
-                    new Instruction(InstructionCode.CallBuiltin, "concat"),
-                    new Instruction(InstructionCode.CallBuiltin, "print"),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Concat),
+                    new Instruction(InstructionCode.CallBuiltin, (int)BuiltinFunctionCode.Print),
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],

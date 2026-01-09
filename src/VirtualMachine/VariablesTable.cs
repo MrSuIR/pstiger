@@ -1,6 +1,6 @@
 using PsTiger.Runtime;
 
-namespace PsTiger.Execution.Data;
+namespace PsTiger.VirtualMachine;
 
 public sealed class VariablesTable
 {

@@ -2,7 +2,7 @@ using System.Text;
 
 using PsTiger.Runtime;
 
-namespace PsTiger.VirtualMachine;
+namespace PsTiger.VirtualMachine.Instructions;
 
 public class Instruction
 {

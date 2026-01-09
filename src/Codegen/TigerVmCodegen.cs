@@ -1,9 +1,9 @@
 ﻿using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
-using PsTiger.Execution;
 using PsTiger.Runtime;
-using PsTiger.VirtualMachine;
+using PsTiger.VirtualMachine.Builtins;
+using PsTiger.VirtualMachine.Instructions;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
@@ -14,6 +14,38 @@ namespace PsTiger.Codegen;
 /// </summary>
 public class TigerVmCodegen : IAstVisitor
 {
+    private static readonly IReadOnlyDictionary<string, BuiltinFunctionCode> BuiltinFunctionsMap =
+        new Dictionary<string, BuiltinFunctionCode>
+        {
+            {
+                Builtins.Print, BuiltinFunctionCode.Print
+            },
+            {
+                Builtins.PrintI, BuiltinFunctionCode.PrintI
+            },
+            {
+                Builtins.Flush, BuiltinFunctionCode.Flush
+            },
+            {
+                Builtins.GetChar, BuiltinFunctionCode.GetChar
+            },
+            {
+                Builtins.Ord, BuiltinFunctionCode.Ord
+            },
+            {
+                Builtins.Chr, BuiltinFunctionCode.Chr
+            },
+            {
+                Builtins.Size, BuiltinFunctionCode.Size
+            },
+            {
+                Builtins.Substring, BuiltinFunctionCode.Substring
+            },
+            {
+                Builtins.Concat, BuiltinFunctionCode.Concat
+            },
+        };
+
     private readonly InstructionsBuilder _builder = new();
     private CodegenSymbolsTable? _symbolsTable;
 
@@ -117,7 +149,7 @@ public class TigerVmCodegen : IAstVisitor
                 {
                     Builtins.Not => new Instruction(InstructionCode.Not),
                     Builtins.Exit => new Instruction(InstructionCode.Halt),
-                    _ => new Instruction(InstructionCode.CallBuiltin, builtin.Name),
+                    _ => new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(builtin.Name)),
                 };
                 _builder.Append(instruction);
                 break;
@@ -502,5 +534,15 @@ public class TigerVmCodegen : IAstVisitor
     {
         _builder.Append(new Instruction(InstructionCode.PopVars));
         _symbolsTable = _symbolsTable!.Parent;
+    }
+
+    private static int GetBuiltinFunctionCode(string name)
+    {
+        if (!BuiltinFunctionsMap.TryGetValue(name, out BuiltinFunctionCode code))
+        {
+            throw new NotImplementedException($"Unsupported builtin function {name}");
+        }
+
+        return (int)code;
     }
 }

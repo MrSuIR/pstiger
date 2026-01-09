@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-using PsTiger.Execution;
+using PsTiger.VirtualMachine;
 
 namespace PsTiger.Tests.TestLibrary.TestDoubles;
 

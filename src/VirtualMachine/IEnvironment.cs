@@ -1,4 +1,4 @@
-namespace PsTiger.Execution;
+namespace PsTiger.VirtualMachine;
 
 public interface IEnvironment
 {
