@@ -39,6 +39,7 @@ Tiger — учебный язык программирования, разраб
 | 07_loops            | Циклы for и while, выражение break   |
 | 08_arrays           | Массивы и объявления типов           |
 | 09_records          | Структуры и nil                      |
+| 10_benchmarks       | Бенчмарк программ на Tiger           |
 
 ## Клонирование проекта
 
@@ -75,9 +76,9 @@ dotnet run -c Release --project tests/Interpreter.Benchmarks
 
 Бенчмарки используют библиотеку [BenchmarkDotNet](https://benchmarkdotnet.org).
 
-Ветка `10_benchmarks`, коммит `ccbf9210fcd494b7f861e299663ae04f66ebf305`, интерпретатор вычисляет программу путём обхода AST:
+Ветка `10_benchmarks`, коммит `1c6b82f22186161cb6c21f1c7129261987bd28cd`, интерпретатор вычисляет программу путём обхода AST:
 
-```js
+```
 BenchmarkDotNet v0.15.8, Linux Ubuntu 24.04.2 LTS (Noble Numbat)
 AMD Ryzen 7 4800H with Radeon Graphics 1.40GHz, 1 CPU, 16 logical and 8 physical cores
 .NET SDK 8.0.409
@@ -87,10 +88,10 @@ AMD Ryzen 7 4800H with Radeon Graphics 1.40GHz, 1 CPU, 16 logical and 8 physical
 InvocationCount=1  IterationCount=10  LaunchCount=1  
 UnrollFactor=1  WarmupCount=2  
 
-| Method         | N     | Mean      | Error     | StdDev    |
-|--------------- |------ |----------:|----------:|----------:|
-| ListPrimesUpTo | 1000  |  4.901 ms | 0.1087 ms | 0.0569 ms |
-| ListPrimesUpTo | 10000 | 43.953 ms | 9.9267 ms | 5.1919 ms |
+| Method         | N     | Mean      | Error      | StdDev     |
+|--------------- |------ |----------:|-----------:|-----------:|
+| ListPrimesUpTo | 1000  |  4.996 ms |  0.2591 ms |  0.1542 ms |
+| ListPrimesUpTo | 10000 | 44.261 ms | 25.8115 ms | 17.0727 ms |
 ```
 
 Аналогичный алгоритм, реализованный на C#, на той же машине работает примерно в 500 раз быстрее при N=10000:
