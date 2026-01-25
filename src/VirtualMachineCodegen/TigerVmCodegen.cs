@@ -7,7 +7,7 @@ using PsTiger.VirtualMachine.Instructions;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
-namespace PsTiger.Codegen;
+namespace PsTiger.VirtualMachineCodegen;
 
 /// <summary>
 /// Генерирует инструкции виртуальной машины TigerVm путём обхода абстрактного синтаксического дерева (AST) программы.

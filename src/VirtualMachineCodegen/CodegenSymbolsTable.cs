@@ -1,4 +1,4 @@
-namespace PsTiger.Codegen;
+namespace PsTiger.VirtualMachineCodegen;
 
 /// <summary>
 /// Таблица символов, основанная на лексических областях видимости (областях действия) символов в коде.
