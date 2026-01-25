@@ -19,8 +19,8 @@ echo_call() {
 }
 
 pushd "$PROJECT_DIR" >/dev/null
-echo_call rm -r tests/coverage/
-echo_call rm -r tests/coverage-report/
+echo_call rm -rf tests/coverage/
+echo_call rm -rf tests/coverage-report/
 echo_call dotnet test --settings tests/tests.runsettings --collect "XPlat Code Coverage" --results-directory=tests/coverage/
 echo_call dotnet-coverage merge tests/coverage/*/*.xml --output tests/coverage/merged.cobertura.xml --output-format cobertura
 echo_call reportgenerator -reports:tests/coverage/merged.cobertura.xml -targetdir:tests/coverage-report/ -reporttypes:Html
