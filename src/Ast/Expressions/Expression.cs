@@ -4,6 +4,9 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Expressions;
 
+/// <summary>
+/// Абстрактный подкласс выражения.
+/// </summary>
 public abstract class Expression : AstNode
 {
     private AstAttribute<ValueType> _resultType;

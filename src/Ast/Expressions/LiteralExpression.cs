@@ -4,6 +4,9 @@ using ValueType = PsTiger.Runtime.ValueType;
 
 namespace PsTiger.Ast.Expressions;
 
+/// <summary>
+/// Литеральное значение (число, строка или nil).
+/// </summary>
 public sealed class LiteralExpression : Expression
 {
     public LiteralExpression(ValueType type, Value value)

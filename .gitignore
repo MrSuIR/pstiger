@@ -29,3 +29,7 @@ sandbox/
 
 # Бэкапы файлов редакторов
 *.bkp
+
+# Данные о покрытии кода тестами
+tests/coverage
+tests/coverage-report
