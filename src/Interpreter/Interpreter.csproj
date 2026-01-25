@@ -13,7 +13,7 @@
     <ProjectReference Include="..\Parsing\Parsing.csproj" />
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
     <ProjectReference Include="..\Semantics\Semantics.csproj" />
-    <ProjectReference Include="..\Codegen\Codegen.csproj" />
+    <ProjectReference Include="..\VirtualMachineCodegen\VirtualMachineCodegen.csproj" />
   </ItemGroup>
 
 </Project>

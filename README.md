@@ -135,25 +135,26 @@ UnrollFactor=1  WarmupCount=2
 ```mermaid
 graph TD
     Ast["Ast"]
-    Codegen["Codegen"]
     Interpreter["Interpreter"]
     Lexemes["Lexemes"]
     Parsing["Parsing"]
     Runtime["Runtime"]
     Semantics["Semantics"]
     VirtualMachine["VirtualMachine"]
+    VirtualMachineCodegen["VirtualMachineCodegen"]
+
     Ast --> Runtime
-    Codegen --> Ast
-    Codegen --> VirtualMachine
-    Interpreter --> Codegen
     Interpreter --> Parsing
     Interpreter --> Runtime
     Interpreter --> Semantics
+    Interpreter --> VirtualMachineCodegen
     Parsing --> Ast
     Parsing --> Lexemes
     Semantics --> Ast
     Semantics --> Runtime
     VirtualMachine --> Runtime
+    VirtualMachineCodegen --> Ast
+    VirtualMachineCodegen --> VirtualMachine
 ```
 
 ## Покрытие тестами

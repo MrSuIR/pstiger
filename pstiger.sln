@@ -37,7 +37,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMachine", "src\Virtu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMachine.UnitTests", "tests\VirtualMachine.UnitTests\VirtualMachine.UnitTests.csproj", "{D3752458-4285-4EE1-8BB5-B0F04A9E266F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codegen", "src\Codegen\Codegen.csproj", "{2176FED0-6578-423B-ADA2-528F1B74529C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMachineCodegen", "src\VirtualMachineCodegen\VirtualMachineCodegen.csproj", "{2176FED0-6578-423B-ADA2-528F1B74529C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

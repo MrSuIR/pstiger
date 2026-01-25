@@ -1,10 +1,10 @@
 using PsTiger.Ast.Expressions;
-using PsTiger.Codegen;
 using PsTiger.Parsing;
 using PsTiger.Runtime;
 using PsTiger.Semantics;
 using PsTiger.VirtualMachine;
 using PsTiger.VirtualMachine.Instructions;
+using PsTiger.VirtualMachineCodegen;
 
 namespace PsTiger.Interpreter;
 

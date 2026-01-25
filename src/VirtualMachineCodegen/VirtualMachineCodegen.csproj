@@ -9,8 +9,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>PsTiger.Codegen</RootNamespace>
-    <AssemblyName>PsTiger.Codegen</AssemblyName>
+    <RootNamespace>PsTiger.VirtualMachineCodegen</RootNamespace>
+    <AssemblyName>PsTiger.VirtualMachineCodegen</AssemblyName>
   </PropertyGroup>
 
 </Project>
