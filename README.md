@@ -57,6 +57,8 @@ git clone ssh://ssh.sourcecraft.dev/sshambir-public/pstiger.git
 
 ## Сборка
 
+Для сборки нужен .NET 10 SDK.
+
 Сборка консольной утилитой dotnet из .NET SDK:
 
 ```bash
@@ -69,7 +71,7 @@ dotnet test
 
 ## Архитектура
 
-Проект написан на C# 12 и .NET 8.
+Проект написан на C# 14 и .NET 10.
 
 Взаимосвязь модулей:
 
