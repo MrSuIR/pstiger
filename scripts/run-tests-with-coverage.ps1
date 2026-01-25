@@ -26,6 +26,8 @@ $ErrorActionPreference = 'Stop'
 
 $ErrorActionPreference = 'Stop'
 
+$ProjectDir = Split-Path -Path $PSScriptRoot -Parent
+
 # Печатает команду, затем запускает её и проверяет код возврата.
 function EchoAndCall {
     [CmdletBinding()]
@@ -61,6 +63,8 @@ function EchoAndCall {
     }
 }
 
+pushd $ProjectDir
 EchoAndCall -- dotnet test --settings tests/tests.runsettings --collect "XPlat Code Coverage" --results-directory=tests/coverage/
 EchoAndCall -- dotnet-coverage merge tests/coverage/*/*.xml --output tests/coverage/merged.cobertura.xml --output-format cobertura
 EchoAndCall -- reportgenerator "-reports:tests/coverage/merged.cobertura.xml" "-targetdir:tests/coverage-report/" "-reporttypes:Html"
+popd
