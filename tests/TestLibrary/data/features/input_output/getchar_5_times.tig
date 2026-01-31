@@ -1,0 +1,7 @@
+(
+    print(getchar());
+    print(getchar());
+    print(getchar());
+    print(getchar());
+    print(getchar())
+)

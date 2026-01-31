@@ -1,0 +1,11 @@
+/* Программа печатает "Hello, world!" */
+let
+  var greeting: string := ""
+  var exclamation := "!"
+  var space := " "
+in
+  greeting := concat("Hello", space);
+  greeting := concat(greeting, "world");
+  greeting := concat(greeting, exclamation);
+  print(greeting)
+end

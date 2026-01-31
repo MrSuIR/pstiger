@@ -1,0 +1,5 @@
+let
+  var print: int := 10
+in
+  printi(print)
+end

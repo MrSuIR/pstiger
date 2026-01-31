@@ -33,6 +33,12 @@ public sealed class InterpreterStepDefinitions
         _fakeEnvironment.AddInput(input);
     }
 
+    [When(@"я ввожу текст:")]
+    public void КогдаЯВвожуТекст(string input)
+    {
+        _fakeEnvironment.AddInput(input);
+    }
+
     [When(@"^(?:я )?выполняю программу$")]
     public void КогдаВыполняюПрограмму()
     {

@@ -23,7 +23,7 @@
         What immortal hand or eye,
         Could frame thy fearful symmetry?
         """
-        
+
     Сценарий: завершение из программы функцией exit
         Пусть я загрузил программу "features/input_output/exit.tig"
 
@@ -32,5 +32,19 @@
         Тогда я увижу вывод:
         """
         13
+        """
+
+    Сценарий: посимвольное чтение ввода
+        Пусть я загрузил программу "features/input_output/getchar_5_times.tig"
+
+        Когда я ввожу текст:
+            """
+            Tyger, Tyger
+            """
+        И выполняю программу
+
+        Тогда я увижу вывод:
+        """
+        Tyger
         """
         

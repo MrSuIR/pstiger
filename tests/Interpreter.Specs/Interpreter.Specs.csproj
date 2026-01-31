@@ -23,4 +23,15 @@
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ReqnrollFeatureFile Update="Programs\Variables.feature">
+      <NormalizedLogicalName>Programs/StringExpressions.feature</NormalizedLogicalName>
+      <NormalizedRelativeDir>Programs/</NormalizedRelativeDir>
+      <CodeBehindFile>Programs/StringExpressions.feature.cs</CodeBehindFile>
+      <MessagesFile>obj\Debug/net10.0/Programs/StringExpressions.feature.ndjson</MessagesFile>
+      <MessagesResourceName>Programs/StringExpressions.feature.ndjson</MessagesResourceName>
+      <FeatureFileResourceName>Programs/StringExpressions.feature</FeatureFileResourceName>
+    </ReqnrollFeatureFile>
+  </ItemGroup>
+
 </Project>

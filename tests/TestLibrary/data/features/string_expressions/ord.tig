@@ -1,0 +1,11 @@
+(
+    printi(ord("T"));
+    print(", ");
+    printi(ord("i"));
+    print(", ");
+    printi(ord("g"));
+    print(", ");
+    printi(ord("e"));
+    print(", ");
+    printi(ord("r"))
+)
