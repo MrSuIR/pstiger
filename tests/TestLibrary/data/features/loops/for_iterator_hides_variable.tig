@@ -1,0 +1,8 @@
+let
+    var i := 77
+in
+    (
+        for i := 0 to 2 do printi(i);
+        printi(i)
+    )
+end

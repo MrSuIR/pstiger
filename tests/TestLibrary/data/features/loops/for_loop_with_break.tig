@@ -1,0 +1,7 @@
+for x := 1 to 100 do (
+    if x * x > 20
+    then
+        break;
+    printi(x);
+    print(";")
+)

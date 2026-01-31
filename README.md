@@ -42,6 +42,7 @@ Tiger — учебный язык программирования, разраб
 | 10_benchmarks       | Бенчмарк программ на Tiger           |
 | 11_virtual_machine  | Виртуальная машина для языка Tiger   |
 | 12_code_coverage    | Сбор отчёта о покрытии кода тестами  |
+| 13_acceptance_tests | Дополнительные приёмочные тесты      |
 
 ## Клонирование проекта
 
@@ -144,7 +145,6 @@ graph TD
     Semantics["Semantics"]
     VirtualMachine["VirtualMachine"]
     VirtualMachineCodegen["VirtualMachineCodegen"]
-
     Ast --> Runtime
     Interpreter --> Parsing
     Interpreter --> Runtime

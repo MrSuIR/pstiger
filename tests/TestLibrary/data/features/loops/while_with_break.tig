@@ -1,0 +1,12 @@
+let
+    var x := 1
+in
+    while 1 do (
+        if x * x > 20
+        then
+            break;
+        printi(x);
+        print(";");
+        x := x + 1
+    )
+end

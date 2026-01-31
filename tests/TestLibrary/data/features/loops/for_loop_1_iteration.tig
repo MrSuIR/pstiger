@@ -1,0 +1,4 @@
+for i := 3 to 3 do (
+    printi(i);
+    print(";")
+)

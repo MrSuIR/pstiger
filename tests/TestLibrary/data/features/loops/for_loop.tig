@@ -1,0 +1,4 @@
+for i := 5 to 7 do (
+    printi(i);
+    print(";")
+)
