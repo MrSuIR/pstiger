@@ -1,0 +1,5 @@
+let
+    function one(): int = 1
+in
+    printi(one())
+end

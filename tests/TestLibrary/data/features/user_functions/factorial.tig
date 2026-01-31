@@ -1,0 +1,7 @@
+/* Программа вычисляет факториал числа. */
+let
+    function factorial(x: int): int =
+        if x <= 1 then 1 else x * factorial(x - 1)
+in
+    printi(factorial(5))
+end

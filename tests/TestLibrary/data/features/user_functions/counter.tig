@@ -1,0 +1,15 @@
+
+/*
+ * В языке Tiger функция захватывает переменные окружающей области видимости.
+ * Эта программа использует захват переменной для реализации счётчика.
+ */
+let
+    var counter: int := 0
+    function increment() = counter := counter + 1
+    function display() = (printi(counter); print(";"))
+in
+    increment();
+    display();
+    increment();
+    display()
+end

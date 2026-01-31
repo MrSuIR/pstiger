@@ -1,0 +1,10 @@
+let
+    function f(n: int) = g(n + 1)
+    function g(n: int) = (
+        printi(n);
+        if n < 10 then
+            f(n + 1)
+    )
+in
+    f(1)
+end
