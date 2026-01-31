@@ -1,0 +1,7 @@
+if 2 * 2 = 4
+then
+    if 7 - 1 = 5
+    then
+        print("yes")
+    else
+        print("no")

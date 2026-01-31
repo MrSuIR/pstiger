@@ -1,0 +1,13 @@
+(
+    if 2 * 2 = 4
+    then
+        print("2 * 2 = 4")
+    else
+        print("2 * 2 <> 4");
+    print("\n");
+    if 2 * 2 = 5
+    then
+        print("2 * 2 = 5")
+    else
+        print("2 * 2 <> 5")
+)

@@ -1,0 +1,13 @@
+(
+    printi("Hello" = "Hello!");
+    print("\n");
+    printi("Hello" <> "Hello!");
+    print("\n");
+    printi("Bob" > "Alice");
+    print("\n");
+    printi("Bob" < "Alice");
+    print("\n");
+    printi("Bob" >= "Alice");
+    print("\n");
+    printi("Bob" <= "Alice")
+)

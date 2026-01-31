@@ -1,0 +1,7 @@
+print(
+    if 7 - 1 = 6
+    then
+        "yes"
+    else
+        "no"
+)
