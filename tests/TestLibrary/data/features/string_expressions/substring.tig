@@ -1,0 +1,1 @@
+print(substring("GNU/Linux", 4, 5))

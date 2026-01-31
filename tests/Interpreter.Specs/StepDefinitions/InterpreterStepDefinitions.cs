@@ -21,7 +21,7 @@ public sealed class InterpreterStepDefinitions
         _interpreter = new TigerInterpreter(_fakeEnvironment);
     }
 
-    [Given(@"я загрузил программу ""(.*)""")]
+    [Given(@"^я загрузил программу ""(.*)""$")]
     public void ПустьЯЗагрузилПрограмму(string program)
     {
         _program = Samples.GetSampleProgram(program);
@@ -33,7 +33,7 @@ public sealed class InterpreterStepDefinitions
         _fakeEnvironment.AddInput(input);
     }
 
-    [When(@"выполняю программу")]
+    [When(@"^(?:я )?выполняю программу$")]
     public void КогдаВыполняюПрограмму()
     {
         _interpreter.Execute(_program);
@@ -41,6 +41,12 @@ public sealed class InterpreterStepDefinitions
 
     [Then(@"я увижу вывод (.*)")]
     public void ТогдаЯУвижуВывод(string expected)
+    {
+        Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+    }
+
+    [Then(@"я увижу вывод:")]
+    public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
         Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
     }

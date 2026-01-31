@@ -1,0 +1,6 @@
+(
+    print("Tyger Tyger, burning bright,\n");
+    print("In the forests of the night;\n");
+    print("What immortal hand or eye,\n");
+    print("Could frame thy fearful symmetry?")
+)

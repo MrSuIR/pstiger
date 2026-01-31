@@ -23,15 +23,4 @@
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ReqnrollFeatureFile Update="Features\Eratosthenes.feature">
-      <NormalizedLogicalName>Features/StringToInt.feature</NormalizedLogicalName>
-      <NormalizedRelativeDir>Features/</NormalizedRelativeDir>
-      <CodeBehindFile>Features/StringToInt.feature.cs</CodeBehindFile>
-      <MessagesFile>obj\Debug/net8.0/Features/StringToInt.feature.ndjson</MessagesFile>
-      <MessagesResourceName>Features/StringToInt.feature.ndjson</MessagesResourceName>
-      <FeatureFileResourceName>Features/StringToInt.feature</FeatureFileResourceName>
-    </ReqnrollFeatureFile>
-  </ItemGroup>
-
 </Project>

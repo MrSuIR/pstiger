@@ -1,0 +1,5 @@
+(
+    printi(13);
+    exit(0);
+    printi(37)
+)

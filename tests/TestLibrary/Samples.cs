@@ -8,7 +8,11 @@ public static class Samples
 
     public static string GetSampleProgram(string filename)
     {
-        string filepath = Path.Join(GetClassDirectory(), DataDirectory, filename);
+        string filepath = Path.Join(
+            GetClassDirectory(),
+            DataDirectory,
+            filename.Replace('/', Path.DirectorySeparatorChar)
+        );
         return File.ReadAllText(filepath);
     }
 
