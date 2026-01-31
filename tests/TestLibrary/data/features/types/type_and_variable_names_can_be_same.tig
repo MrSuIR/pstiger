@@ -1,0 +1,9 @@
+let
+    type text = string
+    var int: int := 10
+    var text: text := "hello"
+in
+    printi(int);
+    print(" ");
+    print(text)
+end

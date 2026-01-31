@@ -1,0 +1,10 @@
+let
+    type intToo = int
+    type stringToo = string
+    var number: intToo := 10
+    var text: stringToo := "hello"
+in
+    printi(number);
+    print(" ");
+    print(text)
+end

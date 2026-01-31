@@ -1,0 +1,13 @@
+(
+    print("1 & 0 = ");
+    printi(1 & 0);
+    print("\n");
+    print("5 & 0 = ");
+    printi(5 & 0);
+    print("\n");
+    print("0 & 5 = ");
+    printi(0 & 5);
+    print("\n");
+    print("4 & 5 = ");
+    printi(4 & 5)
+)

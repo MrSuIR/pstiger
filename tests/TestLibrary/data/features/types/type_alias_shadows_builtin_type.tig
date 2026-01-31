@@ -1,0 +1,6 @@
+let
+    type string = int
+    var number: string := 10
+in
+    printi(number)
+end

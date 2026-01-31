@@ -1,0 +1,13 @@
+(
+    print("3 | 2 = ");
+    printi(3 | 2);
+    print("\n");
+    print("3 | 0 = ");
+    printi(3 | 0);
+    print("\n");
+    print("0 | 4 = ");
+    printi(0 | 4);
+    print("\n");
+    print("0 | 0 = ");
+    printi(0 | 0)
+)

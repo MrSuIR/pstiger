@@ -1,0 +1,7 @@
+(
+    print("1 & not(0) = ");
+    printi(1 & not(0));
+    print("\n");
+    print("0 | not(2) = ");
+    printi(0 | not(2))
+)
