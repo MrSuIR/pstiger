@@ -1,0 +1,14 @@
+/* можно создать вложенные структуры: Triangle включает Point */
+let
+    type Point = { x: int, y: int }
+    type Triangle = { a: Point, b: Point, c: Point }
+    var t: Triangle := Triangle{
+        a = Point{x = 0, y = 0},
+        b = Point{x = 3, y = 0},
+        c = Point{x = 0, y = 4}
+    }
+in
+    printi(t.b.x);
+    print(", ");
+    printi(t.b.y)
+end

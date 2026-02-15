@@ -1,0 +1,7 @@
+/* Можно создать пустую структуру */
+let
+    type NoValueType = {}
+    var noValue := NoValueType{}
+in
+    print("OK")
+end

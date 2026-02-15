@@ -37,6 +37,7 @@ public class EvaluationTest
 
             // Сложение и вычитание с помощью стека
             {
+                // (20 + 50) - 3 = 67
                 [
                     new Instruction(InstructionCode.Push, 20),
                     new Instruction(InstructionCode.Push, 50),
@@ -52,6 +53,7 @@ public class EvaluationTest
 
             // Умножение и деление с помощью стека
             {
+                // (20 * 50) / -5 = -200
                 [
                     new Instruction(InstructionCode.Push, 20),
                     new Instruction(InstructionCode.Push, 50),

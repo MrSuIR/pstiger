@@ -1,0 +1,19 @@
+/* Присваивание переменных с типом структуры создаёт ссылку на неё, а не копию */
+let
+    type Point = { x: int, y: int }
+    var p1 : Point := Point{x = 10, y = 20}
+    var p2 := p1
+    var p3 : Point := Point{x = 10, y = 20}
+    function printPoint(p: Point) = (
+        printi(p.x);
+        print(", ");
+        printi(p.y)
+    )
+in
+    p1.x := 33;
+    printPoint(p1);
+    print("; ");
+    printPoint(p2);
+    print("; ");
+    printPoint(p3)
+end

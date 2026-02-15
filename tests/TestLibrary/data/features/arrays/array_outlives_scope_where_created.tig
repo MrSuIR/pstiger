@@ -1,0 +1,12 @@
+/* Массив существует после завершения области видимости, в которой был создан */
+let
+    type intArray = array of int
+    var numsCount := 3
+    function createArray(size: int): intArray = intArray[size] of 0
+    var nums: intArray := createArray(numsCount)
+in
+    nums[0] := 2;
+    nums[1] := 19;
+    for i := 0 to numsCount - 1 do
+        printi(nums[i])
+end

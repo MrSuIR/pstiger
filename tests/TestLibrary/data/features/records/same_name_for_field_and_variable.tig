@@ -1,0 +1,11 @@
+/* Можно объявить структуру, поля которой одноимённы переменным в той же области видимости */
+let
+    type Point = { x: int, y: int }
+    var x : int := 30
+    var y : int := -16
+    var p : Point := Point{x = x, y = y}
+in
+    printi(p.x);
+    print(", ");
+    printi(p.y)
+end

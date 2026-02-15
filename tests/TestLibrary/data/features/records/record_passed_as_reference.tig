@@ -1,0 +1,17 @@
+/* Структура передаётся в функцию по ссылке, а не по значению */
+let
+    type Point = { x: int, y: int }
+    var p1 : Point := Point{x = 10, y = 20}
+    function movePoint(p: Point, dx: int, dy: int) = (
+       p.x := p.x + dx;
+       p.y := p.y + dy
+    )
+    function printPoint(p: Point) = (
+        printi(p.x);
+        print(", ");
+        printi(p.y)
+    )
+in
+    movePoint(p1, -5, 17);
+    printPoint(p1)
+end

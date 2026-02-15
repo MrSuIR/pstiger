@@ -1,0 +1,9 @@
+/* можно создать структуру Point(x, y), присвоить и прочитать её поля */
+let
+    type Point = { x: int, y: int }
+    var p : Point := Point{x = 10, y = 20}
+in
+    printi(p.x);
+    print(", ");
+    printi(p.y)
+end

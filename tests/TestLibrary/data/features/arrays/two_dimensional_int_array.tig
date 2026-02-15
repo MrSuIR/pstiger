@@ -1,0 +1,18 @@
+/* Можно создать двумерный массив чисел, присвоить и прочитать его элементы */
+let
+    type row = array of int
+    type table = array of row
+    var rowCount := 3
+    var columnCount := 4
+    var values: table := table[rowCount] of row[columnCount] of 0
+in
+    values[0][1] := 3;
+    values[2][2] := 1;
+    values[2][3] := 5;
+    for rowIndex := 0 to rowCount - 1 do (
+        for columnIndex := 0 to columnCount - 1 do
+            printi(values[rowIndex][columnIndex]);
+        if rowIndex < rowCount - 1 then
+            print("\n")
+    )
+end

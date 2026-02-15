@@ -1,0 +1,12 @@
+/* Присваивание переменных с типом массива создаёт ссылку на массив, а не его копию */
+let
+    type intArray = array of int
+    var numsCount := 3
+    var nums: intArray := intArray[numsCount] of 7
+    var numsCopy := nums
+in
+    numsCopy[0] := 3;
+    numsCopy[1] := 4;
+    for i := 0 to numsCount - 1 do
+        printi(nums[i])
+end

@@ -1,0 +1,23 @@
+/* Можно создать массив структур Point и работать с ним */
+let
+    type Point = { x: int, y: int }
+    type PointArray = array of Point
+    var points := PointArray[4] of Point{ x = 0, y = 0 }
+in
+    points[0].x := 1;
+    points[0].y := 2;
+    points[1].x := 3;
+    points[1].y := 4;
+    points[2].x := 5;
+    points[2].y := 6;
+
+    for i := 0 to 3 do (
+        print("{");
+        printi(points[i].x);
+        print(", ");
+        printi(points[i].y);
+        print("}");
+        if i < 3 then
+            print(" ")
+    )
+end

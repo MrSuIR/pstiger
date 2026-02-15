@@ -1,0 +1,16 @@
+/* Сравнение структур сравнивает их по ссылке, а не по значениям полей */
+let
+    type Point = { x: int, y: int }
+    var p1 : Point := Point{x = 10, y = 20}
+    var p2 : Point := Point{x = 10, y = 20}
+in
+    printi(p1 = p2);
+    printi(p2 = p1);
+    printi(p1 = p1);
+    printi(p2 = p2);
+    print(" ");
+    printi(p1 <> p2);
+    printi(p2 <> p1);
+    printi(p1 <> p1);
+    printi(p2 <> p2)
+end

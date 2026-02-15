@@ -1,0 +1,18 @@
+/* Структура существует после завершения области видимости, в которой была создана */
+let
+    type Point = { x: int, y: int }
+    function printPoint(p: Point) = (
+        printi(p.x);
+        print(", ");
+        printi(p.y)
+    )
+    var point := Point{ x = 0, y = 0 }
+in
+    let
+        function makePoint(x: int, y: int): Point = Point{ x = x, y = y }
+        var temp : Point := makePoint(-7, 14)
+    in
+        point := temp
+    end;
+    printPoint(point)
+end

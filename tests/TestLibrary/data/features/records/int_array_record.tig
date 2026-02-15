@@ -1,0 +1,19 @@
+/* можно создать структуру с полями-массивами и работать с ней */
+let
+    type IntArrayData = array of int
+    type IntArray = { size: int, data: IntArrayData }
+    function newIntArray(size: int): IntArray = IntArray{
+        size = size,
+        data = IntArrayData[size] of 0
+    }
+    var arr : IntArray := newIntArray(4)
+in
+    for i := 0 to arr.size - 1 do
+        arr.data[i] := (i + 1) * (i + 1);
+
+    printi(arr.data[0]);
+    for i := 1 to arr.size - 1 do (
+        print(", ");
+        printi(arr.data[i])
+    )
+end

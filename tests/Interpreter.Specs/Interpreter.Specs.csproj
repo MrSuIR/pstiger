@@ -23,4 +23,15 @@
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ReqnrollFeatureFile Update="Features\Records.feature">
+      <NormalizedLogicalName>Features/Arrays.feature</NormalizedLogicalName>
+      <NormalizedRelativeDir>Features/</NormalizedRelativeDir>
+      <CodeBehindFile>Features/Arrays.feature.cs</CodeBehindFile>
+      <MessagesFile>obj\Debug/net10.0/Features/Arrays.feature.ndjson</MessagesFile>
+      <MessagesResourceName>Features/Arrays.feature.ndjson</MessagesResourceName>
+      <FeatureFileResourceName>Features/Arrays.feature</FeatureFileResourceName>
+    </ReqnrollFeatureFile>
+  </ItemGroup>
+
 </Project>
