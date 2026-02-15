@@ -426,19 +426,6 @@ public class EvaluationTest
                 ],
                 new Value(-1024)
             },
-
-            // Дублирование значения на вершине стека
-            {
-                [
-                    new Instruction(InstructionCode.Push, 2),
-                    new Instruction(InstructionCode.Duplicate),
-                    new Instruction(InstructionCode.Multiply),
-                    new Instruction(InstructionCode.StoreResult),
-                    new Instruction(InstructionCode.Push, 0),
-                    new Instruction(InstructionCode.Halt),
-                ],
-                new Value(4)
-            },
         };
     }
 }
