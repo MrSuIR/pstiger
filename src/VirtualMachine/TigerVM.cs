@@ -66,10 +66,6 @@ public class TigerVm
                     _evaluationStack.Push(instruction.Operand);
                     break;
 
-                case InstructionCode.Duplicate:
-                    _evaluationStack.Push(_evaluationStack.Peek());
-                    break;
-
                 case InstructionCode.Pop:
                     _evaluationStack.Pop();
                     break;

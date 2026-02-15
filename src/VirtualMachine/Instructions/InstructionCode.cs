@@ -8,11 +8,6 @@ public enum InstructionCode
     Push,
 
     /// <summary>
-    /// Дублирует значение на вершине стека вычислений
-    /// </summary>
-    Duplicate,
-
-    /// <summary>
     /// Удаляет значение с вершины стека вычислений.
     /// </summary>
     Pop,
