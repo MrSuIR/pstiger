@@ -1,3 +1,5 @@
+using Grammar;
+
 using PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary;
 using PsTiger.Tests.TestLibrary.TestDoubles;
@@ -25,6 +27,7 @@ public sealed class InterpreterStepDefinitions
     public void ПустьЯЗагрузилПрограмму(string program)
     {
         _program = Samples.GetSampleProgram(program);
+        TigerGrammar.CheckProgramSyntax(_program);
     }
 
     [When(@"я ввожу (.*)")]
