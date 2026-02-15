@@ -30,9 +30,9 @@ public class Instruction
         Operand = value;
     }
 
-    public InstructionCode Code { get; set; }
+    public InstructionCode Code { get; }
 
-    public Value Operand { get; set; }
+    public Value Operand { get; }
 
     /// <summary>
     /// Печатает инструкцию в формате "Code Operand" либо просто "Code".
