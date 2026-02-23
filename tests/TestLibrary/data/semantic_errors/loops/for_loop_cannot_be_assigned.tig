@@ -1,0 +1,5 @@
+let
+    var x := 0
+in
+    x := for i := 0 to 2 do printi(i)
+end

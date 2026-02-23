@@ -1,0 +1,8 @@
+let
+    var str := "true"
+in
+    while str do (
+        print(str);
+        str := "false"
+    )
+end

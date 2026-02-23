@@ -1,0 +1,1 @@
+for i := "zero" to 2 do printi(i)

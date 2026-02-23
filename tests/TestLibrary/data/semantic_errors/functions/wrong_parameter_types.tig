@@ -1,0 +1,5 @@
+let
+    function printLine(text: string) = print(concat(text, "\n"))
+in
+    printLine(10)
+end

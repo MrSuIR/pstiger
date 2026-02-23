@@ -1,0 +1,18 @@
+let
+    var stopLoop: int := 0
+in
+    while not(stopLoop) do (
+        let
+            function breakInFunction() = break
+        in
+            for x := 1 to 100 do (
+                if x * x > 20
+                then
+                    breakInFunction();
+                printi(x);
+                print(" ")
+            )
+        end;
+        stopLoop := 1
+    )
+end

@@ -1,0 +1,5 @@
+let
+    function printHello() = print("Hello, World!")
+in
+    printHello("World!")
+end

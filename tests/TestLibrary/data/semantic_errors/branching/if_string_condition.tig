@@ -1,0 +1,5 @@
+if "yes"
+then
+    print("yes")
+else
+    print("no")

@@ -108,4 +108,16 @@ public class FrontendStepDefinitions
     {
         Assert.IsType<TypeErrorException>(_lastException);
     }
+
+    [Then(@"возникнет ошибка из‑за недопустимого вызова функции")]
+    public void ТогдаВозникнетОшибкаИзЗаНедопустимогоВызоваФункции()
+    {
+        Assert.IsType<InvalidFunctionCallException>(_lastException);
+    }
+
+    [Then(@"возникнет ошибка из‑за недопустимого выражения")]
+    public void ТогдаВозникнетОшибкаИзЗаНедопустимогоВыражения()
+    {
+        Assert.IsType<InvalidExpressionException>(_lastException);
+    }
 }

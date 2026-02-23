@@ -1,0 +1,1 @@
+for i := "zero" to "hero" do printi(i)

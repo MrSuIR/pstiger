@@ -1,0 +1,6 @@
+let
+    function printHello() = print("Hello, World!")
+    var result: string := ""
+in
+    result := printHello()
+end
