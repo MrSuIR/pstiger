@@ -164,7 +164,7 @@ graph TD
 В проекте есть:
 
 1. Приёмочные тесты реалистичных программ: `Interpreter.Specs`
-2. Приёмочные интеграционные тесты возможностей языка: `Interpreter.IntegrationTests`
+2. Приёмочные тесты ошибок разбора и семантики: `Frontend.Specs`
 3. Тесты модуля Grammar, содержащего валидатор синтаксиса на ANTLR4: `Grammar.UnitTests`
 4. Тесты модуля Lexer, содержащего лексический анализатор: `Lexemes.UnitTests`
 5. Тесты модуля VirtualMachine, содержащего виртуальную машину для программ на Tiger: `VirtualMachine.UnitTests`

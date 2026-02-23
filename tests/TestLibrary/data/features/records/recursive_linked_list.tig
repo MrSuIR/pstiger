@@ -1,0 +1,19 @@
+let
+    type ListNode = { value: int, next: ListNode }
+    function printList(node: ListNode) = (
+        printi(node.value);
+        if node.next <> nil then (
+            print(", ");
+            printList(node.next)
+        )
+    )
+    var list := ListNode{
+        value = 5,
+        next = ListNode{
+            value = 17,
+            next = nil
+        }
+    }
+in
+    printList(list)
+end

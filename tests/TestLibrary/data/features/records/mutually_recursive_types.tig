@@ -1,0 +1,32 @@
+let
+    type A = { value: int, next: B }
+    type B = { value: int, next: A }
+    function printA(a: A) = (
+        print("a=");
+        printi(a.value);
+        if a.next <> nil then (
+            print(", ");
+            printB(a.next)
+        )
+    )
+    function printB(b: B) = (
+        print("b=");
+        printi(b.value);
+        if b.next <> nil then (
+            print(", ");
+            printA(b.next)
+        )
+    )
+    var a := A{
+        value = 5,
+        next = B{
+            value = 12,
+            next = A{
+               value = 8,
+               next = nil
+            }
+        }
+    }
+in
+    printA(a)
+end
