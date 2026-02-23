@@ -9,6 +9,9 @@ public class InvalidSymbolException : Exception
     public InvalidSymbolException(string name, string expectedCategory, string actualCategory)
         : base($"Name {name} should refer to a {expectedCategory}, got {actualCategory}")
     {
+        Name = name;
     }
+
+    public string Name { get; }
 }
 #pragma warning restore RCS1194

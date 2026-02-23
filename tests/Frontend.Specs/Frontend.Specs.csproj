@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,8 +8,8 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
 
-    <RootNamespace>PsTiger.Tests.Interpreter.Specs</RootNamespace>
-    <AssemblyName>PsTiger.Tests.Interpreter.Specs</AssemblyName>
+    <RootNamespace>PsTiger.Tests.Frontend.Specs</RootNamespace>
+    <AssemblyName>PsTiger.Tests.Frontend.Specs</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +25,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Grammar\Grammar.csproj" />
-    <ProjectReference Include="..\..\src\Interpreter\Interpreter.csproj" />
+    <ProjectReference Include="..\..\src\Parsing\Parsing.csproj" />
+    <ProjectReference Include="..\..\src\Semantics\Semantics.csproj" />
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 

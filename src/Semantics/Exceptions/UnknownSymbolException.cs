@@ -8,19 +8,28 @@ namespace PsTiger.Semantics.Exceptions;
 /// </summary>
 public class UnknownSymbolException : Exception
 {
-    private UnknownSymbolException(string message)
+    private UnknownSymbolException(string name, string message)
         : base(message)
     {
+        Name = name;
     }
+
+    public string Name { get; }
 
     public static UnknownSymbolException UndefinedVariableOrFunction(string name)
     {
-        return new UnknownSymbolException($"Nor variable neither function {name} is defined in the current scope");
+        return new UnknownSymbolException(
+            name,
+            $"Nor variable neither function {name} is defined in the current scope"
+        );
     }
 
     public static UnknownSymbolException UndefinedType(string name)
     {
-        return new UnknownSymbolException($"No type {name} is defined in the current scope");
+        return new UnknownSymbolException(
+            name,
+            $"No type {name} is defined in the current scope"
+        );
     }
 }
 #pragma warning restore RCS1194
