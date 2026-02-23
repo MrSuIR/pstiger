@@ -1,0 +1,7 @@
+let
+    type Point = { x: int, y: int }
+    var p1 : Point := Point{x = 10, y = 20}
+    var p2 : Point := Point{x = 10, y = 20}
+in
+    printi(p1 < p2)
+end

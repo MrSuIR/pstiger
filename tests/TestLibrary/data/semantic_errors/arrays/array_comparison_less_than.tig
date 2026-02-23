@@ -1,0 +1,8 @@
+let
+    type intArray = array of int
+    var numsCount := 2
+    var nums1: intArray := intArray[numsCount] of 3
+    var nums2: intArray := intArray[numsCount] of 3
+in
+    printi(nums1 < nums2)
+end

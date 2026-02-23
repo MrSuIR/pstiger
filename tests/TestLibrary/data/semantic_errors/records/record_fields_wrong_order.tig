@@ -1,0 +1,6 @@
+let
+    type Point = { x: int, y: int }
+    var p : Point := Point{y = 20, x = 10}
+in
+    printi(p.x)
+end

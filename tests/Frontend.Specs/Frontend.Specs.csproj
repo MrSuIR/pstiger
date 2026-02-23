@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Grammar\Grammar.csproj" />
     <ProjectReference Include="..\..\src\Parsing\Parsing.csproj" />
     <ProjectReference Include="..\..\src\Semantics\Semantics.csproj" />
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />

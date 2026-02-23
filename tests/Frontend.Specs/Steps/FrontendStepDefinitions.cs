@@ -1,5 +1,3 @@
-using Gherkin;
-
 using PsTiger.Ast.Expressions;
 using PsTiger.Parsing;
 using PsTiger.Semantics;
@@ -19,8 +17,8 @@ namespace PsTiger.Tests.Frontend.Specs.Steps;
 public class FrontendStepDefinitions
 {
     private string _sourceCode = string.Empty;
-    private Expression? _programAst = null;
-    private Exception? _lastException = null;
+    private Expression? _programAst;
+    private Exception? _lastException;
 
     [Given(@"я загрузил программу ""(.*)""")]
     public void ПустьЯЗагрузилПрограмму(string program)
@@ -97,6 +95,12 @@ public class FrontendStepDefinitions
     {
         DuplicateSymbolException e = Assert.IsType<DuplicateSymbolException>(_lastException);
         Assert.Equal(name, e.Name);
+    }
+
+    [Then(@"возникнет ошибка неправильного литерала структуры")]
+    public void ТогдаВозникнетОшибкаНеправильногоЛитералаСтруктуры()
+    {
+        Assert.IsType<InvalidRecordLiteralException>(_lastException);
     }
 
     [Then(@"возникнет ошибка типизации")]

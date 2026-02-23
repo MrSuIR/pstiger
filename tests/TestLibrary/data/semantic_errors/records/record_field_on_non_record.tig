@@ -1,0 +1,6 @@
+let
+    type Point = array of int
+    var p : Point := Point[2] of 0
+in
+    p.x := 10
+end
