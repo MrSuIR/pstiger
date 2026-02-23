@@ -10,14 +10,6 @@ namespace Interpreter.IntegrationTests;
 
 public class BuiltinFunctionsTest
 {
-    [Fact]
-    public void Stops_on_invalid_char_conversion()
-    {
-        FakeEnvironment environment = new();
-        TigerInterpreter interpreter = new(environment);
-        Assert.Throws<ProgramAbortedException>(() => interpreter.Execute("chr(2025)"));
-    }
-
     [Theory]
     [MemberData(nameof(GetInvalidFunctionCallsData))]
     public void Throws_on_invalid_function_calls(string code, Type expectedExceptionType)

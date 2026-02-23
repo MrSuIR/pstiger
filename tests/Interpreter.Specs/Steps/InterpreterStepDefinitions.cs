@@ -3,12 +3,13 @@ using Grammar;
 using PsTiger.Interpreter;
 using PsTiger.Tests.TestLibrary;
 using PsTiger.Tests.TestLibrary.TestDoubles;
+using PsTiger.VirtualMachine.Exceptions;
 
 using Reqnroll;
 
 using Xunit;
 
-namespace PsTiger.Tests.Interpreter.Specs.StepDefinitions;
+namespace PsTiger.Tests.Interpreter.Specs.Steps;
 
 [Binding]
 public sealed class InterpreterStepDefinitions
@@ -16,6 +17,7 @@ public sealed class InterpreterStepDefinitions
     private string _program = string.Empty;
     private readonly FakeEnvironment _fakeEnvironment;
     private readonly TigerInterpreter _interpreter;
+    private Exception? _lastException = null;
 
     public InterpreterStepDefinitions()
     {
@@ -48,6 +50,19 @@ public sealed class InterpreterStepDefinitions
         _interpreter.Execute(_program);
     }
 
+    [When(@"я выполняю программу с перехватом исключений")]
+    public void КогдаЯВыполняюПрограммуСПерехватомИсключений()
+    {
+        try
+        {
+            _interpreter.Execute(_program);
+        }
+        catch (Exception e)
+        {
+            _lastException = e;
+        }
+    }
+
     [Then(@"я увижу вывод (.*)")]
     public void ТогдаЯУвижуВывод(string expected)
     {
@@ -58,5 +73,12 @@ public sealed class InterpreterStepDefinitions
     public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
         Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+    }
+
+    [Then(@"я получу ошибку времени выполнения с сообщением:")]
+    public void ТогдаЯПолучуОшибкуВремениВыполнения(string message)
+    {
+        ProgramAbortedException e = Assert.IsType<ProgramAbortedException>(_lastException);
+        Assert.Equal(message, e.Message);
     }
 }
