@@ -44,13 +44,13 @@ public sealed class InterpreterStepDefinitions
         _fakeEnvironment.AddInput(input);
     }
 
-    [When(@"^(?:я )?выполняю программу$")]
+    [When("^(?:я )?выполняю программу$")]
     public void КогдаВыполняюПрограмму()
     {
         _interpreter.Execute(_program);
     }
 
-    [When(@"я выполняю программу с перехватом исключений")]
+    [When("^(?:я )?я выполняю программу с перехватом исключений$")]
     public void КогдаЯВыполняюПрограммуСПерехватомИсключений()
     {
         try
@@ -63,19 +63,25 @@ public sealed class InterpreterStepDefinitions
         }
     }
 
-    [Then(@"я увижу вывод (.*)")]
+    [Then("^(?:я )?увижу вывод (.*)$")]
     public void ТогдаЯУвижуВывод(string expected)
     {
         Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
     }
 
-    [Then(@"я увижу вывод:")]
+    [Then("^(?:я )?увижу вывод:$")]
     public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
         Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
     }
 
-    [Then(@"я получу ошибку времени выполнения с сообщением:")]
+    [Then(@"^(?:я )?получу код возврата (\d+)$")]
+    public void ТогдаЯПолучуКодВозврата(int exitCode)
+    {
+        Assert.Equal(exitCode, _interpreter.ExitCode);
+    }
+
+    [Then("^(?:я )?я получу ошибку времени выполнения с сообщением:$")]
     public void ТогдаЯПолучуОшибкуВремениВыполнения(string message)
     {
         ProgramAbortedException e = Assert.IsType<ProgramAbortedException>(_lastException);

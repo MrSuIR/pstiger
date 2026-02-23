@@ -1,0 +1,5 @@
+(
+    print("before exit");
+    exit(128);
+    print("after exit")
+)
