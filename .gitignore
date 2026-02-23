@@ -26,6 +26,7 @@ sandbox/
 /.roo/
 /.roomodes
 /.rooignore
+TASK.md
 
 # Бэкапы файлов редакторов
 *.bkp
