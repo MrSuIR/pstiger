@@ -1,0 +1,19 @@
+/*
+ можно присваивать значение nil переменной структуры и проверять на равенство ссылки на структуру и nil
+ */
+let
+    type Point = { x: int, y: int }
+    function printPoint(p: Point) = (
+        if p <> nil then (
+            printi(p.x);
+            print(", ");
+            printi(p.y)
+        ) else (
+            print("nil")
+        )
+    )
+    var point: Point := Point{ x = 10, y = 12 }
+in
+    point := nil;
+    printPoint(point)
+end

@@ -1,0 +1,27 @@
+/*
+ можно использовать nil для инициализации поля структуры
+ */
+let
+    type Point = { x: int, y: int }
+    type Triangle = { a: Point, b: Point, c: Point }
+    function printPoint(p: Point) = (
+        if p <> nil then (
+            printi(p.x);
+            print(", ");
+            printi(p.y)
+        ) else (
+            print("nil")
+        )
+    )
+    var t: Triangle := Triangle{
+        a = Point{x = 0, y = 0},
+        b = Point{x = 3, y = 0},
+        c = nil
+    }
+in
+    printPoint(t.a);
+    print("; ");
+    printPoint(t.b);
+    print("; ");
+    printPoint(t.c)
+end

@@ -1,0 +1,19 @@
+/*
+ можно вернуть nil в обоих ветках конструкции if...then...else
+ */
+let
+    type Point = { x: int, y: int }
+    function printPoint(p: Point) = (
+        if p <> nil then (
+            printi(p.x);
+            print(", ");
+            printi(p.y)
+        ) else (
+            print("nil")
+        )
+    )
+    var enabled: int := 1
+    var point: Point := if enabled then nil else nil
+in
+    printPoint(point)
+end

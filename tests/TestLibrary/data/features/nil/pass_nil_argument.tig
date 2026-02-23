@@ -1,0 +1,17 @@
+/*
+ можно передавать nil как аргумент функции, ожидающей структуру
+ */
+let
+    type Point = { x: int, y: int }
+    function printPoint(p: Point) = (
+        if p <> nil then (
+            printi(p.x);
+            print(", ");
+            printi(p.y)
+        ) else (
+            print("nil")
+        )
+    )
+in
+    printPoint(nil)
+end
