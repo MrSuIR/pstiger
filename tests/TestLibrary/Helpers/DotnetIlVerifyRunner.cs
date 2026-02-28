@@ -2,7 +2,7 @@ namespace PsTiger.Tests.TestLibrary.Helpers;
 
 public static class DotnetIlVerifyRunner
 {
-    public static async Task<string> Run(string executablePath, CancellationToken ct)
+    public static async Task Run(string executablePath, CancellationToken ct = default)
     {
         if (!File.Exists(executablePath))
         {
@@ -10,21 +10,19 @@ public static class DotnetIlVerifyRunner
         }
 
         string workingDirectory = Path.GetDirectoryName(executablePath)!;
+        string librariesPathPattern = RuntimeFinder.GetRuntimeLibrariesPathPattern();
+
         List<string> command =
         [
             "ilverify",
             executablePath,
             "-r",
-            "/usr/lib/dotnet/shared/Microsoft.NETCore.App/10.0.1/*.dll",
+            librariesPathPattern,
         ];
 
-        ConsoleSubprocessRunner runner = new(
-            workingDirectory: workingDirectory
-        );
+        ConsoleSubprocessRunner runner = new(workingDirectory: workingDirectory);
 
         await runner.Run(command, ct);
         runner.ThrowOnNonZeroExitCode();
-
-        return runner.Stdout;
     }
 }

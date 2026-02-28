@@ -12,6 +12,13 @@ namespace PsTiger.MsilBackend;
 /// </remarks>
 public static class RuntimeConfigGenerator
 {
+    /// <summary>
+    /// Имя рантайма для запуска консольных приложений.
+    /// Такой рантайм является частью фреймворка .NET и служит для запуска простых приложений, не
+    ///   являющихся ни сервисами на ASP.NET Core, ни десктопными приложениями для Windows.
+    /// </summary>
+    private const string AppRuntimeName = "Microsoft.NETCore.App";
+
     public static void SaveRuntimeConfig(string outputPath)
     {
         // Создаём *.runtimeconfig.json для запуска с той же мажорной версией .NET, на которой запущен сам компилятор.
@@ -33,7 +40,7 @@ public static class RuntimeConfigGenerator
     public class FrameworkInfo(string version)
     {
         [JsonPropertyName("name")]
-        public string Name { get; init; } = "Microsoft.NETCore.App";
+        public string Name { get; init; } = AppRuntimeName;
 
         [JsonPropertyName("version")]
         public string Version { get; init; } = version;

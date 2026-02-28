@@ -23,7 +23,7 @@ public sealed class CompilerStepDefinitions : IDisposable
     private int _lastProgramExitCode = -1;
 
     [Given(@"^я скомпилировал программу ""(.*)""$")]
-    public void ПустьЯСкомпилировалПрограмму(string relativeProgramPath)
+    public async Task ПустьЯСкомпилировалПрограмму(string relativeProgramPath)
     {
         string programPath = Samples.GetSampleProgramPath(relativeProgramPath);
 
@@ -31,6 +31,8 @@ public sealed class CompilerStepDefinitions : IDisposable
 
         _compiledProgram ??= TempFile.CreateEmpty("program-", ".exe");
         _compilerTestDriver.RunCompiler(programPath, _compiledProgram.Path);
+
+        await DotnetIlVerifyRunner.Run(_compiledProgram.Path);
     }
 
     [When(@"я ввожу (.*)")]
