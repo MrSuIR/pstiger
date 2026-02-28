@@ -245,6 +245,18 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private void EmitIntegersBinaryOperation(BinaryOperationExpression e)
     {
+        // Обрабатываем логические операции особым образом
+        //  из-за вычисления по короткой схеме (short-circuit evaluation).
+        switch (e.Operation)
+        {
+            case BinaryOperation.And:
+                EmitLogicalAnd(e);
+                return;
+            case BinaryOperation.Or:
+                EmitLogicalOr(e);
+                return;
+        }
+
         // Генерируем код для вычисления левого и правого операндов.
         e.Left.Accept(this);
         e.Right.Accept(this);
@@ -291,6 +303,74 @@ public class MsilCodegenPass : IAstVisitor
             default:
                 throw new NotSupportedException($"Cannot generate MSIL for binary operation {e.Operation}.");
         }
+    }
+
+    /// <summary>
+    /// Генерирует код логического "и" с вычислением по короткой схеме (short-circuit evaluation).
+    /// </summary>
+    private void EmitLogicalAnd(BinaryOperationExpression e)
+    {
+        Label falseLabel = _il.DefineLabel();
+        Label endLabel = _il.DefineLabel();
+
+        // Вычисляем левый операнд и сравниваем его с 0 ("ложь").
+        // Если он равен 0, то всё выражение будет равно 0 ("ложь"), а правый операнд вычислять не надо.
+        e.Left.Accept(this);
+        _il.Emit(OpCodes.Ldc_I4_0);
+        _il.Emit(OpCodes.Ceq);
+        _il.Emit(OpCodes.Brtrue, falseLabel);
+
+        // Вычисляем правый и сравниваем его с 0 ("ложь").
+        // Если он равен 0, то всё выражение будет равно 0 ("ложь"), иначе равно 1 ("истина").
+        e.Right.Accept(this);
+        _il.Emit(OpCodes.Ldc_I4_0);
+        _il.Emit(OpCodes.Ceq);
+        _il.Emit(OpCodes.Brtrue, falseLabel);
+
+        // Оба операнда — ненулевые числа ("истина"), поэтому результат выражения будет 1 ("истина").
+        _il.Emit(OpCodes.Ldc_I4_1);
+        _il.Emit(OpCodes.Br, endLabel);
+
+        // Блок false: записываем 0 ("ложь") как результат выражения.
+        _il.MarkLabel(falseLabel);
+        _il.Emit(OpCodes.Ldc_I4_0);
+
+        // Конец текущей последовательности инструкций.
+        _il.MarkLabel(endLabel);
+    }
+
+    /// <summary>
+    /// Генерирует код логического "или" с вычислением по короткой схеме (short-circuit evaluation).
+    /// </summary>
+    private void EmitLogicalOr(BinaryOperationExpression e)
+    {
+        Label trueLabel = _il.DefineLabel();
+        Label endLabel = _il.DefineLabel();
+
+        // Вычисляем левый операнд и сравниваем его с 0 ("ложь").
+        // Если он не равен 0, то всё выражение будет равно 1 ("истина"), а правый операнд вычислять не надо.
+        e.Left.Accept(this);
+        _il.Emit(OpCodes.Ldc_I4_0);
+        _il.Emit(OpCodes.Ceq);
+        _il.Emit(OpCodes.Brfalse, trueLabel);
+
+        // Вычисляем правый и сравниваем его с 0 ("ложь").
+        // Если он не равен 0, то всё выражение будет равно 1 ("истина"), иначе равно 0 ("ложь").
+        e.Right.Accept(this);
+        _il.Emit(OpCodes.Ldc_I4_0);
+        _il.Emit(OpCodes.Ceq);
+        _il.Emit(OpCodes.Brfalse, trueLabel);
+
+        // Оба операнда равны 0 ("ложь"), поэтому результат выражения будет 0 ("ложь").
+        _il.Emit(OpCodes.Ldc_I4_0);
+        _il.Emit(OpCodes.Br, endLabel);
+
+        // Блок false: записываем 1 ("истина") как результат выражения.
+        _il.MarkLabel(trueLabel);
+        _il.Emit(OpCodes.Ldc_I4_1);
+
+        // Конец текущей последовательности инструкций.
+        _il.MarkLabel(endLabel);
     }
 
     /// <summary>

@@ -30,7 +30,7 @@ public class BuiltinFunctionEmitter
                 Builtins.Exit, EmitExit
             },
             {
-                Builtins.Not, _ => throw new NotImplementedException("Cannot emit MSIL for \"not\" function")
+                Builtins.Not, EmitNot
             },
             {
                 Builtins.Ord, EmitOrd
@@ -148,6 +148,19 @@ public class BuiltinFunctionEmitter
         // Находим метод Environment.Exit(int) и вызываем его.
         MethodInfo method = GetMethod(typeof(Environment), "Exit", [typeof(int)]);
         il.Emit(OpCodes.Call, method);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции not(b : int) : int.
+    /// </summary>
+    /// <remarks>
+    /// В Tiger логические значения представлены как целые числа.
+    /// Функция not(x) возвращает 1, если x = 0, иначе 0.
+    /// </remarks>
+    private void EmitNot(ILGenerator il)
+    {
+        il.Emit(OpCodes.Ldc_I4_0);
+        il.Emit(OpCodes.Ceq);
     }
 
     /// <summary>
