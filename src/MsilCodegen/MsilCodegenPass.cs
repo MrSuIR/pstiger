@@ -249,7 +249,20 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(WhileLoopExpression e)
     {
-        throw new NotImplementedException();
+        Label loopStart = _il.DefineLabel(); // Метка проверки условия.
+        Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+
+        // Начало цикла: вычисляем условие и завершаем цикл, если оно ложно.
+        _il.MarkLabel(loopStart);
+        e.Condition.Accept(this);
+        _il.Emit(OpCodes.Brfalse, loopEnd);
+
+        // Генерируем тело цикла и переходим к началу цикла.
+        e.LoopBody.Accept(this);
+        _il.Emit(OpCodes.Br, loopStart);
+
+        // Метка конца цикла (выход).
+        _il.MarkLabel(loopEnd);
     }
 
     public void Visit(ForLoopExpression e)
