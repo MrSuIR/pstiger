@@ -4,12 +4,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>PsTiger.VirtualMachineCodegen</RootNamespace>
-    <AssemblyName>PsTiger.VirtualMachineCodegen</AssemblyName>
+    <RootNamespace>PsTiger.MsilCodegen</RootNamespace>
+    <AssemblyName>PsTiger.MsilCodegen</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VirtualMachine\VirtualMachine.csproj" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
   </ItemGroup>
 

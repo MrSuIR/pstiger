@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PsTiger.Compiler</RootNamespace>
+    <AssemblyName>PsTiger.Compiler</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Parsing\Parsing.csproj" />
+    <ProjectReference Include="..\Semantics\Semantics.csproj" />
+    <ProjectReference Include="..\MsilCodegen\MsilCodegen.csproj" />
+    <ProjectReference Include="..\MsilBackend\MsilBackend.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.3" />
+  </ItemGroup>
+
+</Project>

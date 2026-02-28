@@ -43,6 +43,7 @@ Tiger — учебный язык программирования, разраб
 | 11_virtual_machine  | Виртуальная машина для языка Tiger   |
 | 12_code_coverage    | Сбор отчёта о покрытии кода тестами  |
 | 13_acceptance_tests | Дополнительные приёмочные тесты      |
+| 14_msil_backend     | Компиляция в MSIL для .NET           |
 
 ## Клонирование проекта
 
@@ -58,6 +59,14 @@ git clone https://git@git.sourcecraft.dev/sshambir-public/pstiger.git
 ```bash
 # Клонируем репозиторий в каталог pstiger/
 git clone ssh://ssh.sourcecraft.dev/sshambir-public/pstiger.git
+```
+
+## Установка утилит
+
+Для проверки сгенерированного MSIL в тестах вызывается утилита ILVerify.
+
+```bash
+dotnet tool install --global dotnet-ilverify --version 10.0.3
 ```
 
 ## Сборка
@@ -145,6 +154,9 @@ graph TD
     Semantics["Semantics"]
     VirtualMachine["VirtualMachine"]
     VirtualMachineCodegen["VirtualMachineCodegen"]
+    MsilCodegen["MsilCodegen"]
+    MsilBackend["MsilBackend"]
+    Compiler["Compiler"]
     Ast --> Runtime
     Interpreter --> Parsing
     Interpreter --> Runtime
@@ -157,6 +169,9 @@ graph TD
     VirtualMachine --> Runtime
     VirtualMachineCodegen --> Ast
     VirtualMachineCodegen --> VirtualMachine
+    MsilCodegen --> Ast
+    Compiler --> MsilCodegen
+    Compiler --> MsilBackend
 ```
 
 ## Покрытие тестами

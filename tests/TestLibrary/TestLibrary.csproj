@@ -3,7 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
     <IsTestProject>false</IsTestProject>
+
     <RootNamespace>PsTiger.Tests.TestLibrary</RootNamespace>
     <AssemblyName>PsTiger.Tests.TestLibrary</AssemblyName>
   </PropertyGroup>
