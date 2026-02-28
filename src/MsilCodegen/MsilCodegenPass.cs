@@ -25,12 +25,21 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private ILGenerator _il = null!;
 
+    // Стек областей видимости переменных.
+    private readonly Stack<Dictionary<string, LocalBuilder>> _scopesStack;
+
     public MsilCodegenPass(ModuleBuilder moduleBuilder)
     {
         _moduleBuilder = moduleBuilder;
         _typeMapper = new TigerTypeMapper();
         _builtinFunctionEmitter = new BuiltinFunctionEmitter();
+        _scopesStack = new Stack<Dictionary<string, LocalBuilder>>();
     }
+
+    /// <summary>
+    /// Текущая область видимости переменных.
+    /// </summary>
+    private Dictionary<string, LocalBuilder> CurrentScope => _scopesStack.Peek();
 
     /// <summary>
     /// Создаёт класс Program и метод Main(), возвращает MethodBuilder для метода Main().
@@ -46,6 +55,9 @@ public class MsilCodegenPass : IAstVisitor
         MethodBuilder mainMethod = DefineProgramClassMethod("Main", typeof(void), Type.EmptyTypes);
         _il = mainMethod.GetILGenerator();
 
+        // Начинаем глобальную область видимости переменных.
+        BeginScope();
+
         program.Accept(this);
 
         // В Tiger программа может быть выражением, возвращающим значение.
@@ -57,6 +69,9 @@ public class MsilCodegenPass : IAstVisitor
 
         // Завершаем метод Main инструкцией ret.
         _il.Emit(OpCodes.Ret);
+
+        // Завершаем глобальную область видимости переменных.
+        EndScope();
 
         // Завершаем создание класса Program.
         _programTypeBuilder.CreateType();
@@ -96,15 +111,15 @@ public class MsilCodegenPass : IAstVisitor
     {
         // Генерируем код для каждого выражения в последовательности.
         // Результаты всех выражений, кроме последнего, отбрасываются.
-        for (int i = 0; i < e.Sequence.Count; i++)
+        for (int i = 0, iEnd = e.Sequence.Count; i < iEnd; i++)
         {
             Expression expr = e.Sequence[i];
             expr.Accept(this);
 
             // Если это не последнее выражение и его тип не void, отбрасываем результат.
-            if (i != e.Sequence.Count - 1 && expr.ResultType != ValueType.Void)
+            if (i != iEnd - 1 && expr.ResultType != ValueType.Void)
             {
-                _il?.Emit(OpCodes.Pop);
+                _il.Emit(OpCodes.Pop);
             }
         }
     }
@@ -137,17 +152,55 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(ScopeExpression e)
     {
-        throw new NotImplementedException();
+        // Начинаем новую область видимости переменных.
+        BeginScope();
+
+        // Обрабатываем объявления, чтобы добавить переменные и функции.
+        foreach (Declaration declaration in e.Declarations)
+        {
+            declaration.Accept(this);
+        }
+
+        // Обрабатываем выражения в области видимости.
+        // Результаты всех выражений, кроме последнего, отбрасываются.
+        for (int i = 0, iEnd = e.Expressions.Count; i < iEnd; i++)
+        {
+            Expression expr = e.Expressions[i];
+            expr.Accept(this);
+
+            // Если это не последнее выражение и его тип не void, отбрасываем результат.
+            if (i != iEnd - 1 && expr.ResultType != ValueType.Void)
+            {
+                _il.Emit(OpCodes.Pop);
+            }
+        }
+
+        // Завершаем область видимости переменных.
+        EndScope();
     }
 
     public void Visit(VariableAccessExpression e)
     {
-        throw new NotImplementedException();
+        // Добавляем чтение переменной.
+        LocalBuilder local = FindVariable(e.Name);
+        _il.Emit(OpCodes.Ldloc, local);
     }
 
     public void Visit(AssignmentExpression e)
     {
-        throw new NotImplementedException();
+        // Генерируем код для правой части присваивания.
+        e.Right.Accept(this);
+
+        if (e.Left is VariableAccessExpression variableAccess)
+        {
+            // Сохраняем вычисленное выражение в переменной.
+            LocalBuilder local = FindVariable(variableAccess.Variable.Name);
+            _il.Emit(OpCodes.Stloc, local);
+        }
+        else
+        {
+            throw new NotImplementedException($"Assignment to {e.Left.GetType()} lvalue is not implemented yet");
+        }
     }
 
     public void Visit(IfElseExpression e)
@@ -157,7 +210,16 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(VariableDeclaration d)
     {
-        throw new NotImplementedException();
+        // Объявляем локальную переменную нужного типа в текущем методе.
+        Type type = _typeMapper.MapType(d.InitialValue.ResultType);
+        LocalBuilder local = _il.DeclareLocal(type);
+
+        // Вычисляем начальное значение и сохраняем его в переменную.
+        d.InitialValue.Accept(this);
+        _il.Emit(OpCodes.Stloc, local);
+
+        // Добавляем переменную в текущую область видимости.
+        CurrentScope[d.Name] = local;
     }
 
     public void Visit(FunctionDeclaration d)
@@ -458,6 +520,42 @@ public class MsilCodegenPass : IAstVisitor
         }
 
         return method;
+    }
+
+    /// <summary>
+    /// Добавляет новую область видимости переменных на стек.
+    /// </summary>
+    private void BeginScope()
+    {
+        _scopesStack.Push(new Dictionary<string, LocalBuilder>());
+        _il.BeginScope();
+    }
+
+    /// <summary>
+    /// Убирает текущую область видимости переменных со стека.
+    /// </summary>
+    private void EndScope()
+    {
+        _il.EndScope();
+        _scopesStack.Pop();
+    }
+
+    /// <summary>
+    /// Находит локальную переменную по имени, просматривая лексические области видимости от текущей к внешним.
+    /// </summary>
+    private LocalBuilder FindVariable(string name)
+    {
+        // Ищем переменную в текущей и родительских областях видимости.
+        // В языке C# инструкция foreach для класса Stack выбирает значения, начиная с последнего добавленного.
+        foreach (Dictionary<string, LocalBuilder> scope in _scopesStack)
+        {
+            if (scope.TryGetValue(name, out LocalBuilder? local))
+            {
+                return local;
+            }
+        }
+
+        throw new InvalidOperationException($"Variable '{name}' not found in current scopes.");
     }
 
     /// <summary>
