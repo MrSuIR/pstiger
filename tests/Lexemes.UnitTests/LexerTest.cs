@@ -10,7 +10,11 @@ public class LexerTest
     public void Can_tokenize_lexemes(string code, List<Token> expected)
     {
         List<Token> actual = Tokenize(code);
-        Assert.Equal(expected, actual);
+        Assert.Equal(expected.Count, actual.Count);
+        for (int i = 0, iEnd = actual.Count; i < iEnd; ++i)
+        {
+            Assert.Equivalent(expected[i], actual[i]);
+        }
     }
 
     public static TheoryData<string, List<Token>> GetTokenizeIdentifiersAndKeywordsData()
