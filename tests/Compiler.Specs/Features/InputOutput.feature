@@ -24,6 +24,19 @@
         Could frame thy fearful symmetry?
         """
 
+    Сценарий: вывод текста и вызов функции flush
+        Пусть я скомпилировал программу "features/input_output/print_string_with_flush.tig"
+
+        Когда я выполняю программу
+
+        Тогда я увижу вывод:
+        """
+        Tyger Tyger, burning bright,
+        In the forests of the night;
+        What immortal hand or eye,
+        Could frame thy fearful symmetry?
+        """
+
     Сценарий: завершение из программы функцией exit
         Пусть я скомпилировал программу "features/input_output/exit.tig"
 

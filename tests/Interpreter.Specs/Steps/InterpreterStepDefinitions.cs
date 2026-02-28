@@ -66,13 +66,13 @@ public sealed class InterpreterStepDefinitions
     [Then("^(?:я )?увижу вывод (.*)$")]
     public void ТогдаЯУвижуВывод(string expected)
     {
-        Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+        Assert.Equal(expected, _fakeEnvironment.FlushedOutput + _fakeEnvironment.BufferedOutput);
     }
 
     [Then("^(?:я )?увижу вывод:$")]
     public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
-        Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+        Assert.Equal(expected, _fakeEnvironment.FlushedOutput + _fakeEnvironment.BufferedOutput);
     }
 
     [Then(@"^(?:я )?получу код возврата (\d+)$")]

@@ -21,10 +21,33 @@ public class BuiltinFunctionEmitter
                 Builtins.PrintI, EmitPrintI
             },
             {
+                Builtins.Flush, EmitFlush
+            },
+            {
                 Builtins.GetChar, EmitGetChar
             },
             {
-                Builtins.Exit, Exit
+                Builtins.Exit, EmitExit
+            },
+            {
+                Builtins.Not, _ => throw new NotImplementedException("Cannot emit MSIL for \"not\" function")
+            },
+            {
+                Builtins.Ord, _ => throw new NotImplementedException("Cannot emit MSIL for \"ord\" function")
+            },
+            {
+                Builtins.Chr, _ => throw new NotImplementedException("Cannot emit MSIL for \"chr\" function")
+            },
+            {
+                Builtins.Concat, _ => throw new NotImplementedException("Cannot emit MSIL for \"concat)\" function")
+            },
+            {
+                Builtins.Size, _ => throw new NotImplementedException("Cannot emit MSIL for \"size\" function")
+            },
+            {
+                Builtins.Substring, _ => throw new NotImplementedException(
+                    "Cannot emit MSIL for \"substring\" function"
+                )
             },
         };
     }
@@ -46,7 +69,7 @@ public class BuiltinFunctionEmitter
     private void EmitPrint(ILGenerator il)
     {
         // Находим метод Console.Write(string) и вызываем его.
-        MethodInfo writeMethod = GetStaticMethod(typeof(Console), "Write", [typeof(string)]);
+        MethodInfo writeMethod = GetMethod(typeof(Console), "Write", [typeof(string)]);
         il.Emit(OpCodes.Call, writeMethod);
     }
 
@@ -56,8 +79,21 @@ public class BuiltinFunctionEmitter
     private void EmitPrintI(ILGenerator il)
     {
         // Находим метод Console.Write(int) и вызываем его.
-        MethodInfo writeMethod = GetStaticMethod(typeof(Console), "Write", [typeof(int)]);
+        MethodInfo writeMethod = GetMethod(typeof(Console), "Write", [typeof(int)]);
         il.Emit(OpCodes.Call, writeMethod);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции flush().
+    /// </summary>
+    private void EmitFlush(ILGenerator il)
+    {
+        // Добавляем в стек ссылку на объект `Console.Out` и вызываем для него виртуальный метод TextWriter.Flush().
+        MethodInfo consoleOutGetter = GetPropertyGetterMethod(typeof(Console), "Out");
+        MethodInfo flushMethod = GetMethod(typeof(TextWriter), "Flush", Type.EmptyTypes);
+
+        il.Emit(OpCodes.Call, consoleOutGetter);
+        il.Emit(OpCodes.Callvirt, flushMethod);
     }
 
     /// <summary>
@@ -71,10 +107,10 @@ public class BuiltinFunctionEmitter
     /// <summary>
     /// Генерирует вызов встроенной функции exit(code : int).
     /// </summary>
-    private void Exit(ILGenerator il)
+    private void EmitExit(ILGenerator il)
     {
         // Находим метод Environment.Exit(int) и вызываем его.
-        MethodInfo exitMethod = GetStaticMethod(typeof(Environment), "Exit", [typeof(int)]);
+        MethodInfo exitMethod = GetMethod(typeof(Environment), "Exit", [typeof(int)]);
         il.Emit(OpCodes.Call, exitMethod);
     }
 
@@ -82,7 +118,7 @@ public class BuiltinFunctionEmitter
     /// Находит статический метод указанного типа стандартной библиотеки классов .NET,
     ///  чтобы использовать его для реализации встроенной функции языка Tiger.
     /// </summary>
-    private static MethodInfo GetStaticMethod(Type type, string methodName, Type[] parameterTypes)
+    private static MethodInfo GetMethod(Type type, string methodName, Type[] parameterTypes)
     {
         MethodInfo? method = type.GetMethod(methodName, parameterTypes);
         if (method == null)
@@ -92,5 +128,22 @@ public class BuiltinFunctionEmitter
         }
 
         return method;
+    }
+
+    private static MethodInfo GetPropertyGetterMethod(Type type, string propertyName)
+    {
+        PropertyInfo? outProperty = type.GetProperty(propertyName);
+        if (outProperty == null)
+        {
+            throw new InvalidOperationException($"Cannot find property {type.Name}.{propertyName}.");
+        }
+
+        MethodInfo? getterMethod = outProperty.GetGetMethod();
+        if (getterMethod == null)
+        {
+            throw new InvalidOperationException($"Property {type.Name}.{propertyName} has no getter.");
+        }
+
+        return getterMethod;
     }
 }
