@@ -25,8 +25,10 @@ public sealed class CompilerStepDefinitions : IDisposable
     }
 
     [Given(@"^я скомпилировал программу ""(.*)""$")]
-    public void ПустьЯСкомпилировалПрограмму(string programPath)
+    public void ПустьЯСкомпилировалПрограмму(string relativeProgramPath)
     {
+        string programPath = Samples.GetSampleProgramPath(relativeProgramPath);
+
         Assert.True(File.Exists(programPath), $"Source code file {programPath} does not exist");
 
         _compiledProgram ??= TempFile.CreateEmpty("program-", "exe");

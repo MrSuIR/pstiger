@@ -22,16 +22,16 @@ public static class RootCommandFactory
         };
         command.Add(inputPathArgument);
 
-        Option<string?> outputPathOption = new("output")
+        Argument<string> outputPathArgument = new("output")
         {
-            Description = "Output path for generated .NET executable", Required = true,
+            Description = "Output path for generated .NET executable", Arity = ArgumentArity.ExactlyOne,
         };
-        command.Add(outputPathOption);
+        command.Add(outputPathArgument);
 
         command.SetAction((result) =>
         {
             string inputPath = result.GetRequiredValue(inputPathArgument);
-            string? outputPath = result.GetRequiredValue(outputPathOption);
+            string outputPath = result.GetRequiredValue(outputPathArgument);
 
             return Compile(inputPath, outputPath);
         });
@@ -39,13 +39,8 @@ public static class RootCommandFactory
         return command;
     }
 
-    private static int Compile(string inputPath, string? outputPath)
+    private static int Compile(string inputPath, string outputPath)
     {
-        if (string.IsNullOrEmpty(outputPath))
-        {
-            outputPath = Path.ChangeExtension(inputPath, ".exe");
-        }
-
         CompilerDriver driver = new();
         driver.Compile(inputPath, outputPath);
 

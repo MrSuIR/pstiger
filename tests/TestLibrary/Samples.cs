@@ -16,6 +16,15 @@ public static class Samples
         return File.ReadAllText(filepath);
     }
 
+    public static string GetSampleProgramPath(string filename)
+    {
+        return Path.Join(
+            GetClassDirectory(),
+            DataDirectory,
+            filename.Replace('/', Path.DirectorySeparatorChar)
+        );
+    }
+
     private static string GetClassDirectory([CallerFilePath] string path = "")
     {
         return Path.GetDirectoryName(path) ?? throw new ArgumentException($"Could not get directory path from {path}");

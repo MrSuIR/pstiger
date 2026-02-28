@@ -18,7 +18,6 @@ public class CompilerTestDriver
             args:
             [
                 inputPath,
-                "--output",
                 outputPath,
             ],
             stdoutWriter: stdoutWriter,
@@ -35,7 +34,7 @@ public class CompilerTestDriver
             if (stdout != string.Empty)
             {
                 sb.AppendLine();
-                sb.AppendLine("Stdout:");
+                sb.AppendLine("Compiler output:");
                 sb.Append(stdout);
             }
 
@@ -43,7 +42,7 @@ public class CompilerTestDriver
             if (stderr != string.Empty)
             {
                 sb.AppendLine();
-                sb.AppendLine("Stderr:");
+                sb.AppendLine("Compiler errors:");
                 sb.Append(stderr);
             }
 
