@@ -39,15 +39,13 @@ public class BuiltinFunctionEmitter
                 Builtins.Chr, _ => throw new NotImplementedException("Cannot emit MSIL for \"chr\" function")
             },
             {
-                Builtins.Concat, _ => throw new NotImplementedException("Cannot emit MSIL for \"concat)\" function")
+                Builtins.Concat, EmitConcat
             },
             {
-                Builtins.Size, _ => throw new NotImplementedException("Cannot emit MSIL for \"size\" function")
+                Builtins.Size, EmitSize
             },
             {
-                Builtins.Substring, _ => throw new NotImplementedException(
-                    "Cannot emit MSIL for \"substring\" function"
-                )
+                Builtins.Substring, EmitSubstring
             },
         };
     }
@@ -69,8 +67,8 @@ public class BuiltinFunctionEmitter
     private void EmitPrint(ILGenerator il)
     {
         // Находим метод Console.Write(string) и вызываем его.
-        MethodInfo writeMethod = GetMethod(typeof(Console), "Write", [typeof(string)]);
-        il.Emit(OpCodes.Call, writeMethod);
+        MethodInfo method = GetMethod(typeof(Console), "Write", [typeof(string)]);
+        il.Emit(OpCodes.Call, method);
     }
 
     /// <summary>
@@ -79,8 +77,8 @@ public class BuiltinFunctionEmitter
     private void EmitPrintI(ILGenerator il)
     {
         // Находим метод Console.Write(int) и вызываем его.
-        MethodInfo writeMethod = GetMethod(typeof(Console), "Write", [typeof(int)]);
-        il.Emit(OpCodes.Call, writeMethod);
+        MethodInfo method = GetMethod(typeof(Console), "Write", [typeof(int)]);
+        il.Emit(OpCodes.Call, method);
     }
 
     /// <summary>
@@ -147,8 +145,40 @@ public class BuiltinFunctionEmitter
     private void EmitExit(ILGenerator il)
     {
         // Находим метод Environment.Exit(int) и вызываем его.
-        MethodInfo exitMethod = GetMethod(typeof(Environment), "Exit", [typeof(int)]);
-        il.Emit(OpCodes.Call, exitMethod);
+        MethodInfo method = GetMethod(typeof(Environment), "Exit", [typeof(int)]);
+        il.Emit(OpCodes.Call, method);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции concat(s1 : string, s2 : string) : string.
+    /// </summary>
+    private void EmitConcat(ILGenerator il)
+    {
+        // Находим метод string.Concat(int) и вызываем его.
+        MethodInfo method = GetMethod(typeof(string), "Concat", [typeof(string), typeof(string)]);
+        il.Emit(OpCodes.Call, method);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции substring(s : string, first : int, n : int) : string.
+    /// </summary>
+    /// <remarks>
+    /// Предполагается, что на стеке находятся (сверху вниз): n, first, s.
+    /// Генерирует вызов string.Substring(first, n).
+    /// </remarks>
+    private void EmitSubstring(ILGenerator il)
+    {
+        MethodInfo method = GetMethod(typeof(string), "Substring", [typeof(int), typeof(int)]);
+        il.Emit(OpCodes.Call, method);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции size(s : string) : int.
+    /// </summary>
+    private void EmitSize(ILGenerator il)
+    {
+        MethodInfo getter = GetPropertyGetterMethod(typeof(string), "Length");
+        il.Emit(OpCodes.Call, getter);
     }
 
     /// <summary>
@@ -161,7 +191,7 @@ public class BuiltinFunctionEmitter
         if (method == null)
         {
             string parameterTypeNames = string.Join(", ", parameterTypes.Select(t => t.Name));
-            throw new InvalidOperationException($"Cannot find method {type.Name}.{methodName}({parameterTypeNames}.");
+            throw new InvalidOperationException($"Cannot find method {type.Name}.{methodName}({parameterTypeNames}).");
         }
 
         return method;
