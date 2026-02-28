@@ -28,6 +28,9 @@ public class MsilCodegenPass : IAstVisitor
     // Стек областей видимости переменных.
     private readonly Stack<Dictionary<string, LocalBuilder>> _scopesStack;
 
+    // Стек меток конца цикла для прерывания цикла (break).
+    private readonly Stack<Label> _loopEndsStack = new();
+
     public MsilCodegenPass(ModuleBuilder moduleBuilder)
     {
         _moduleBuilder = moduleBuilder;
@@ -251,6 +254,7 @@ public class MsilCodegenPass : IAstVisitor
     {
         Label loopStart = _il.DefineLabel(); // Метка проверки условия.
         Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+        _loopEndsStack.Push(loopEnd);
 
         // Начало цикла: вычисляем условие и завершаем цикл, если оно ложно.
         _il.MarkLabel(loopStart);
@@ -263,12 +267,14 @@ public class MsilCodegenPass : IAstVisitor
 
         // Метка конца цикла (выход).
         _il.MarkLabel(loopEnd);
+        _loopEndsStack.Pop();
     }
 
     public void Visit(ForLoopExpression e)
     {
         Label loopStart = _il.DefineLabel(); // Метка проверки условия.
         Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+        _loopEndsStack.Push(loopEnd);
 
         // Начинаем новую область видимости, объявляем итератор и вычисляем его начальное значение.
         BeginScope();
@@ -296,6 +302,7 @@ public class MsilCodegenPass : IAstVisitor
 
         // Блок после завершения цикла.
         _il.MarkLabel(loopEnd);
+        _loopEndsStack.Pop();
 
         // Завершаем область видимости.
         EndScope();
@@ -307,7 +314,8 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(BreakLoopExpression e)
     {
-        throw new NotImplementedException();
+        Label loopEnd = _loopEndsStack.Peek();
+        _il.Emit(OpCodes.Br, loopEnd);
     }
 
     public void Visit(TypeDeclaration d)
