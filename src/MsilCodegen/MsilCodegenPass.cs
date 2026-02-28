@@ -82,7 +82,55 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(BinaryOperationExpression e)
     {
-        throw new NotImplementedException();
+        // Генерируем код для вычисления левого и правого операндов.
+        e.Left.Accept(this);
+        e.Right.Accept(this);
+
+        // Генерируем инструкцию, соответствующую операции.
+        switch (e.Operation)
+        {
+            case BinaryOperation.Add:
+                _il.Emit(OpCodes.Add);
+                break;
+            case BinaryOperation.Subtract:
+                _il.Emit(OpCodes.Sub);
+                break;
+            case BinaryOperation.Multiply:
+                _il.Emit(OpCodes.Mul);
+                break;
+            case BinaryOperation.Divide:
+                _il.Emit(OpCodes.Div);
+                break;
+            case BinaryOperation.Equal:
+                _il.Emit(OpCodes.Ceq);
+                break;
+            case BinaryOperation.NotEqual:
+                // Для реализации "<>" используем "==" и затем инвертируем результат (0 -> 1, 1 -> 0).
+                _il.Emit(OpCodes.Ceq);
+                _il.Emit(OpCodes.Ldc_I4_0);
+                _il.Emit(OpCodes.Ceq);
+                break;
+            case BinaryOperation.LessThan:
+                _il.Emit(OpCodes.Clt);
+                break;
+            case BinaryOperation.LessThanOrEqual:
+                // Для реализации "<=" используем ">" и затем инвертируем результат (0 -> 1, 1 -> 0).
+                _il.Emit(OpCodes.Cgt);
+                _il.Emit(OpCodes.Ldc_I4_0);
+                _il.Emit(OpCodes.Ceq);
+                break;
+            case BinaryOperation.GreaterThan:
+                _il.Emit(OpCodes.Cgt);
+                break;
+            case BinaryOperation.GreaterThanOrEqual:
+                // Для реализации ">=" используем "<" и затем инвертируем результат (0 -> 1, 1 -> 0).
+                _il.Emit(OpCodes.Clt);
+                _il.Emit(OpCodes.Ldc_I4_0);
+                _il.Emit(OpCodes.Ceq);
+                break;
+            default:
+                throw new NotSupportedException($"Cannot generate MSIL for binary operation {e.Operation}.");
+        }
     }
 
     public void Visit(SequenceExpression e)
@@ -104,7 +152,11 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(UnaryMinusExpression e)
     {
-        throw new NotImplementedException();
+        // Генерируем код для вычисления операнда.
+        e.Operand.Accept(this);
+
+        // Применяем унарный минус.
+        _il.Emit(OpCodes.Neg);
     }
 
     public void Visit(FunctionCallExpression e)
