@@ -199,6 +199,8 @@ graph TD
     MsilCodegen --> Ast
     Compiler --> MsilCodegen
     Compiler --> MsilBackend
+    Compiler --> Parsing
+    Compiler --> Semantics
 ```
 
 ## Покрытие тестами
