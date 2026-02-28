@@ -25,24 +25,29 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private ILGenerator _il = null!;
 
-    // Стек областей видимости переменных.
-    private readonly Stack<Dictionary<string, LocalBuilder>> _scopesStack;
+    // Текущая область видимости переменных.
+    private readonly Stack<LocalVariablesScope> _scopesStack;
 
     // Стек меток конца цикла для прерывания цикла (break).
-    private readonly Stack<Label> _loopEndsStack = new();
+    private readonly Stack<Label> _loopEndsStack;
+
+    // Словарь методов, соответствующих пользовательским функциям исходной программы.
+    private readonly Dictionary<string, MethodBuilder> _userFunctionMethodsMap;
 
     public MsilCodegenPass(ModuleBuilder moduleBuilder)
     {
         _moduleBuilder = moduleBuilder;
         _typeMapper = new TigerTypeMapper();
         _builtinFunctionEmitter = new BuiltinFunctionEmitter();
-        _scopesStack = new Stack<Dictionary<string, LocalBuilder>>();
+        _scopesStack = new Stack<LocalVariablesScope>();
+        _loopEndsStack = new Stack<Label>();
+        _userFunctionMethodsMap = new Dictionary<string, MethodBuilder>();
     }
 
     /// <summary>
     /// Текущая область видимости переменных.
     /// </summary>
-    private Dictionary<string, LocalBuilder> CurrentScope => _scopesStack.Peek();
+    private LocalVariablesScope CurrentScope => _scopesStack.Peek();
 
     /// <summary>
     /// Создаёт класс Program и метод Main(), возвращает MethodBuilder для метода Main().
@@ -144,13 +149,20 @@ public class MsilCodegenPass : IAstVisitor
             argument.Accept(this);
         }
 
+        // Генерируем вызов встроенной либо пользовательской функции.
         if (_builtinFunctionEmitter.IsBuiltinFunction(e.Name))
         {
             _builtinFunctionEmitter.EmitCallBuiltinFunction(e.Name, _il);
-            return;
         }
+        else
+        {
+            if (!_userFunctionMethodsMap.TryGetValue(e.Name, out MethodBuilder? method))
+            {
+                throw new InvalidOperationException($"Cannot find .NET method for function with name {e.Name}");
+            }
 
-        throw new NotImplementedException("User functions are not supported yet");
+            _il.Emit(OpCodes.Call, method);
+        }
     }
 
     public void Visit(ScopeExpression e)
@@ -242,12 +254,46 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
-        throw new NotImplementedException();
+        // Создаём метод и сохраняем его для использования при последующих вызовах (включая рекурсивные вызовы).
+        MethodBuilder method = DefineProgramClassMethod(
+            GetUserFunctionMethodName(d.Name),
+            _typeMapper.MapType(d.ResultType),
+            d.Parameters.Select(p => _typeMapper.MapType(p.ResultType)).ToArray()
+        );
+        _userFunctionMethodsMap[d.Name] = method;
+
+        // Сохраняем прежний генератор MSIL.
+        ILGenerator previousIl = _il;
+
+        try
+        {
+            // Меняем генератор MSIL и добавляем область видимости.
+            _il = method.GetILGenerator();
+            BeginScope();
+
+            for (int i = 0, iEnd = d.Parameters.Count; i < iEnd; ++i)
+            {
+                AbstractParameterDeclaration param = d.Parameters[i];
+                EmitDefineParameter(param.Name, param.ResultType, i);
+            }
+
+            // Генерируем код для тела функции.
+            d.Body.Accept(this);
+
+            // Добавляем возврат из функции.
+            _il.Emit(OpCodes.Ret);
+        }
+        finally
+        {
+            // Убираем область видимости и восстанавливаем прежний генератор MSIL.
+            EndScope();
+            _il = previousIl;
+        }
     }
 
     public void Visit(ParameterDeclaration d)
     {
-        throw new NotImplementedException();
+        // Ничего не делаем — параметр уже обработан при обходе объявления функции.
     }
 
     public void Visit(WhileLoopExpression e)
@@ -593,7 +639,7 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private void BeginScope()
     {
-        _scopesStack.Push(new Dictionary<string, LocalBuilder>());
+        _scopesStack.Push(new LocalVariablesScope());
         _il.BeginScope();
     }
 
@@ -616,27 +662,42 @@ public class MsilCodegenPass : IAstVisitor
         _il.Emit(OpCodes.Stloc, local);
 
         // Добавляем переменную в текущую область видимости.
-        CurrentScope[name] = local;
+        CurrentScope.AddVariable(name, local);
 
         return local;
     }
 
     /// <summary>
-    /// Находит локальную переменную по имени, просматривая лексические области видимости от текущей к внешним.
+    /// Создает локальную переменную для i-го параметра функции (нумерация начинается с нуля).
+    /// </summary>
+    private void EmitDefineParameter(string name, ValueType type, int argumentNo)
+    {
+        // Создаём локальную переменную для параметра функции.
+        LocalBuilder local = _il.DeclareLocal(_typeMapper.MapType(type));
+
+        // Загружаем значение новой переменной из i-го аргумента (нумерация начинается с нуля).
+        _il.Emit(OpCodes.Ldarg, argumentNo);
+        _il.Emit(OpCodes.Stloc, local);
+
+        // Добавляем в текущую область видимости.
+        CurrentScope.AddVariable(name, local);
+    }
+
+    /// <summary>
+    /// Находит локальную переменную в текущей области видимости.
     /// </summary>
     private LocalBuilder FindVariable(string name)
     {
-        // Ищем переменную в текущей и родительских областях видимости.
-        // В языке C# инструкция foreach для класса Stack выбирает значения, начиная с последнего добавленного.
-        foreach (Dictionary<string, LocalBuilder> scope in _scopesStack)
-        {
-            if (scope.TryGetValue(name, out LocalBuilder? local))
-            {
-                return local;
-            }
-        }
+        return _scopesStack.Peek().GetVariable(name);
+    }
 
-        throw new InvalidOperationException($"Variable '{name}' not found in current scopes.");
+    /// <summary>
+    /// Декорирует имя функции, чтобы гарантировать отсутствие пересечений с системными именами методов
+    ///  (такими как "Main").
+    /// </summary>
+    private string GetUserFunctionMethodName(string name)
+    {
+        return "Tiger" + name;
     }
 
     /// <summary>
