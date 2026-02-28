@@ -101,7 +101,44 @@ public class BuiltinFunctionEmitter
     /// </summary>
     private void EmitGetChar(ILGenerator il)
     {
-        throw new NotImplementedException("Cannot generate \"getchar(): string\" function call yet");
+        // Получаем метод `int Console.Read()` и вызываем его.
+        MethodInfo read = GetMethod(typeof(Console), "Read", Type.EmptyTypes);
+        il.Emit(OpCodes.Call, read);
+
+        Label eofLabel = il.DefineLabel();
+        Label invalidCharLabel = il.DefineLabel();
+        Label endLabel = il.DefineLabel();
+
+        // Если код символа равен "-1", значит, достигнут конец файла — тогда переходим к блоку EOF.
+        il.Emit(OpCodes.Dup); // Дублируем значение на стеке.
+        il.Emit(OpCodes.Ldc_I4_M1); // Добавляем в стек -1
+        il.Emit(OpCodes.Ceq); // Сравниваем значения на равенство.
+        il.Emit(OpCodes.Brtrue, eofLabel);
+
+        // Если код символа больше 128, то возвращаем "?"
+        il.Emit(OpCodes.Dup); // Дублируем значение на стеке.
+        il.Emit(OpCodes.Ldc_I4, 128); // Добавляем в стек 128.
+        il.Emit(OpCodes.Clt); // Сравниваем значения (меньше чем).
+        il.Emit(OpCodes.Brfalse, invalidCharLabel);
+
+        // Получаем метод `string char.ConvertFromUtf32(int)` и вызываем его,
+        //  чтобы конвертировать код символа в строку.
+        MethodInfo convertFromUtf32 = GetMethod(typeof(char), "ConvertFromUtf32", [typeof(int)]);
+        il.Emit(OpCodes.Call, convertFromUtf32);
+        il.Emit(OpCodes.Br, endLabel);
+
+        // Блок invalid char: возвращаем "?".
+        il.MarkLabel(invalidCharLabel);
+        il.Emit(OpCodes.Pop); // Убираем код символа из стека.
+        il.Emit(OpCodes.Ldstr, "?");
+        il.Emit(OpCodes.Br, endLabel);
+
+        // Блок EOF: возвращаем пустую строку.
+        il.MarkLabel(eofLabel);
+        il.Emit(OpCodes.Pop); // Убираем код символа из стека.
+        il.Emit(OpCodes.Ldstr, "");
+
+        il.MarkLabel(endLabel);
     }
 
     /// <summary>
