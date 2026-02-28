@@ -66,13 +66,19 @@ public sealed class InterpreterStepDefinitions
     [Then("^(?:я )?увижу вывод (.*)$")]
     public void ТогдаЯУвижуВывод(string expected)
     {
-        Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+        Assert.Equal(
+            ToUnixLineEnds(expected),
+            ToUnixLineEnds(_fakeEnvironment.FlushedOutput + _fakeEnvironment.BufferedOutput)
+        );
     }
 
     [Then("^(?:я )?увижу вывод:$")]
     public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
-        Assert.Equal(expected, _fakeEnvironment.BufferedOutput + _fakeEnvironment.FlushedOutput);
+        Assert.Equal(
+            ToUnixLineEnds(expected),
+            ToUnixLineEnds(_fakeEnvironment.FlushedOutput + _fakeEnvironment.BufferedOutput)
+        );
     }
 
     [Then(@"^(?:я )?получу код возврата (\d+)$")]
@@ -86,5 +92,10 @@ public sealed class InterpreterStepDefinitions
     {
         ProgramAbortedException e = Assert.IsType<ProgramAbortedException>(_lastException);
         Assert.Equal(message, e.Message);
+    }
+
+    private string ToUnixLineEnds(string text)
+    {
+        return text.Replace("\r\n", "\n");
     }
 }
