@@ -234,16 +234,7 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(VariableDeclaration d)
     {
-        // Объявляем локальную переменную нужного типа в текущем методе.
-        Type type = _typeMapper.MapType(d.InitialValue.ResultType);
-        LocalBuilder local = _il.DeclareLocal(type);
-
-        // Вычисляем начальное значение и сохраняем его в переменную.
-        d.InitialValue.Accept(this);
-        _il.Emit(OpCodes.Stloc, local);
-
-        // Добавляем переменную в текущую область видимости.
-        CurrentScope[d.Name] = local;
+        EmitDefineVariable(d.Name, d.ResultType, d.InitialValue);
     }
 
     public void Visit(FunctionDeclaration d)
@@ -263,12 +254,42 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(ForLoopExpression e)
     {
-        throw new NotImplementedException();
+        Label loopStart = _il.DefineLabel(); // Метка проверки условия.
+        Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+
+        // Начинаем новую область видимости, объявляем итератор и вычисляем его начальное значение.
+        BeginScope();
+        LocalBuilder iterator = EmitDefineVariable(e.Iterator.Name, e.Iterator.ResultType, e.StartValue);
+
+        // Блок начала цикла (проверки условия).
+        // Сравниваем итератор с конечным значением: если итератор больше, то переходим к концу цикла.
+        _il.MarkLabel(loopStart);
+        _il.Emit(OpCodes.Ldloc, iterator);
+        e.EndValue.Accept(this);
+        _il.Emit(OpCodes.Cgt);
+        _il.Emit(OpCodes.Brtrue, loopEnd);
+
+        // Генерируем тело цикла
+        e.LoopBody.Accept(this);
+
+        // Инкремент итератора: загружаем значение, добавляем 1, сохраняем.
+        _il.Emit(OpCodes.Ldloc, iterator);
+        _il.Emit(OpCodes.Ldc_I4_1);
+        _il.Emit(OpCodes.Add);
+        _il.Emit(OpCodes.Stloc, iterator);
+
+        // Снова переходим к началу цикла.
+        _il.Emit(OpCodes.Br, loopStart);
+
+        // Блок после завершения цикла.
+        _il.MarkLabel(loopEnd);
+
+        // Завершаем область видимости.
+        EndScope();
     }
 
     public void Visit(ForIteratorDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(BreakLoopExpression e)
@@ -562,6 +583,21 @@ public class MsilCodegenPass : IAstVisitor
     {
         _il.EndScope();
         _scopesStack.Pop();
+    }
+
+    private LocalBuilder EmitDefineVariable(string name, ValueType type, Expression initialValue)
+    {
+        // Объявляем локальную переменную нужного типа в текущем методе.
+        LocalBuilder local = _il.DeclareLocal(_typeMapper.MapType(type));
+
+        // Вычисляем начальное значение и сохраняем его в переменную.
+        initialValue.Accept(this);
+        _il.Emit(OpCodes.Stloc, local);
+
+        // Добавляем переменную в текущую область видимости.
+        CurrentScope[name] = local;
+
+        return local;
     }
 
     /// <summary>
