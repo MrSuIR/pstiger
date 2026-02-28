@@ -69,6 +69,9 @@ public sealed class ConsoleSubprocessRunner
         Task<string> stderrTask = process.StandardError.ReadToEndAsync(ct);
         await process.WaitForExitAsync(ct);
 
+        // Сохраняем код возврата.
+        ExitCode = process.ExitCode;
+
         // Ожидаем завершения чтения stdout/stderr.
         Stdout = await stdoutTask;
         Stderr = await stderrTask;

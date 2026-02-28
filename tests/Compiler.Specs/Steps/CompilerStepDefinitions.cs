@@ -18,7 +18,7 @@ public sealed class CompilerStepDefinitions : IDisposable
     private readonly CompilerTestDriver _compilerTestDriver = new();
     private TempFile? _compiledProgram = null;
 
-    private StringBuilder _programInput = new();
+    private readonly StringBuilder _programInput = new();
     private string _lastProgramOutput = string.Empty;
     private int _lastProgramExitCode = -1;
 
@@ -52,10 +52,22 @@ public sealed class CompilerStepDefinitions : IDisposable
         Assert.True(File.Exists(_compiledProgram.Path), $"Executable file {_compiledProgram.Path} does not exist");
 
         CancellationTokenSource cts = new(TimeSpan.FromSeconds(RunTimeoutSeconds));
-        _lastProgramOutput = await DotnetConsoleProgramRunner.CheckedRunAndReadOutput(
+        _lastProgramOutput = await DotnetConsoleProgramRunner.RunAndReadOutputWithCheck(
             _compiledProgram.Path, _programInput.ToString(), cts.Token
         );
         _lastProgramExitCode = 0;
+    }
+
+    [When("^(?:я )?выполняю программу с перехватом ошибок$")]
+    public async Task WhenЯВыполняюПрограммуСПерехватомОшибок()
+    {
+        Assert.NotNull(_compiledProgram);
+        Assert.True(File.Exists(_compiledProgram.Path), $"Executable file {_compiledProgram.Path} does not exist");
+
+        CancellationTokenSource cts = new(TimeSpan.FromSeconds(RunTimeoutSeconds));
+        (_lastProgramExitCode, _lastProgramOutput) = await DotnetConsoleProgramRunner.RunAndReadOutput(
+            _compiledProgram.Path, _programInput.ToString(), cts.Token
+        );
     }
 
     [Then("^(?:я )?увижу вывод (.*)$")]

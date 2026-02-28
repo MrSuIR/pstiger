@@ -13,13 +13,14 @@ namespace PsTiger.MsilBackend;
 public class ExecutableBuilder
 {
     private readonly string _executablePath;
+    private readonly string _runtimeConfigPath;
     private readonly PersistedAssemblyBuilder _assemblyBuilder;
     private readonly ModuleBuilder _moduleBuilder;
-    private readonly List<TypeBuilder> _typeBuilders = [];
 
     public ExecutableBuilder(string executablePath)
     {
         _executablePath = executablePath;
+        _runtimeConfigPath = Path.ChangeExtension(executablePath, "runtimeconfig.json");
         AssemblyName assemblyName = new(Path.GetFileNameWithoutExtension(executablePath));
 
         _assemblyBuilder = new PersistedAssemblyBuilder(
@@ -54,8 +55,12 @@ public class ExecutableBuilder
             entryPoint: mainHandle
         );
 
+        // Сохраняем исполняемый файл и задаём ему UNIX-права на исполнение.
         CreateExecutableFile(_executablePath, peBuilder);
         SetExecutePermissions(_executablePath);
+
+        // Генерируем *.runtimeconfig.json для запуска программы утилитой dotnet exec в Linux / Mac OS X.
+        RuntimeConfigGenerator.SaveRuntimeConfig(_runtimeConfigPath);
     }
 
     private static void CreateExecutableFile(
