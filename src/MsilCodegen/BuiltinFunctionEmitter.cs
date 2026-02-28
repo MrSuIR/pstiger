@@ -33,10 +33,10 @@ public class BuiltinFunctionEmitter
                 Builtins.Not, _ => throw new NotImplementedException("Cannot emit MSIL for \"not\" function")
             },
             {
-                Builtins.Ord, _ => throw new NotImplementedException("Cannot emit MSIL for \"ord\" function")
+                Builtins.Ord, EmitOrd
             },
             {
-                Builtins.Chr, _ => throw new NotImplementedException("Cannot emit MSIL for \"chr\" function")
+                Builtins.Chr, EmitChr
             },
             {
                 Builtins.Concat, EmitConcat
@@ -113,7 +113,7 @@ public class BuiltinFunctionEmitter
         il.Emit(OpCodes.Ceq); // Сравниваем значения на равенство.
         il.Emit(OpCodes.Brtrue, eofLabel);
 
-        // Если код символа больше 128, то возвращаем "?"
+        // Если код символа больше 127, то возвращаем "?"
         il.Emit(OpCodes.Dup); // Дублируем значение на стеке.
         il.Emit(OpCodes.Ldc_I4, 128); // Добавляем в стек 128.
         il.Emit(OpCodes.Clt); // Сравниваем значения (меньше чем).
@@ -136,6 +136,7 @@ public class BuiltinFunctionEmitter
         il.Emit(OpCodes.Pop); // Убираем код символа из стека.
         il.Emit(OpCodes.Ldstr, "");
 
+        // Блок, завершающий текущую последовательность инструкций.
         il.MarkLabel(endLabel);
     }
 
@@ -147,6 +148,78 @@ public class BuiltinFunctionEmitter
         // Находим метод Environment.Exit(int) и вызываем его.
         MethodInfo method = GetMethod(typeof(Environment), "Exit", [typeof(int)]);
         il.Emit(OpCodes.Call, method);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции ord(s : string) : int.
+    /// </summary>
+    private void EmitOrd(ILGenerator il)
+    {
+        Label emptyStringLabel = il.DefineLabel();
+        Label endLabel = il.DefineLabel();
+
+        // Вычисляем длину строки, чтобы проверить, является ли она пустой.
+        il.Emit(OpCodes.Dup);
+        EmitSize(il);
+        il.Emit(OpCodes.Ldc_I4_0);
+        il.Emit(OpCodes.Ceq);
+        il.Emit(OpCodes.Brtrue, emptyStringLabel);
+
+        // Строка не пустая. Получаем первый символ с помощью индексатора: text[0].
+        // Больше ничего не делаем, поскольку по правилам MSIL тип char будет неявно преобразован к int
+        //  при его последующем использовании.
+        MethodInfo indexerGetter = GetMethod(typeof(string), "get_Chars", [typeof(int)]);
+        il.Emit(OpCodes.Ldc_I4_0);
+        il.Emit(OpCodes.Callvirt, indexerGetter);
+        il.Emit(OpCodes.Br, endLabel);
+
+        // Блок empty string: если строка пустая, возвращаем -1.
+        il.MarkLabel(emptyStringLabel);
+        il.Emit(OpCodes.Pop); // Убираем исходную строку со стека.
+        il.Emit(OpCodes.Ldc_I4_M1);
+
+        // Блок, завершающий текущую последовательность инструкций.
+        il.MarkLabel(endLabel);
+    }
+
+    /// <summary>
+    /// Генерирует вызов встроенной функции chr(i : int) : string.
+    /// </summary>
+    private void EmitChr(ILGenerator il)
+    {
+        Label terminateLabel = il.DefineLabel();
+        Label endLabel = il.DefineLabel();
+
+        // Если код символа больше 127, то аварийно завершаем программу
+        il.Emit(OpCodes.Dup); // Дублируем значение на стеке.
+        il.Emit(OpCodes.Ldc_I4, 128); // Добавляем в стек 128.
+        il.Emit(OpCodes.Clt); // Сравниваем значения (меньше чем).
+        il.Emit(OpCodes.Brfalse, terminateLabel);
+
+        // Если код символа меньше 0, то аварийно завершаем программу
+        il.Emit(OpCodes.Dup); // Дублируем значение на стеке.
+        il.Emit(OpCodes.Ldc_I4, 0); // Добавляем в стек 0.
+        il.Emit(OpCodes.Clt); // Сравниваем значения (меньше чем).
+        il.Emit(OpCodes.Brtrue, terminateLabel);
+
+        // Получаем метод `string char.ConvertFromUtf32(int)` и вызываем его,
+        //  чтобы конвертировать код символа в строку.
+        MethodInfo convertFromUtf32 = GetMethod(typeof(char), "ConvertFromUtf32", [typeof(int)]);
+        il.Emit(OpCodes.Call, convertFromUtf32);
+        il.Emit(OpCodes.Br, endLabel);
+
+        // Блок terminate: аварийное завершение программы
+        //  с сообщением "fatal error: invalid character code {code}" и кодом 1.
+        il.MarkLabel(terminateLabel);
+        il.Emit(OpCodes.Ldstr, "fatal error: invalid character code ");
+        EmitPrint(il); // Печатаем начало сообщения об ошибке.
+        EmitPrintI(il); // Печатаем код символа.
+        il.Emit(OpCodes.Ldstr, ""); // Добавляем пустую строку как результат, чтобы стек .NET оставался валидным.
+        il.Emit(OpCodes.Ldc_I4_1);
+        EmitExit(il);
+
+        // Блок, завершающий текущую последовательность инструкций.
+        il.MarkLabel(endLabel);
     }
 
     /// <summary>

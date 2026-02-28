@@ -7,5 +7,9 @@
     print(", ");
     printi(ord("e"));
     print(", ");
-    printi(ord("r"))
+    printi(ord("r"));
+    print(", ");
+    printi(ord("Tiger"));
+    print(", ");
+    printi(ord(""))
 )
