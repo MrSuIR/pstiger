@@ -73,13 +73,19 @@ public sealed class CompilerStepDefinitions : IDisposable
     [Then("^(?:я )?увижу вывод (.*)$")]
     public void ТогдаЯУвижуВывод(string expected)
     {
-        Assert.Equal(expected, _lastProgramOutput);
+        Assert.Equal(
+            ToUnixLineEnds(expected),
+            ToUnixLineEnds(_lastProgramOutput)
+        );
     }
 
     [Then("^(?:я )?увижу вывод:$")]
     public void ТогдаЯУвижуВыводМногострочный(string expected)
     {
-        Assert.Equal(expected, _lastProgramOutput);
+        Assert.Equal(
+            ToUnixLineEnds(expected),
+            ToUnixLineEnds(_lastProgramOutput)
+        );
     }
 
     [Then(@"^(?:я )?получу код возврата (\d+)$")]
@@ -91,5 +97,10 @@ public sealed class CompilerStepDefinitions : IDisposable
     public void Dispose()
     {
         _compiledProgram?.Dispose();
+    }
+
+    private string ToUnixLineEnds(string text)
+    {
+        return text.Replace("\r\n", "\n");
     }
 }
