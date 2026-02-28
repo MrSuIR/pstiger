@@ -205,7 +205,31 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(IfElseExpression e)
     {
-        throw new NotImplementedException();
+        Label endLabel = _il.DefineLabel();
+        if (e.ElseBranch != null)
+        {
+            // Вычисляем условие — если оно равно 0, то пропускаем ветку then и переходим к ветке else.
+            Label elseLabel = _il.DefineLabel();
+            e.Condition.Accept(this);
+            _il.Emit(OpCodes.Brfalse, elseLabel);
+
+            // Генерируем код для ветки then.
+            e.ThenBranch.Accept(this);
+            _il.Emit(OpCodes.Br, endLabel);
+
+            // Блок else: генерируем код ветки else.
+            _il.MarkLabel(elseLabel);
+            e.ElseBranch.Accept(this);
+        }
+        else
+        {
+            // Вычисляем условие — если оно равно 0, то пропускаем ветку then.
+            e.Condition.Accept(this);
+            _il.Emit(OpCodes.Brfalse, endLabel);
+            e.ThenBranch.Accept(this);
+        }
+
+        _il.MarkLabel(endLabel);
     }
 
     public void Visit(VariableDeclaration d)
