@@ -366,17 +366,14 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(TypeDeclaration d)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(NamedTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(ArrayTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(ArrayAccessExpression e)
@@ -391,7 +388,6 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(RecordTypeExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(FieldDeclaration d)
