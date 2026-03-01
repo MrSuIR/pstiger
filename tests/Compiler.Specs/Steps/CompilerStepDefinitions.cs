@@ -14,23 +14,25 @@ namespace PsTiger.Tests.Compiler.Specs.Steps;
 public sealed class CompilerStepDefinitions : IDisposable
 {
     private const int RunTimeoutSeconds = 20;
+    private static readonly TimeSpan RunTimeout = TimeSpan.FromSeconds(RunTimeoutSeconds);
 
     private readonly CompilerTestDriver _compilerTestDriver = new();
-    private TempFile? _compiledProgram = null;
+    private TempFile? _compiledProgram;
 
     private readonly StringBuilder _programInput = new();
     private string _lastProgramOutput = string.Empty;
     private int _lastProgramExitCode = -1;
 
     [Given(@"^я скомпилировал программу ""(.*)""$")]
-    public async Task ПустьЯСкомпилировалПрограмму(string relativeProgramPath)
+    public async Task ПустьЯСкомпилировалПрограмму(string name)
     {
-        string programPath = Samples.GetSampleProgramPath(relativeProgramPath);
+        // Получаем путь к файлу с исходным кодом.
+        string path = Samples.GetSampleProgramPath(name);
+        Assert.True(File.Exists(path), $"Source code file {path} does not exist");
 
-        Assert.True(File.Exists(programPath), $"Source code file {programPath} does not exist");
-
+        // Компилируем программу в исполняемый файл (это будет временный файл).
         _compiledProgram ??= TempFile.CreateEmpty("program-", ".exe");
-        _compilerTestDriver.RunCompiler(programPath, _compiledProgram.Path);
+        _compilerTestDriver.RunCompiler(path, _compiledProgram.Path);
 
         await DotnetIlVerifyRunner.Run(_compiledProgram.Path);
     }
@@ -50,23 +52,29 @@ public sealed class CompilerStepDefinitions : IDisposable
     [When("^(?:я )?выполняю программу$")]
     public async Task КогдаВыполняюПрограмму()
     {
+        // Проверяем, что программа была скомпилирована.
         Assert.NotNull(_compiledProgram);
         Assert.True(File.Exists(_compiledProgram.Path), $"Executable file {_compiledProgram.Path} does not exist");
 
-        CancellationTokenSource cts = new(TimeSpan.FromSeconds(RunTimeoutSeconds));
+        // Запускаем программу с таймаутом и сохраняем её вывод.
+        CancellationTokenSource cts = new(RunTimeout);
         _lastProgramOutput = await DotnetConsoleProgramRunner.RunAndReadOutputWithCheck(
             _compiledProgram.Path, _programInput.ToString(), cts.Token
         );
+
+        // Код возврата нулевой — иначе используемый метод запуска выбросил бы исключение.
         _lastProgramExitCode = 0;
     }
 
     [When("^(?:я )?выполняю программу с перехватом ошибок$")]
     public async Task WhenЯВыполняюПрограммуСПерехватомОшибок()
     {
+        // Проверяем, что программа была скомпилирована.
         Assert.NotNull(_compiledProgram);
         Assert.True(File.Exists(_compiledProgram.Path), $"Executable file {_compiledProgram.Path} does not exist");
 
-        CancellationTokenSource cts = new(TimeSpan.FromSeconds(RunTimeoutSeconds));
+        // Запускаем программу с таймаутом и сохраняем её вывод и код возврата.
+        CancellationTokenSource cts = new(RunTimeout);
         (_lastProgramExitCode, _lastProgramOutput) = await DotnetConsoleProgramRunner.RunAndReadOutput(
             _compiledProgram.Path, _programInput.ToString(), cts.Token
         );
