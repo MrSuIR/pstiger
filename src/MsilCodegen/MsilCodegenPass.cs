@@ -144,7 +144,7 @@ public class MsilCodegenPass : IAstVisitor
             argument.Accept(this);
         }
 
-        if (_builtinFunctionEmitter.IsBuiltinFunction(e.Name))
+        if (e.Function is BuiltinFunction)
         {
             _builtinFunctionEmitter.EmitCallBuiltinFunction(e.Name, _il);
             return;
