@@ -50,11 +50,6 @@ public class BuiltinFunctionEmitter
         };
     }
 
-    public bool IsBuiltinFunction(string name)
-    {
-        return _functionsMap.ContainsKey(name);
-    }
-
     public void EmitCallBuiltinFunction(string name, ILGenerator il)
     {
         Action<ILGenerator> action = _functionsMap[name];
