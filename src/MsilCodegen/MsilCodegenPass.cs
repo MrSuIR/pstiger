@@ -150,7 +150,7 @@ public class MsilCodegenPass : IAstVisitor
         }
 
         // Генерируем вызов встроенной либо пользовательской функции.
-        if (_builtinFunctionEmitter.IsBuiltinFunction(e.Name))
+        if (e.Function is BuiltinFunction)
         {
             _builtinFunctionEmitter.EmitCallBuiltinFunction(e.Name, _il);
         }
