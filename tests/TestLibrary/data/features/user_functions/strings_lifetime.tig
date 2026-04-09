@@ -1,0 +1,16 @@
+/*
+  Программа печает "Hello, World!",
+  при этом предполагается, что строки продолжают
+  существовать после возврата из функции
+ */
+let
+    function concat_with_space(s1: string, s2: string): string = (
+        let
+            var prefix := concat(s1, " ")
+        in
+            concat(prefix, s2)
+        end
+    )
+in
+    print(concat_with_space("Hello,", "World!"))
+end

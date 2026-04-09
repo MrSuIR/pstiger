@@ -1,0 +1,19 @@
+let
+    function isOdd(x: int): string = (
+        let
+            var modulo := (x+1) / 2 - x / 2
+        in
+            if modulo = 1
+            then
+                "yes"
+            else
+                "no"
+        end
+    )
+in
+    print("isOdd(6) = ");
+    print(isOdd(6));
+    print("\n");
+    print("isOdd(11) = ");
+    print(isOdd(11))
+end
