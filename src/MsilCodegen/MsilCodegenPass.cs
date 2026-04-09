@@ -405,55 +405,37 @@ public class MsilCodegenPass : IAstVisitor
         Type elementType = arrayType.GetElementType()!;
 
         // Создаём массив заданного размера.
+        // На вершине стека остаётся ссылка на массив.
         e.Size.Accept(this);
         _il.Emit(OpCodes.Newarr, elementType);
 
-        // Далее заполняем массив начальным значением, на каждой итерации вычисляя начальное значение.
-
-        // Создаём анонимные переменные для цикла заполнения массива.
-        LocalBuilder localArray = _il.DeclareLocal(arrayType);
-        LocalBuilder localSize = _il.DeclareLocal(typeof(int));
-        LocalBuilder localIndex = _il.DeclareLocal(typeof(int));
-
-        // Запоминаем ссылку на массив.
+        // Сохраняем ссылку на массив в локальную переменную.
+        // На вершине стека всё ещё ссылка на массив.
+        LocalBuilder arrayLocal = _il.DeclareLocal(arrayType);
         _il.Emit(OpCodes.Dup);
-        _il.Emit(OpCodes.Stloc, localArray);
+        _il.Emit(OpCodes.Stloc, arrayLocal);
 
-        // Запоминаем размер массива.
+        // Сохраняем размер массива в локальную переменную.
+        // На вершине стека всё ещё ссылка на массив.
         _il.Emit(OpCodes.Dup);
-        _il.Emit(OpCodes.Ldlen);
-        _il.Emit(OpCodes.Conv_I4);
-        _il.Emit(OpCodes.Stloc, localSize);
+        LocalBuilder sizeLocal = SaveArraySizeToLocal();
 
-        // Инициализируем итератор цикла.
-        _il.Emit(OpCodes.Ldc_I4, 0);
-        _il.Emit(OpCodes.Stloc, localIndex);
-
-        Label loopStart = _il.DefineLabel(); // Метка проверки условия.
-        Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
-
-        // Начало цикла: проверяем, не пора ли завершить заполнение массива.
-        _il.MarkLabel(loopStart);
-        _il.Emit(OpCodes.Ldloc, localIndex);
-        _il.Emit(OpCodes.Ldloc, localSize);
-        _il.Emit(OpCodes.Clt);
-        _il.Emit(OpCodes.Brfalse, loopEnd);
-
-        // Вычисляем выражение и заполняем элемент массива.
-        _il.Emit(OpCodes.Ldloc, localArray);
-        _il.Emit(OpCodes.Ldloc, localIndex);
+        // Вычисляем однократно начальное значение и сохраняем в локальную переменную.
+        // На вершине стека всё ещё ссылка на массив.
+        LocalBuilder initialValueLocal = _il.DeclareLocal(elementType);
         e.InitialValue.Accept(this);
-        _il.Emit(OpCodes.Stelem, elementType);
+        _il.Emit(OpCodes.Stloc, initialValueLocal);
 
-        // Увеличиваем индекс на 1 и возвращаемся в начало цикла.
-        _il.Emit(OpCodes.Ldloc, localIndex);
-        _il.Emit(OpCodes.Ldc_I4_1);
-        _il.Emit(OpCodes.Add);
-        _il.Emit(OpCodes.Stloc, localIndex);
-        _il.Emit(OpCodes.Br, loopStart);
-
-        // Завершаем цикл инициализации.
-        _il.MarkLabel(loopEnd);
+        // Далее заполняем массив поэлементно, на каждой итерации выполняя
+        //  глубокое копирование начального значения.
+        EmitForEachIndex(sizeLocal, localIndex =>
+        {
+            _il.Emit(OpCodes.Ldloc, arrayLocal);
+            _il.Emit(OpCodes.Ldloc, localIndex);
+            _il.Emit(OpCodes.Ldloc, initialValueLocal);
+            EmitDeepCopy(elementType);
+            _il.Emit(OpCodes.Stelem, elementType);
+        });
     }
 
     public void Visit(RecordTypeExpression e)
@@ -478,6 +460,113 @@ public class MsilCodegenPass : IAstVisitor
     public void Visit(FieldAccessExpression e)
     {
         throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Заменяет значение на вершине стека на глубокую копию этого значения.
+    /// </summary>
+    /// <remarks>
+    /// Значения типов int и string не копируются.
+    /// Значения массов копируются поэлементно, глубокое копирование применяется к ним рекурсивно.
+    /// </remarks>
+    private void EmitDeepCopy(Type valueType)
+    {
+        // Целые числа и строки неизменяемы, им не требуется копирование.
+        if (valueType.IsValueType || valueType == typeof(string))
+        {
+            return;
+        }
+
+        // Массив нужно копировать поэлементно.
+        if (valueType.IsArray)
+        {
+            Type elementType = valueType.GetElementType()!;
+
+            // Сохраняем размер массива в локальную переменную.
+            _il.Emit(OpCodes.Dup);
+            LocalBuilder sizeLocal = SaveArraySizeToLocal();
+
+            // Сохраняем исходный массив в локальную переменную.
+            LocalBuilder srcValue = _il.DeclareLocal(valueType);
+            _il.Emit(OpCodes.Stloc, srcValue);
+
+            // Создаём новый массив и сохраняем в локальную переменную.
+            LocalBuilder destValue = _il.DeclareLocal(valueType);
+            _il.Emit(OpCodes.Ldloc, sizeLocal);
+            _il.Emit(OpCodes.Newarr, valueType.GetElementType()!);
+            _il.Emit(OpCodes.Stloc, destValue);
+
+            // Копируем каждый элемент исходного массива в новый массив.
+            EmitForEachIndex(sizeLocal, index =>
+            {
+                // Копируем значение из исходного массива в новый: destValue[index] := srcValue[index].
+                _il.Emit(OpCodes.Ldloc, destValue);
+                _il.Emit(OpCodes.Ldloc, index);
+                _il.Emit(OpCodes.Ldloc, srcValue);
+                _il.Emit(OpCodes.Ldloc, index);
+                _il.Emit(OpCodes.Ldelem, elementType);
+                EmitDeepCopy(elementType);
+                _il.Emit(OpCodes.Stelem, elementType);
+            });
+
+            // Кладём на вершину стека ссылку на новый массив.
+            _il.Emit(OpCodes.Ldloc, destValue);
+
+            return;
+        }
+
+        throw new NotSupportedException($"Cannot deep copy value of type {valueType}");
+    }
+
+    /// <summary>
+    /// Создаёт цикл для перебора индекса от 0 до size-1.
+    /// </summary>
+    /// <param name="size">Локальная переменная, которая хранит размер массива</param>
+    /// <param name="action">Действие, принимает локальную переменную индекса массива.</param>
+    private void EmitForEachIndex(LocalBuilder size, Action<LocalBuilder> action)
+    {
+        // Создаём анонимные локальные переменные для цикла обхода массива.
+        LocalBuilder index = _il.DeclareLocal(typeof(int));
+
+        // Инициализируем локальную переменную с индексом текущего элемента.
+        _il.Emit(OpCodes.Ldc_I4, 0);
+        _il.Emit(OpCodes.Stloc, index);
+
+        Label loopStart = _il.DefineLabel(); // Метка проверки условия.
+        Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+
+        // Начало цикла: проверяем, не пора ли завершить заполнение массива.
+        _il.MarkLabel(loopStart);
+        _il.Emit(OpCodes.Ldloc, index);
+        _il.Emit(OpCodes.Ldloc, size);
+        _il.Emit(OpCodes.Clt);
+        _il.Emit(OpCodes.Brfalse, loopEnd);
+
+        // Вычисляем выражение и заполняем элемент массива.
+        action(index);
+
+        // Увеличиваем индекс на 1 и возвращаемся в начало цикла.
+        _il.Emit(OpCodes.Ldloc, index);
+        _il.Emit(OpCodes.Ldc_I4_1);
+        _il.Emit(OpCodes.Add);
+        _il.Emit(OpCodes.Stloc, index);
+        _il.Emit(OpCodes.Br, loopStart);
+
+        // Завершаем цикл инициализации.
+        _il.MarkLabel(loopEnd);
+    }
+
+    /// <summary>
+    /// Получает длину массива с текущей вершины стека и сохраняет в анонимную переменную типа int.
+    /// </summary>
+    private LocalBuilder SaveArraySizeToLocal()
+    {
+        LocalBuilder sizeLocal = _il.DeclareLocal(typeof(int));
+        _il.Emit(OpCodes.Ldlen);
+        _il.Emit(OpCodes.Conv_I4);
+        _il.Emit(OpCodes.Stloc, sizeLocal);
+
+        return sizeLocal;
     }
 
     /// <summary>
