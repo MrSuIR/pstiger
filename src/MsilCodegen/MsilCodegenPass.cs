@@ -391,26 +391,69 @@ public class MsilCodegenPass : IAstVisitor
         _il.Emit(OpCodes.Ldelem, elementType);
     }
 
+    /// <summary>
+    /// Создаёт новый массив, оставляет на вершине стека его значение.
+    /// </summary>
+    /// <remarks>
+    /// Мы могли бы использовать Array.Fill() для заполнения массива начальным значением,
+    ///  но тогда многомерные массивы будут инициализированы одним и тем же подмассивом.
+    /// </remarks>
     public void Visit(ArrayLiteralExpression e)
     {
+        // Определяем тип массива и элемента массива.
         Type arrayType = _typeMapper.MapType(e.ResultType);
         Type elementType = arrayType.GetElementType()!;
-
-        MethodInfo arrayFillGenericMethod = GetMethod(
-            typeof(Array),
-            "Fill",
-            info => info.IsGenericMethod && info.GetParameters().Length == 2
-        );
-        MethodInfo arrayFillMethod = arrayFillGenericMethod.MakeGenericMethod(elementType);
 
         // Создаём массив заданного размера.
         e.Size.Accept(this);
         _il.Emit(OpCodes.Newarr, elementType);
 
-        // Заполняем массив начальным значением путём вызова Array.Fill<T>().
+        // Далее заполняем массив начальным значением, на каждой итерации вычисляя начальное значение.
+
+        // Создаём анонимные переменные для цикла заполнения массива.
+        LocalBuilder localArray = _il.DeclareLocal(arrayType);
+        LocalBuilder localSize = _il.DeclareLocal(typeof(int));
+        LocalBuilder localIndex = _il.DeclareLocal(typeof(int));
+
+        // Запоминаем ссылку на массив.
         _il.Emit(OpCodes.Dup);
+        _il.Emit(OpCodes.Stloc, localArray);
+
+        // Запоминаем размер массива.
+        _il.Emit(OpCodes.Dup);
+        _il.Emit(OpCodes.Ldlen);
+        _il.Emit(OpCodes.Conv_I4);
+        _il.Emit(OpCodes.Stloc, localSize);
+
+        // Инициализируем итератор цикла.
+        _il.Emit(OpCodes.Ldc_I4, 0);
+        _il.Emit(OpCodes.Stloc, localIndex);
+
+        Label loopStart = _il.DefineLabel(); // Метка проверки условия.
+        Label loopEnd = _il.DefineLabel(); // Метка конца цикла.
+
+        // Начало цикла: проверяем, не пора ли завершить заполнение массива.
+        _il.MarkLabel(loopStart);
+        _il.Emit(OpCodes.Ldloc, localIndex);
+        _il.Emit(OpCodes.Ldloc, localSize);
+        _il.Emit(OpCodes.Clt);
+        _il.Emit(OpCodes.Brfalse, loopEnd);
+
+        // Вычисляем выражение и заполняем элемент массива.
+        _il.Emit(OpCodes.Ldloc, localArray);
+        _il.Emit(OpCodes.Ldloc, localIndex);
         e.InitialValue.Accept(this);
-        _il.Emit(OpCodes.Call, arrayFillMethod);
+        _il.Emit(OpCodes.Stelem, elementType);
+
+        // Увеличиваем индекс на 1 и возвращаемся в начало цикла.
+        _il.Emit(OpCodes.Ldloc, localIndex);
+        _il.Emit(OpCodes.Ldc_I4_1);
+        _il.Emit(OpCodes.Add);
+        _il.Emit(OpCodes.Stloc, localIndex);
+        _il.Emit(OpCodes.Br, loopStart);
+
+        // Завершаем цикл инициализации.
+        _il.MarkLabel(loopEnd);
     }
 
     public void Visit(RecordTypeExpression e)
