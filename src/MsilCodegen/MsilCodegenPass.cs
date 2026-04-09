@@ -26,7 +26,7 @@ public class MsilCodegenPass : IAstVisitor
     private ILGenerator _il = null!;
 
     // Текущая область видимости переменных.
-    private readonly Stack<LocalVariablesScope> _scopesStack;
+    private LocalVariablesScope _localVariables;
 
     // Стек меток конца цикла для прерывания цикла (break).
     private readonly Stack<Label> _loopEndsStack;
@@ -39,15 +39,10 @@ public class MsilCodegenPass : IAstVisitor
         _moduleBuilder = moduleBuilder;
         _typeMapper = new TigerTypeMapper();
         _builtinFunctionEmitter = new BuiltinFunctionEmitter();
-        _scopesStack = new Stack<LocalVariablesScope>();
+        _localVariables = new LocalVariablesScope();
         _loopEndsStack = new Stack<Label>();
         _userFunctionMethodsMap = new Dictionary<string, MethodBuilder>();
     }
-
-    /// <summary>
-    /// Текущая область видимости переменных.
-    /// </summary>
-    private LocalVariablesScope CurrentScope => _scopesStack.Peek();
 
     /// <summary>
     /// Создаёт класс Program и метод Main(), возвращает MethodBuilder для метода Main().
@@ -635,7 +630,7 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private void BeginScope()
     {
-        _scopesStack.Push(new LocalVariablesScope());
+        _localVariables = new LocalVariablesScope(parent: _localVariables);
         _il.BeginScope();
     }
 
@@ -645,7 +640,7 @@ public class MsilCodegenPass : IAstVisitor
     private void EndScope()
     {
         _il.EndScope();
-        _scopesStack.Pop();
+        _localVariables = _localVariables.Parent!;
     }
 
     private LocalBuilder EmitDefineVariable(string name, ValueType type, Expression initialValue)
@@ -658,7 +653,7 @@ public class MsilCodegenPass : IAstVisitor
         _il.Emit(OpCodes.Stloc, local);
 
         // Добавляем переменную в текущую область видимости.
-        CurrentScope.AddVariable(name, local);
+        _localVariables.AddVariable(name, local);
 
         return local;
     }
@@ -676,7 +671,7 @@ public class MsilCodegenPass : IAstVisitor
         _il.Emit(OpCodes.Stloc, local);
 
         // Добавляем в текущую область видимости.
-        CurrentScope.AddVariable(name, local);
+        _localVariables.AddVariable(name, local);
     }
 
     /// <summary>
@@ -684,7 +679,7 @@ public class MsilCodegenPass : IAstVisitor
     /// </summary>
     private LocalBuilder FindVariable(string name)
     {
-        return _scopesStack.Peek().GetVariable(name);
+        return _localVariables.GetVariable(name);
     }
 
     /// <summary>

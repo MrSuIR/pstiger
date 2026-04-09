@@ -7,6 +7,13 @@ public class LocalVariablesScope
     // Словарь локальных переменных данной области видимости.
     private readonly Dictionary<string, LocalBuilder> _variables = [];
 
+    public LocalVariablesScope(LocalVariablesScope? parent = null)
+    {
+        Parent = parent;
+    }
+
+    public LocalVariablesScope? Parent { get; }
+
     /// <summary>
     /// Получает объявление переменной в MSIL по её имени.
     /// </summary>
@@ -15,6 +22,11 @@ public class LocalVariablesScope
         if (_variables.TryGetValue(name, out LocalBuilder? variable))
         {
             return variable;
+        }
+
+        if (Parent != null)
+        {
+            return Parent.GetVariable(name);
         }
 
         throw new InvalidOperationException($"No variable with name {name} defined");
