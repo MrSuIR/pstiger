@@ -198,18 +198,29 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(AssignmentExpression e)
     {
-        // Генерируем код для правой части присваивания.
-        e.Right.Accept(this);
+        switch (e.Left)
+        {
+            case VariableAccessExpression variableAccess:
+                {
+                    // Сохраняем вычисленное выражение в переменной.
+                    LocalBuilder local = FindVariable(variableAccess.Variable.Name);
+                    e.Right.Accept(this);
+                    _il.Emit(OpCodes.Stloc, local);
+                    break;
+                }
 
-        if (e.Left is VariableAccessExpression variableAccess)
-        {
-            // Сохраняем вычисленное выражение в переменной.
-            LocalBuilder local = FindVariable(variableAccess.Variable.Name);
-            _il.Emit(OpCodes.Stloc, local);
-        }
-        else
-        {
-            throw new NotImplementedException($"Assignment to {e.Left.GetType()} lvalue is not implemented yet");
+            case ArrayAccessExpression arrayAccess:
+                {
+                    Type elementType = _typeMapper.MapType(arrayAccess.ResultType);
+                    arrayAccess.Array.Accept(this);
+                    arrayAccess.Index.Accept(this);
+                    e.Right.Accept(this);
+                    _il.Emit(OpCodes.Stelem, elementType);
+                    break;
+                }
+
+            default:
+                throw new NotImplementedException($"Assignment to {e.Left.GetType()} lvalue is not implemented yet");
         }
     }
 
@@ -373,12 +384,33 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(ArrayAccessExpression e)
     {
-        throw new NotImplementedException();
+        Type elementType = _typeMapper.MapType(e.ResultType);
+
+        e.Array.Accept(this);
+        e.Index.Accept(this);
+        _il.Emit(OpCodes.Ldelem, elementType);
     }
 
     public void Visit(ArrayLiteralExpression e)
     {
-        throw new NotImplementedException();
+        Type arrayType = _typeMapper.MapType(e.ResultType);
+        Type elementType = arrayType.GetElementType()!;
+
+        MethodInfo arrayFillGenericMethod = GetMethod(
+            typeof(Array),
+            "Fill",
+            info => info.IsGenericMethod && info.GetParameters().Length == 2
+        );
+        MethodInfo arrayFillMethod = arrayFillGenericMethod.MakeGenericMethod(elementType);
+
+        // Создаём массив заданного размера.
+        e.Size.Accept(this);
+        _il.Emit(OpCodes.Newarr, elementType);
+
+        // Заполняем массив начальным значением путём вызова Array.Fill<T>().
+        _il.Emit(OpCodes.Dup);
+        e.InitialValue.Accept(this);
+        _il.Emit(OpCodes.Call, arrayFillMethod);
     }
 
     public void Visit(RecordTypeExpression e)
@@ -623,6 +655,23 @@ public class MsilCodegenPass : IAstVisitor
         }
 
         return method;
+    }
+
+    /// <summary>
+    /// Находит статический метод указанного типа стандартной библиотеки классов .NET,
+    ///  чтобы использовать его для реализации встроенной функции языка Tiger.
+    /// </summary>
+    private static MethodInfo GetMethod(Type type, string methodName, Func<MethodInfo, bool> predicate)
+    {
+        foreach (MethodInfo method in type.GetMethods())
+        {
+            if (method.Name == methodName && predicate(method))
+            {
+                return method;
+            }
+        }
+
+        throw new InvalidOperationException($"Cannot find method {type.Name}.{methodName}(...).");
     }
 
     /// <summary>

@@ -70,7 +70,7 @@ public class TigerTypeMapper
     /// </summary>
     private Type MapArrayTypeImpl(ArrayType arrayType)
     {
-        Type elementType = MapType(arrayType);
+        Type elementType = MapType(arrayType.ElementType);
         return elementType.MakeArrayType();
     }
 
