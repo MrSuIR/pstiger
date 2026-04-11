@@ -155,7 +155,7 @@ public sealed class ResolveTypesPass : AbstractPass
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
-        d.ResultType = d.InitialValue.ResultType;
+        d.ResultType = d.DeclaredType?.ResultType ?? d.InitialValue.ResultType;
     }
 
     public override void Visit(AssignmentExpression e)

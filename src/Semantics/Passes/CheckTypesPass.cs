@@ -116,7 +116,7 @@ public class CheckTypesPass : AbstractPass
         ValueType elementType = e.ResultType switch
         {
             ArrayType arrayType => arrayType.ElementType,
-            _ => throw new InvalidOperationException($"Unexpected non-array value type {e.ResultType}"),
+            _ => throw new TypeErrorException($"Unexpected non-array value type {e.ResultType}"),
         };
 
         CheckAreCompatibleTypes("array initialization value", e.InitialValue, elementType);

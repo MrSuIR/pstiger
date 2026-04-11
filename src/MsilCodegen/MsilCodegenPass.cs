@@ -96,6 +96,10 @@ public class MsilCodegenPass : IAstVisitor
         {
             _il.Emit(OpCodes.Ldstr, e.Value.AsString());
         }
+        else if (e.Type == ValueType.Nil)
+        {
+            _il.Emit(OpCodes.Ldnull);
+        }
         else
         {
             throw new NotImplementedException($"Literal of type {e.Type} are not supported yet.");

@@ -22,3 +22,4 @@ INPUT_FILE="$1"
 OUTPUT_FILE="${INPUT_FILE%.*}.il"
 
 ildasm "$INPUT_FILE" -utf8 "-out=$OUTPUT_FILE"
+echo "Disassembled OK, see $OUTPUT_FILE"
