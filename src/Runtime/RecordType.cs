@@ -15,6 +15,7 @@ public class RecordType : ValueType
 
     /// <summary>
     /// Отображает имена полей на их типы данных.
+    /// Хранит поля в порядке их добавления в словарь.
     /// </summary>
-    public Dictionary<string, ValueType> Fields { get; set; } = null!;
+    public OrderedDictionary<string, ValueType> Fields { get; set; } = null!;
 }

@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using PsTiger.Ast;
 using PsTiger.Ast.Declarations;
 using PsTiger.Ast.Expressions;
+using PsTiger.Runtime;
 
 using ValueType = PsTiger.Runtime.ValueType;
 
@@ -12,6 +13,7 @@ namespace PsTiger.MsilCodegen;
 public class MsilCodegenPass : IAstVisitor
 {
     private readonly ModuleBuilder _moduleBuilder;
+    private readonly RecordTypeFactory _recordTypeFactory;
     private readonly TigerTypeMapper _typeMapper;
     private readonly BuiltinFunctionEmitter _builtinFunctionEmitter;
 
@@ -37,7 +39,8 @@ public class MsilCodegenPass : IAstVisitor
     public MsilCodegenPass(ModuleBuilder moduleBuilder)
     {
         _moduleBuilder = moduleBuilder;
-        _typeMapper = new TigerTypeMapper();
+        _recordTypeFactory = new RecordTypeFactory(moduleBuilder);
+        _typeMapper = new TigerTypeMapper(_recordTypeFactory);
         _builtinFunctionEmitter = new BuiltinFunctionEmitter();
         _localVariables = new LocalVariablesScope();
         _loopEndsStack = new Stack<Label>();
@@ -76,8 +79,9 @@ public class MsilCodegenPass : IAstVisitor
         // Завершаем глобальную область видимости переменных.
         EndScope();
 
-        // Завершаем создание класса Program.
+        // Завершаем создание класса Program и других классов.
         _programTypeBuilder.CreateType();
+        _recordTypeFactory.FinishCreateTypes();
 
         return mainMethod;
     }
@@ -449,17 +453,31 @@ public class MsilCodegenPass : IAstVisitor
 
     public void Visit(RecordLiteralExpression e)
     {
-        throw new NotImplementedException();
+        // Находим конструктор, принимающий все поля структуры в порядке их объявления.
+        RecordType recordType = (RecordType)e.ResultType;
+        ConstructorInfo constructor = _recordTypeFactory.GetRecordConstructor(recordType);
+
+        // Согласно семантике Tiger, литерал структуры инициализирует все поля в порядке их объявления,
+        //  поэтому мы просто обходим список инициализаторов и добавляем в стек значения соответствующих им полей.
+        foreach (FieldInitializer initializer in e.Initializers)
+        {
+            initializer.Value.Accept(this);
+        }
+
+        // Вызываем конструктор структуры.
+        _il.Emit(OpCodes.Newobj, constructor);
     }
 
     public void Visit(FieldInitializer e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(FieldAccessExpression e)
     {
-        throw new NotImplementedException();
+        FieldInfo field = _recordTypeFactory.GetRecordField((RecordType)e.Record.ResultType, e.FieldName);
+
+        e.Record.Accept(this);
+        _il.Emit(OpCodes.Ldfld, field);
     }
 
     /// <summary>

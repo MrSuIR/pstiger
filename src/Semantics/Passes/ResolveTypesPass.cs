@@ -311,14 +311,14 @@ public sealed class ResolveTypesPass : AbstractPass
         }
     }
 
-    private static Dictionary<string, ValueType> ResolveRecordFields(
+    private static OrderedDictionary<string, ValueType> ResolveRecordFields(
         Dictionary<string, AbstractTypeDeclaration> fieldTypeDeclarations
     )
     {
-        Dictionary<string, ValueType> fields = [];
+        OrderedDictionary<string, ValueType> fields = [];
         foreach ((string name, AbstractTypeDeclaration declaration) in fieldTypeDeclarations)
         {
-            fields[name] = declaration.ResultType;
+            fields.Add(name, declaration.ResultType);
         }
 
         return fields;

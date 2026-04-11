@@ -10,6 +10,12 @@ namespace PsTiger.MsilCodegen;
 public class TigerTypeMapper
 {
     private readonly Dictionary<ValueType, Type> _typesMap = [];
+    private readonly RecordTypeFactory _recordTypeFactory;
+
+    public TigerTypeMapper(RecordTypeFactory recordTypeFactory)
+    {
+        _recordTypeFactory = recordTypeFactory;
+    }
 
     /// <summary>
     /// Отображает тип языка Tiger на соответствующий ему тип .NET.
@@ -28,6 +34,9 @@ public class TigerTypeMapper
         return result;
     }
 
+    /// <summary>
+    /// Отображает тип языка Tiger на соответствующий ему тип .NET без кэширования результатов отображения.
+    /// </summary>
     private Type MapTypeImpl(ValueType type)
     {
         if (type == ValueType.Void)
@@ -76,6 +85,6 @@ public class TigerTypeMapper
 
     private Type MapRecordTypeImpl(RecordType recordType)
     {
-        throw new NotImplementedException($"Tiger record type {recordType} cannot be converted into .NET type yet");
+        return _recordTypeFactory.GetOrCreateRecordType(recordType, MapType);
     }
 }
