@@ -28,7 +28,7 @@ public class TigerTypeMapper
         if (!_typesMap.TryGetValue(type, out Type? result))
         {
             result = MapTypeImpl(type);
-            _typesMap.Add(type, result);
+            _typesMap[type] = result;
         }
 
         return result;
