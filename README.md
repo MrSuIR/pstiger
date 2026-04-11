@@ -121,6 +121,12 @@ git clone ssh://ssh.sourcecraft.dev/sshambir-public/pstiger.git
 dotnet tool install --global dotnet-ilverify --version 10.0.3
 ```
 
+Для отладки в случае проблем кодогенерации пригодится утилита ILDasm:
+
+```js
+dotnet tool install --global dotnet-ildasm --version 0.12.2
+```
+
 ## Сборка
 
 Для сборки нужен .NET 10 SDK.
