@@ -215,11 +215,23 @@ public class MsilCodegenPass : IAstVisitor
 
             case ArrayAccessExpression arrayAccess:
                 {
+                    // Сохраняем вычисленное значение в элементе массива, индекс которого также вычисляем.
                     Type elementType = _typeMapper.MapType(arrayAccess.ResultType);
                     arrayAccess.Array.Accept(this);
                     arrayAccess.Index.Accept(this);
                     e.Right.Accept(this);
                     _il.Emit(OpCodes.Stelem, elementType);
+                    break;
+                }
+
+            case FieldAccessExpression fieldAccess:
+                {
+                    // Сохраняем вычисленное значение в поле структуры.
+                    RecordType recordType = (RecordType)fieldAccess.Record.ResultType;
+                    FieldInfo field = _recordTypeFactory.GetRecordField(recordType, fieldAccess.FieldName);
+                    fieldAccess.Record.Accept(this);
+                    e.Right.Accept(this);
+                    _il.Emit(OpCodes.Stfld, field);
                     break;
                 }
 
