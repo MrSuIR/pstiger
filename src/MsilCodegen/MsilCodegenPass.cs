@@ -420,6 +420,8 @@ public class MsilCodegenPass : IAstVisitor
         Type arrayType = _typeMapper.MapType(e.ResultType);
         Type elementType = arrayType.GetElementType()!;
 
+        ArrayType tigerArrayType = (ArrayType)e.ResultType;
+
         // Создаём массив заданного размера.
         // На вершине стека остаётся ссылка на массив.
         e.Size.Accept(this);
@@ -449,7 +451,7 @@ public class MsilCodegenPass : IAstVisitor
             _il.Emit(OpCodes.Ldloc, arrayLocal);
             _il.Emit(OpCodes.Ldloc, localIndex);
             _il.Emit(OpCodes.Ldloc, initialValueLocal);
-            EmitDeepCopy(elementType);
+            EmitDeepCopy(elementType, tigerArrayType.ElementType);
             _il.Emit(OpCodes.Stelem, elementType);
         });
     }
@@ -496,56 +498,99 @@ public class MsilCodegenPass : IAstVisitor
     /// Заменяет значение на вершине стека на глубокую копию этого значения.
     /// </summary>
     /// <remarks>
-    /// Значения типов int и string не копируются.
-    /// Значения массов копируются поэлементно, глубокое копирование применяется к ним рекурсивно.
+    /// Значения типов int и string остаются без изменений.
+    /// Значения массов копируются поэлементно, а глубокое копирование применяется рекурсивно.
+    /// Для структур копируется каждое поле, а глубокое копирование применяется рекурсивно.
     /// </remarks>
-    private void EmitDeepCopy(Type valueType)
+    private void EmitDeepCopy(Type type, ValueType valueType)
     {
         // Целые числа и строки неизменяемы, им не требуется копирование.
-        if (valueType.IsValueType || valueType == typeof(string))
+        if (type.IsValueType || type == typeof(string))
         {
             return;
         }
 
-        // Массив нужно копировать поэлементно.
-        if (valueType.IsArray)
+        switch (valueType)
         {
-            Type elementType = valueType.GetElementType()!;
+            case ArrayType arrayType:
+                EmitDeepCopyArray(type, arrayType);
+                break;
+            case RecordType recordType:
+                EmitDeepCopyRecord(type, recordType);
+                break;
+            default:
+                throw new NotSupportedException($"Cannot deep copy value of type {type}");
+        }
+    }
 
-            // Сохраняем размер массива в локальную переменную.
-            _il.Emit(OpCodes.Dup);
-            LocalBuilder sizeLocal = SaveArraySizeToLocal();
+    /// <summary>
+    /// Заменяет ссылку на массив на вершине стека ссылкой на глубокую копию этого массива.
+    /// </summary>
+    /// <remarks>
+    /// Значения массов копируются поэлементно, глубокое копирование применяется к ним рекурсивно.
+    /// </remarks>
+    private void EmitDeepCopyArray(Type type, ArrayType valueType)
+    {
+        Type elementType = type.GetElementType()!;
 
-            // Сохраняем исходный массив в локальную переменную.
-            LocalBuilder srcValue = _il.DeclareLocal(valueType);
-            _il.Emit(OpCodes.Stloc, srcValue);
+        // Сохраняем размер массива в локальную переменную.
+        _il.Emit(OpCodes.Dup);
+        LocalBuilder sizeLocal = SaveArraySizeToLocal();
 
-            // Создаём новый массив и сохраняем в локальную переменную.
-            LocalBuilder destValue = _il.DeclareLocal(valueType);
-            _il.Emit(OpCodes.Ldloc, sizeLocal);
-            _il.Emit(OpCodes.Newarr, valueType.GetElementType()!);
-            _il.Emit(OpCodes.Stloc, destValue);
+        // Сохраняем исходный массив в локальную переменную.
+        LocalBuilder srcValue = _il.DeclareLocal(type);
+        _il.Emit(OpCodes.Stloc, srcValue);
 
-            // Копируем каждый элемент исходного массива в новый массив.
-            EmitForEachIndex(sizeLocal, index =>
-            {
-                // Копируем значение из исходного массива в новый: destValue[index] := srcValue[index].
-                _il.Emit(OpCodes.Ldloc, destValue);
-                _il.Emit(OpCodes.Ldloc, index);
-                _il.Emit(OpCodes.Ldloc, srcValue);
-                _il.Emit(OpCodes.Ldloc, index);
-                _il.Emit(OpCodes.Ldelem, elementType);
-                EmitDeepCopy(elementType);
-                _il.Emit(OpCodes.Stelem, elementType);
-            });
+        // Создаём новый массив и сохраняем в локальную переменную.
+        LocalBuilder destValue = _il.DeclareLocal(type);
+        _il.Emit(OpCodes.Ldloc, sizeLocal);
+        _il.Emit(OpCodes.Newarr, type.GetElementType()!);
+        _il.Emit(OpCodes.Stloc, destValue);
 
-            // Кладём на вершину стека ссылку на новый массив.
+        // Копируем каждый элемент исходного массива в новый массив.
+        EmitForEachIndex(sizeLocal, index =>
+        {
+            // Копируем значение из исходного массива в новый: destValue[index] := srcValue[index].
             _il.Emit(OpCodes.Ldloc, destValue);
+            _il.Emit(OpCodes.Ldloc, index);
+            _il.Emit(OpCodes.Ldloc, srcValue);
+            _il.Emit(OpCodes.Ldloc, index);
+            _il.Emit(OpCodes.Ldelem, elementType);
+            EmitDeepCopy(elementType, valueType.ElementType);
+            _il.Emit(OpCodes.Stelem, elementType);
+        });
 
-            return;
+        // Кладём на вершину стека ссылку на новый массив.
+        _il.Emit(OpCodes.Ldloc, destValue);
+    }
+
+    /// <summary>
+    /// Заменяет ссылку на структуру на вершине стека ссылкой на глубокую копию этой структуры.
+    /// </summary>
+    /// <remarks>
+    /// Копирует значение каждого поля, применяя рекурсивно глубокое копирование.
+    /// </remarks>
+    private void EmitDeepCopyRecord(Type type, RecordType recordType)
+    {
+        // Сохраняем ссылку на исходную структуру в локальную переменную.
+        LocalBuilder srcValue = _il.DeclareLocal(type);
+        _il.Emit(OpCodes.Stloc, srcValue);
+
+        // Согласно семантике Tiger, литерал структуры инициализирует все поля в порядке их объявления,
+        //  поэтому мы добавляем в стек значения всех полей старой структуры в том же порядке.
+        foreach ((string fieldName, ValueType fieldType) in recordType.Fields)
+        {
+            FieldInfo field = _recordTypeFactory.GetRecordField(recordType, fieldName);
+
+            // Загружаем поле из исходной структуры и выполняем глубокое копирование полученного значения.
+            _il.Emit(OpCodes.Ldloc, srcValue);
+            _il.Emit(OpCodes.Ldfld, field);
+            EmitDeepCopy(field.FieldType, fieldType);
         }
 
-        throw new NotSupportedException($"Cannot deep copy value of type {valueType}");
+        // Вызываем конструктор структуры и оставляем её на вершине стека.
+        ConstructorInfo constructor = _recordTypeFactory.GetRecordConstructor(recordType);
+        _il.Emit(OpCodes.Newobj, constructor);
     }
 
     /// <summary>
