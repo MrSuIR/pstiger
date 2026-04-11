@@ -14,13 +14,13 @@ public class EratosthenesBenchmark
     private string? _program;
     private TigerInterpreter? _interpreter;
 
-    [Params(1000, 10000)]
+    [Params(1000, 10000, 50000)]
     public int N { get; set; }
 
     [GlobalSetup]
     public void GlobalSetup()
     {
-        _program = Samples.GetSampleProgram("eratosthenes.tig");
+        _program = Samples.GetSampleProgram("programs/eratosthenes.tig");
     }
 
     [IterationSetup]
